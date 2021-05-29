@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/devstackq/forumx/internal/server"
+	"github.com/devstackq/real-time-forum/internal/server"
 )
 
 // create new server(config)
