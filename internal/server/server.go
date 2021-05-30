@@ -9,6 +9,7 @@ import (
 
 	"github.com/devstackq/real-time-forum/internal/repository"
 	"github.com/devstackq/real-time-forum/internal/service"
+	"github.com/devstackq/real-time-forum/internal/handler"
 )
 
 func NewServer(conf *Config) *Server {
@@ -39,6 +40,7 @@ func NewServer(conf *Config) *Server {
 	}
 	return s
 }
+run server
 
 func Run() {
 

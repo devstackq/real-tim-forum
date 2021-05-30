@@ -17,4 +17,5 @@ func main() {
 	}
 	//write conf struct
 	//create newServer
+
 }
