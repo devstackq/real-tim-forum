@@ -39,8 +39,9 @@ func (h *Handler) InitRouter() *http.ServeMux {
 			// route.Handler =   h.UnAuthMiddleware(route.Handler), route /
 		}
 	//default
-	// route.Handler = h.CookiesCheckMiddleware(route.Handler)//
+	route.Handler = h.CookieIsValid(route.Handler)//
 //add  mux, handler
+
 	mux.HandleFunc(route.Path, route.Handler)
 	}
 	return mux

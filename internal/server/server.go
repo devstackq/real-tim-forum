@@ -22,14 +22,14 @@ func NewServer(conf *Config) *Server {
 	fmt.Println(repos, "repo, create Db ?")
 	services := service.NewService(repos)
 	fmt.Println(services, "prepare services")
-	
 	handler := handler.NewHandler(services)
+	fmt.Println(handler, "prepare handler")
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = conf.Port
 	}
-
+	//custom server
 	s := &Server{
 		http: &http.Server{
 			Addr:         port,
@@ -40,8 +40,8 @@ func NewServer(conf *Config) *Server {
 	}
 	return s
 }
-run server
 
-func Run() {
-
+func  (s *Server)  Run() error {
+	log.Println("start server", s.http.Addr)
+	return s.http.ListenAndServe()
 }

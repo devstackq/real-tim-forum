@@ -15,7 +15,9 @@ func main() {
 	if err := server.ReadConfig("../config/config.json", conf); err != nil {
 		log.Println(err)
 	}
-	//write conf struct
-	//create newServer
-
+	s := server.NewServer(conf)
+	err := s.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
