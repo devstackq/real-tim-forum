@@ -1,12 +1,14 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/devstackq/forumx/internal/repository"
+	"github.com/devstackq/real-time-forum/internal/repository"
+	"github.com/devstackq/real-time-forum/internal/service"
 )
 
 func NewServer(conf *Config) *Server {
@@ -16,7 +18,10 @@ func NewServer(conf *Config) *Server {
 	}
 
 	repos := repository.NewRepository(db)
+	fmt.Println(repos, "repo, create Db ?")
 	services := service.NewService(repos)
+	fmt.Println(services, "prepare services")
+	
 	handler := handler.NewHandler(services)
 
 	port := os.Getenv("PORT")
