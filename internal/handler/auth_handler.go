@@ -21,8 +21,9 @@ type Test struct {
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		tmpl := template.Must(template.ParseFiles("../client/template/signup.html"))
+		tmpl := template.Must(template.ParseFiles("../client/template/index.html"))
 		tmpl.Execute(w, nil)
+		// every index html, change route
 	case "POST":
 		user := &models.User{}
 		resBody, err := ioutil.ReadAll(r.Body)
@@ -44,6 +45,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		}
 		//user.ID = id
 		fmt.Println(id, status, "id  status")
+
 		http.Redirect(w, r, "/signin", http.StatusFound)
 	default:
 		//writeResponse(w, http.StatusBadRequest, "Bad Request")

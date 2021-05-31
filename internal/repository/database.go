@@ -6,7 +6,6 @@ import (
 )
 
 func CreateDB(driver, path string) (*sql.DB, error) {
-
 	db, err := sql.Open(driver, path)
 	if err != nil {
 		return nil, err
@@ -18,7 +17,6 @@ func CreateDB(driver, path string) (*sql.DB, error) {
 	if err = createTables(db); err != nil {
 		return nil, err
 	}
-
 	return db, nil
 }
 
@@ -62,14 +60,14 @@ func createTables(db *sql.DB) error {
 	comment.Exec()
 
 	post, err := db.Prepare(`CREATE TABLE IF NOT EXISTS posts(
-		id INTEGER PRIMARY KEY AUTOINCREMENT, 
-		thread TEXT, 
-		content TEXT, 
-		creator_id INTEGER, 
-		create_time DATETIME,  
-		update_time DATETIME DEFAULT CURRENT_TIMESTAMP, 
-		image	BLOB NOT NULL, 
-		count_like INTEGER DEFAULT 0, 
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		thread TEXT,
+		content TEXT,
+		creator_id INTEGER,
+		create_time DATETIME, 
+		update_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+		image BLOB,
+		count_like INTEGER DEFAULT 0,
 		count_dislike INTEGER DEFAULT 0, 
 		FOREIGN KEY(creator_id) REFERENCES users(id) 
 		ON DELETE CASCADE )`,
@@ -102,7 +100,7 @@ func createTables(db *sql.DB) error {
 		created_time DATETIME, 
 		last_seen DATETIME, 
 		city TEXT, 
-		image BLOB NOT NULL)`,
+		image BLOB)`,
 	)
 	if err != nil {
 		return err

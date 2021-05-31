@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
@@ -19,7 +18,6 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 
 //implement method, by interface User
 func (ur *UserRepository) CreateUser(user *models.User) (int64, error) {
-	fmt.Println(user, "Create Repo")
 	query, err := ur.db.Prepare(`INSERT INTO users(full_name, email, username, password, age, sex, created_time, city, image) VALUES(?,?,?,?,?,?,?,?,?)`)
 	if err != nil {
 		return -1, err
@@ -29,6 +27,5 @@ func (ur *UserRepository) CreateUser(user *models.User) (int64, error) {
 		return -1, err
 	}
 	defer query.Close()
-	fmt.Println(result.LastInsertId(), "Create Repo done")
 	return result.LastInsertId()
 }
