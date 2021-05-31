@@ -1,5 +1,11 @@
 package handler
 
+import (
+	"fmt"
+	"log"
+	"net/http"
+)
+
 func (h *Handler) CookieIsValid(f http.HandlerFunc) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -7,9 +13,10 @@ func (h *Handler) CookieIsValid(f http.HandlerFunc) http.HandlerFunc {
 		c, err := r.Cookie("_cookie")
 		if err != nil {
 			log.Println(err, "expires timeout || cookie deleted")
-			utils.Logout(w, r, *session)
+			// utils.Logout(w, r, *session)
 			return
 		}
+		fmt.Println(c)
 		//cookie Browser -> send IsCookie(check if this user ->)
 		// then call handler -> middleware
 		// if isValidCookie, sessionF := utils.IsCookie(w, r, c.Value); isValidCookie {

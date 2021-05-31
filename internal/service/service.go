@@ -9,7 +9,6 @@ type User interface {
 	Create(*models.User) (int, int, error)
 	// Delete(id int) error
 }
-
 type Service struct {
 	User
 }

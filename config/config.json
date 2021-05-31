@@ -1,5 +1,5 @@
 {
-    "port": "6969",
-    "db_Path": "db/forum.db",
+    "port": ":6969",
+    "db_Path": "../db/forum.db",
     "db_Driver": "sqlite3"
 }

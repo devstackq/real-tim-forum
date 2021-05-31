@@ -7,10 +7,14 @@ import (
 	"os"
 	"time"
 
+	"github.com/devstackq/real-time-forum/internal/handler"
 	"github.com/devstackq/real-time-forum/internal/repository"
 	"github.com/devstackq/real-time-forum/internal/service"
-	"github.com/devstackq/real-time-forum/internal/handler"
 )
+
+type Server struct {
+	http *http.Server
+}
 
 func NewServer(conf *Config) *Server {
 	db, err := repository.CreateDB(conf.DbDriver, conf.DbPath)
@@ -29,6 +33,7 @@ func NewServer(conf *Config) *Server {
 	if port == "" {
 		port = conf.Port
 	}
+	fmt.Println(port)
 	//custom server
 	s := &Server{
 		http: &http.Server{
@@ -41,7 +46,7 @@ func NewServer(conf *Config) *Server {
 	return s
 }
 
-func  (s *Server)  Run() error {
-	log.Println("start server", s.http.Addr)
+func (s *Server) Run() error {
+	log.Println("start server")
 	return s.http.ListenAndServe()
 }

@@ -10,6 +10,9 @@ type User interface {
 	CreateUser(*models.User) (int64, error)
 }
 
+//struct -> User interface -> CreateUser
+//User receive db, UserRepo Struct -> have method CreateUser()
+
 type Repository struct {
 	User
 }

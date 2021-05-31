@@ -21,7 +21,7 @@ type User struct {
 	Temp        string    `json:"temp"`
 	Name        string    `json:"name"`
 	Location    string    `json:"location"`
-	Username    string    `json:"username"`
+	Username    string    `json:"userName"`
 	// Session *general.Session
 	LastTime time.Time `json:"lastTime"`
 	LastSeen string    `json:"lastSeen"`

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/devstackq/real-time-forum/internal/server"
@@ -17,6 +18,7 @@ func main() {
 	}
 	s := server.NewServer(conf)
 	err := s.Run()
+	fmt.Println(err, 123)
 	if err != nil {
 		log.Fatal(err)
 	}

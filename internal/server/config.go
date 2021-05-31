@@ -3,16 +3,12 @@ package server
 import (
 	"encoding/json"
 	"io/ioutil"
-	"net/http"
 )
 
 type Config struct {
 	Port     string `json:"port"`
 	DbPath   string `json:"db_path"`
 	DbDriver string `json:"db_driver"`
-}
-type Server struct {
-	http *http.Server
 }
 
 func NewConfig() *Config {

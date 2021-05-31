@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"regexp"
 	"time"
@@ -14,7 +15,7 @@ import (
 )
 
 type UserService struct {
-	repo repository.User
+	repository repository.User
 }
 
 //repoUser wrapper struct - userService
@@ -24,23 +25,20 @@ func NewUserService(repo repository.User) *UserService {
 func (us *UserService) Create(user *models.User) (int, int, error) {
 	//create user, use middleware, chek email, pwd another things
 	// -> then call repos.CreateUser()
-
 	validEmail := us.isEmailValid(user)
 	validPassword := us.isPasswordValid(user)
 
 	if validEmail && validPassword {
-
 		// if utils.AuthType == "default" {
 		hashPwd, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
 		if err != nil {
 			return http.StatusInternalServerError, -1, err
 		}
-
 		user.Password = string(hashPwd)
 		user.CreatedTime = time.Now()
-
-		lastId, err := us.repo.CreateUser(user)
-
+		//go to repo, interface -> method call
+		lastId, err := us.repository.CreateUser(user)
+		//check  is already user
 		if err != nil {
 			if sqliteErr, ok := err.(sqlite.Error); ok {
 				if sqliteErr.ExtendedCode == sqlite.ErrConstraintUnique {
@@ -49,6 +47,8 @@ func (us *UserService) Create(user *models.User) (int, int, error) {
 			}
 			return http.StatusInternalServerError, -1, err
 		}
+		fmt.Println(user, "Create service")
+
 		return http.StatusOK, int(lastId), nil
 	} else {
 		//else - > send message json, error -> exist email || pwd
