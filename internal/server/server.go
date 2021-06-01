@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -23,17 +22,14 @@ func NewServer(conf *Config) *Server {
 	}
 
 	repos := repository.NewRepository(db)
-	fmt.Println(repos, "repo, create Db ?")
 	services := service.NewService(repos)
-	fmt.Println(services, "prepare services")
 	handler := handler.NewHandler(services)
-	fmt.Println(handler, "prepare handler")
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = conf.Port
 	}
-	fmt.Println(port)
+
 	//custom server
 	s := &Server{
 		http: &http.Server{

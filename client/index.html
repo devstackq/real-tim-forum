@@ -1,58 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
- <link rel="stylesheet" href="./style.css"> 
-<title>Signup Page</title>
+ <link rel="stylesheet" type="text/css"  href="./static/style.css"> 
+<title>Real time ForumX</title>
 <body>
 
-{{/* <div>
-<input id='email' type='text' name='email'/>
-<input id='password' type='password' name='password'/>
-<input type='submit' value='send' onclick='Signup()'/>
-</div> */}}
-
-  <nav class="nav">
+ <nav class="nav">
         <a href="/" class="nav__link" data-link>Main</a>
-        <a href="/posts" class="nav__link" data-link></a>
+        <a href="/profile" class="nav__link" data-link>Profile</a>
 
         <div class="dropdown">
-          <button class="dropbtn">Dropdown</button>
+          <button class="dropbtn">Categories</button>
           <div class="dropdown-content">
-          <a href="#">Link 1</a>
-          <a href="#">Link 2</a>
-          <a href="#">Link 3</a>
+          <a href="#">category 1</a>
+          <a href="#">category 2</a>
+          <a href="#">category 3</a>
         </div>
 
-        <a href="/settings" class="nav__link" data-link>Settings</a>
     </nav>
-    <div id="app"></div>
-    <script type="module" src="/static/js/index.js"></script>
-
-<script>
-
-const  Signup = async() => {
-
-  let e = document.getElementById("email").value;
-  let p = document.getElementById("password").value;
-
-  let user = {
-    email: e,
-    password: p
-  };
-console.log(user, "user")
-let response = await fetch('http://localhost:6969/signup', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json;charset=utf-8'
-  },
-  body: JSON.stringify(user)
-});
-let result = await response.json();
-}
-
-</script>
+   
+ <div id="app"></div> 
+    <script type="module" src="./static/main.js"> </script>
 
 </body>
 </html>
