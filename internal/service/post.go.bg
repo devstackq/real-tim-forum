@@ -1,0 +1,131 @@
+package service
+
+import (
+	"errors"
+	"fmt"
+	"net/http"
+	"regexp"
+	"time"
+	"unicode"
+
+	"github.com/devstackq/real-time-forum/internal/models"
+	"github.com/devstackq/real-time-forum/internal/repository"
+	sqlite "github.com/mattn/go-sqlite3"
+)
+
+type PostService struct {
+	repository repository.Post
+}
+
+//repoPost wrapper struct - PostService
+func NewPostService(repo repository.Post) *PostService {
+	return &PostService{repo}
+}
+func (us *PostService) Create(post *models.Post) (int, int, error) {
+	//create user, use middleware, chek email, pwd another things
+	// -> then call repos.CreateUser()
+	
+
+	// if validEmail && validPassword {
+	// 	// if utils.AuthType == "default" {
+	// 	hashPwd, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
+	// 	if err != nil {
+	// 		return http.StatusInternalServerError, -1, err
+	// 	}
+	// 	user.Password = string(hashPwd)
+	// 	user.CreatedTime = time.Now()
+	// 	//go to repo, interface -> method call
+	// 	lastId, err := us.repository.CreateUser(user)
+	// 	//check  is already user
+	// 	if err != nil {
+	// 		if sqliteErr, ok := err.(sqlite.Error); ok {
+	// 			if sqliteErr.ExtendedCode == sqlite.ErrConstraintUnique {
+	// 				return http.StatusBadRequest, -1, errors.New("User already created")
+	// 			}
+	// 		}
+	// 		return http.StatusInternalServerError, -1, err
+	// 	}
+		// fmt.Println(user, "Create service")
+
+		// return http.StatusOK, int(lastId), nil
+	// } else {
+	// 	//else - > send message json, error -> exist email || pwd
+	// 	return http.StatusBadRequest, 0, errors.New("email or pwd exist")
+	// }
+
+}
+
+func (ps *PostService) isImageValid(post *models.Post) bool {
+	regex := regexp.MustCompile(`^.*\.(jpg|JPG|jpeg|JPEG|gif|GIF|png|PNG|svg|SVG)$`)
+		// 	mf, fh, _ := r.FormFile("image")
+		// if fh != nil{
+		// 	defer mf.Close()
+		// }
+	// return regex.MatchString(post.Image)
+	return true
+}
+
+func (ps *PostService) isEmptyText(post *models.Post) bool {
+	text := post.Content
+	for _, v := range text {
+		if !(v <= 32) {
+			return false
+		}
+	}
+	return true
+}
+
+// func (ps *PostService) isPasswordValid(user *models.User) bool {
+// 	var (
+// 		hasMinLen  = false
+// 		hasUpper   = false
+// 		hasLower   = false
+// 		hasNumber  = false
+// 		hasSpecial = false
+// 	)
+// 	if len(user.Password) >= 7 {
+// 		hasMinLen = true
+// 	}
+// 	for _, char := range user.Password {
+// 		switch {
+// 		case unicode.IsUpper(char):
+// 			hasUpper = true
+// 		case unicode.IsLower(char):
+// 			hasLower = true
+// 		case unicode.IsNumber(char):
+// 			hasNumber = true
+// 		case unicode.IsPunct(char) || unicode.IsSymbol(char):
+// 			hasSpecial = true
+// 		}
+// 	}
+// 	return hasMinLen && hasUpper && hasLower && hasNumber && hasSpecial
+// }
+
+
+// regex := regexp.MustCompile(`^.*\.(jpg|JPG|jpeg|JPEG|gif|GIF|png|PNG|svg|SVG)$`)
+
+
+
+		// categories := r.Form["categories"]
+		// categoryExist := make(map[string]bool)
+		// thread := r.FormValue("thread")
+		// content := r.FormValue("content")
+
+		// for _, category := range data.Categories{
+		// 	categoryExist[category] = true
+		// }
+
+		// for _, category := range categories{
+		// 	if !categoryExist[category] {
+		// 		data.Data = "Invalid category " + category
+		// 		w.WriteHeader(http.StatusUnprocessableEntity)
+		// 	// return internalError
+		// 		log.Println("Server Error: ")
+
+		// 		return 
+		// 	}
+		// }
+		// if len(categories) == 0{
+		// 	data.Data = "Categories must not be empty"
+
+		// }
