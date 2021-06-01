@@ -67,5 +67,11 @@ func (h *Handler) createRoutes() []Route {
 		// 	NeedAuth: false,
 		// 	UnAuth:   true,
 		// },
+		{
+			Path: "/createpost",
+			Handler: h.CreatePost,
+			NeedAuth: true,
+			UnAuth: false,
+		},
 	}
 }
