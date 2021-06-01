@@ -12,17 +12,13 @@ import (
 
 // curl --header "Content-Type: application/json"   --request POST   --data '{"username":"xyz","password":"xyz", "email":"meow"}'   http://localhost:6969/signup
 
-type Test struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 //route -> handler -> service -> repos -> dbFunc
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		tmpl := template.Must(template.ParseFiles("../client/template/index.html"))
+		tmpl := template.Must(template.ParseFiles("../client/index.html"))
 		tmpl.Execute(w, nil)
+
 		// every index html, change route
 	case "POST":
 		user := &models.User{}
@@ -32,9 +28,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		fmt.Println("after", user, user.Email)
 
-		// ***
 		status, id, err := h.Services.User.Create(user)
 		if err != nil {
 			w.WriteHeader(status)
