@@ -47,14 +47,15 @@ func (us *UserService) Create(user *models.User) (int, int, error) {
 			}
 			return http.StatusInternalServerError, -1, err
 		}
-		fmt.Println(user, "Create service")
+		fmt.Println(user, "Create user service")
 
 		return http.StatusOK, int(lastId), nil
-	} else {
-		//else - > send message json, error -> exist email || pwd
-		return http.StatusBadRequest, 0, errors.New("email or pwd exist")
-	}
 
+	} else if !validEmail {
+		return http.StatusBadRequest, 0, errors.New("email incorrect, example@mail.com")
+	} else {
+		return http.StatusBadRequest, 0, errors.New("password incorrect, 123User!")
+	}
 }
 
 func (us *UserService) isEmailValid(user *models.User) bool {

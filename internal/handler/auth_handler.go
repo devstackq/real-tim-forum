@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -12,8 +13,10 @@ import (
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
+		fmt.Println("call signup handle Get")
 		// JsonResponse(w, http.StatusOK, "signup page")
 	case "POST":
+		fmt.Println("call signup handle Post")
 		user := &models.User{}
 		resBody, err := ioutil.ReadAll(r.Body)
 		err = json.Unmarshal(resBody, user)

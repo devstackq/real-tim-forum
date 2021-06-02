@@ -1,0 +1,1 @@
+this project like Forum, backend use golang, db - sqlite, architect - clean architecture, front-end  vanilla js, SPA; Project have CRUD- Post/Comment, Votes, Authorization - by session, Chat - websockets, 2021, dreamTeam

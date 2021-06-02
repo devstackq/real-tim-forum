@@ -13,7 +13,7 @@ func JsonResponse(w http.ResponseWriter, status int, data interface{}) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(js, "send data")
+	fmt.Println(string(js), "send data")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
