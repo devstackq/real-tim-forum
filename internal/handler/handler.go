@@ -25,34 +25,36 @@ func (h *Handler) InitRouter() *http.ServeMux {
 
 	routes := h.createRoutes()
 	mux := http.NewServeMux()
-	fileServer := http.FileServer(http.Dir("../client/static"))
+	fileServer := http.FileServer(http.Dir("./web/static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
 	for _, route := range routes {
 		if route.NeedAuth {
-			// route.Handler = h.needAuthMiddleware(route.Handler), route /signin
+			//add middleware redirect - signin
+			// route.Handler = h.needAuthMiddleware(route.Handler), route /signup
 		}
 		if route.UnAuth {
+			//addMiddleware redirect =
 			// route.Handler =   h.UnAuthMiddleware(route.Handler), route /
 		}
+
 		//default
 		// route.Handler = h.CookieIsValid(route.Handler) //
+		//add  mux, handler
 		mux.HandleFunc(route.Path, route.Handler)
 	}
 	return mux
 }
 
-// /h.Signup undefined (type *Handler has no field or method Signup, but does have SignUp)
-// cannot use h.IndexParse (type func(http.ResponseWriter)) as type http.HandlerFunc in field valu
 func (h *Handler) createRoutes() []Route {
 
 	return []Route{
-		{
-			Path:     "/",
-			Handler:  h.IndexParse,
-			NeedAuth: false,
-			UnAuth:   false,
-		},
+		// {
+		// 	Path: "/",
+		// 	//	Handler: h.Index(), // called
+		// 	NeedAuth: false,
+		// 	UnAuth:   false,
+		// },
 		{
 			Path:     "/signup",
 			Handler:  h.SignUp,
@@ -61,15 +63,15 @@ func (h *Handler) createRoutes() []Route {
 		},
 		// {
 		// 	Path: "/signin",
-		// 	Handler:    h.SignIn,
+		// 	//Handler:    h.SignIn,
 		// 	NeedAuth: false,
 		// 	UnAuth:   true,
 		// },
 		{
 			Path:     "/createpost",
 			Handler:  h.CreatePost,
-			NeedAuth: true,
-			UnAuth:   false,
+			NeedAuth: false,
+			UnAuth:   true,
 		},
 	}
 }

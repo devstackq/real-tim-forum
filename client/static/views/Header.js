@@ -9,7 +9,7 @@
   <a href="#">Link 2</a>
   <a href="#">Link 3</a>
 </div>
-
+  
 <a href="/settings" class="nav__link" data-link>Profile</a>
 </nav>
 <div id="app"></div>`
