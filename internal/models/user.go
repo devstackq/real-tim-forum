@@ -4,7 +4,7 @@ import "time"
 
 //User struct
 type User struct {
-	UserID      int       `json:"userId"`
+	UserID      int       `json:"userid"`
 	FullName    string    `json:"fullName"`
 	Email       string    `json:"email"`
 	Password    string    `json:"password"`
@@ -21,8 +21,8 @@ type User struct {
 	Temp        string    `json:"temp"`
 	Name        string    `json:"name"`
 	Location    string    `json:"location"`
-	Username    string    `json:"userName"`
-	Session     *Session
-	LastTime    time.Time `json:"lastTime"`
-	LastSeen    string    `json:"lastSeen"`
+	Username    string    `json:"username"`
+	// Session *general.Session
+	LastTime time.Time `json:"lastTime"`
+	LastSeen string    `json:"lastSeen"`
 }
