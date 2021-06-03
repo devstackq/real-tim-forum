@@ -9,6 +9,8 @@ import (
 	"github.com/devstackq/real-time-forum/internal/models"
 )
 
+// add in files -> changes Yelnur, push -> pull Yelanur??
+
 //route -> handler -> service -> repos -> dbFunc
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {

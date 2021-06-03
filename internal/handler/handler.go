@@ -49,12 +49,12 @@ func (h *Handler) InitRouter() *http.ServeMux {
 func (h *Handler) createRoutes() []Route {
 
 	return []Route{
-		// {
-		// 	Path: "/",
-		// 	//	Handler: h.Index(), // called
-		// 	NeedAuth: false,
-		// 	UnAuth:   false,
-		// },
+		{
+			Path:     "/",
+			Handler:  h.IndexParse,
+			NeedAuth: false,
+			UnAuth:   false,
+		},
 		{
 			Path:     "/signup",
 			Handler:  h.SignUp,
