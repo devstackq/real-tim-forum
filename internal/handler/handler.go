@@ -25,7 +25,7 @@ func (h *Handler) InitRouter() *http.ServeMux {
 
 	routes := h.createRoutes()
 	mux := http.NewServeMux()
-	fileServer := http.FileServer(http.Dir("./web/static"))
+	fileServer := http.FileServer(http.Dir("../client/static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
 	for _, route := range routes {

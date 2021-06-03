@@ -39,6 +39,7 @@ const signup = ()=> {
                 body: JSON.stringify(user)
             });
             let result = await response.json();    
+            redirect signin page 
 console.log(result, 'result')        
         }
 }
@@ -69,7 +70,8 @@ const router = async() => {
     }
 
     const view = new match.route.view(getParams(match));
-    console.log(view, "view")
+    view.setTitle(match.result[0] )
+    view.test()
 
     document.querySelector("#app").innerHTML = await view.getHtml();
 

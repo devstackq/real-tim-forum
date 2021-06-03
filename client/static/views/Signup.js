@@ -7,7 +7,7 @@ export default class {
         document.title = title;
     }
     test(){
-        console.log('hi yopta!')
+        console.log('test method!')
     }
     async getHtml() {
         let wrapper = `
@@ -21,7 +21,6 @@ export default class {
         <input type='submit' id='signup' value="register"/>
         </div>
         `
-     
         return wrapper;
     }
 }

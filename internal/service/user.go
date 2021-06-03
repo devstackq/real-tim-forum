@@ -40,7 +40,9 @@ func (us *UserService) Create(user *models.User) (int, int, error) {
 		lastId, err := us.repository.CreateUser(user)
 		//check  is already user
 		if err != nil {
+			fmt.Println(err)
 			if sqliteErr, ok := err.(sqlite.Error); ok {
+				fmt.Println(sqliteErr)
 				if sqliteErr.ExtendedCode == sqlite.ErrConstraintUnique {
 					return http.StatusBadRequest, -1, errors.New("User already created")
 				}

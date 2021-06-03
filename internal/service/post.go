@@ -2,8 +2,6 @@ package service
 
 import (
 	"errors"
-	// "fmt"
-	// "regexp"
 	"log"
 	"net/http"
 	"time"
@@ -129,7 +127,6 @@ func (ps *PostService) isEmpty(text string) bool {
 // 	w.WriteHeader(http.StatusUnprocessableEntity)
 // 	// InternalError(w, r, tpl.ExecuteTemplate(w, "createpost.html", data))
 // 	return
-// } else if fh != nil && !regex.MatchString(fh.Filename) {
 // 	data.Data = "Invalid file type, please upload jpg, jpeg, png, gif, svg"
 // 	w.WriteHeader(http.StatusUnprocessableEntity)
 // 	// InternalError(w, r, tpl.ExecuteTemplate(w, "createpost.html", data))
