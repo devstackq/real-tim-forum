@@ -6,7 +6,7 @@ export default class {
     setTitle(title) {
         document.title = title;
     }
-    test(){
+    test() {
         console.log('test method!')
     }
     async getHtml() {

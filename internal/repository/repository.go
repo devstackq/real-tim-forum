@@ -10,7 +10,7 @@ type User interface {
 	CreateUser(*models.User) (int64, error)
 }
 
-type Post interface{
+type Post interface {
 	CreatePost(*models.Post) (int64, error)
 }
 

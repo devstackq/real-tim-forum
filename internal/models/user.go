@@ -5,16 +5,16 @@ import "time"
 //User struct
 type User struct {
 	UserID      int       `json:"userid"`
-	FullName    string    `json:"fullName"`
+	FullName    string    `json:"fullname"`
 	Email       string    `json:"email"`
 	Password    string    `json:"password"`
-	IsAdmin     bool      `json:"isAdmin"`
-	Age         int       `json:"age"`
+	IsAdmin     bool      `json:"isadmin"`
+	Age         string    `json:"age"`
 	Sex         string    `json:"sex"`
-	CreatedTime time.Time `json:"createdTime"`
+	CreatedTime time.Time `json:"createdtime"`
 	City        string    `json:"city"`
 	Image       []byte    `json:"image"`
-	ImageHTML   string    `json:"imageHtml"`
+	ImageHTML   string    `json:"imagehtml"`
 	Role        string    `json:"role"`
 	SVG         bool      `json:"svg"`
 	Type        string    `json:"type"`
@@ -22,7 +22,7 @@ type User struct {
 	Name        string    `json:"name"`
 	Location    string    `json:"location"`
 	Username    string    `json:"username"`
-	// Session *general.Session
-	LastTime time.Time `json:"lastTime"`
-	LastSeen string    `json:"lastSeen"`
+	Session     *Session
+	LastTime    time.Time `json:"lasttime"`
+	LastSeen    string    `json:"lastseen"`
 }

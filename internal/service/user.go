@@ -34,6 +34,7 @@ func (us *UserService) Create(user *models.User) (int, int, error) {
 		if err != nil {
 			return http.StatusInternalServerError, -1, err
 		}
+		fmt.Println(user.Username, "userNmae")
 		user.Password = string(hashPwd)
 		user.CreatedTime = time.Now()
 		//go to repo, interface -> method call
@@ -49,7 +50,7 @@ func (us *UserService) Create(user *models.User) (int, int, error) {
 			}
 			return http.StatusInternalServerError, -1, err
 		}
-		fmt.Println(user, "Create user service")
+		fmt.Println(user, "Create user service done")
 
 		return http.StatusOK, int(lastId), nil
 

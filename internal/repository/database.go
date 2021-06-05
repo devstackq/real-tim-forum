@@ -90,10 +90,10 @@ func createTables(db *sql.DB) error {
 
 	user, err := db.Prepare(`CREATE TABLE IF NOT EXISTS users(
 		id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
-		full_name TEXT NOT NULL, 
+		full_name TEXT NOT NULL,
 		email TEXT NOT NULL UNIQUE, 
 		username TEXT NOT NULL UNIQUE, 
-		password TEXT, 
+		password TEXT,
 		isAdmin INTEGER DEFAULT 0, 
 		age INTEGER, 
 		sex TEXT, 
