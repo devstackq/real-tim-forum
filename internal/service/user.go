@@ -22,6 +22,20 @@ type UserService struct {
 func NewUserService(repo repository.User) *UserService {
 	return &UserService{repo}
 }
+
+func (us *UserService) Signin(user *models.User) (int, error) {
+
+	//check exist user & correct password ?
+	// if utils.AuthType == "default" {
+	fmt.Println(user.Username, "userNmae")
+
+	lastId, err := us.repository.CreateUser(user)
+	//check  is already user
+	fmt.Println(lastId, err)
+	return http.StatusOK, nil
+
+}
+
 func (us *UserService) Create(user *models.User) (int, int, error) {
 	//create user, use middleware, chek email, pwd another things
 	// -> then call repos.CreateUser()

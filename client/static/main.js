@@ -1,6 +1,7 @@
 import Main from "./views/MainPage.js";
 import Profile from "./views/Profile.js";
 import Signup from './views/Signup.js';
+import Signin from './views/Signin.js';
 
 const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
 
@@ -50,7 +51,7 @@ const signup = () => {
         // redirect signin page 
         console.log(result, 'result')
         if (result > 0 && result != undefined) {
-            window.location.redirect = 'http://localhost:6969/signin'
+            window.location.replace('http://localhost:6969/signin')
         }
     }
 }
@@ -60,6 +61,7 @@ const router = async() => {
         { path: "/", view: Main },
         { path: "/profile", view: Profile },
         { path: "/signup", view: Signup },
+        { path: "/signin", view: Signin },
         // { path: "/post/:id", view: PostView },
     ];
 
@@ -82,13 +84,10 @@ const router = async() => {
 
     const view = new match.route.view(getParams(match));
     view.setTitle(match.result[0])
-    view.test()
 
     document.querySelector("#app").innerHTML = await view.getHtml();
+    view.init()
 
-    if (document.getElementById('signup') !== null) {
-        signup()
-    }
 };
 
 window.addEventListener("popstate", router);

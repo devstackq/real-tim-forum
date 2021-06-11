@@ -7,6 +7,7 @@ import (
 
 type User interface {
 	Create(*models.User) (int, int, error)
+	Signin(*models.User) (int, error)
 	// Delete(id int) error
 }
 type Post interface {

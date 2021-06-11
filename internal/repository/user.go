@@ -29,3 +29,17 @@ func (ur *UserRepository) CreateUser(user *models.User) (int64, error) {
 	defer query.Close()
 	return result.LastInsertId()
 }
+
+func (ur *UserRepository) SigninUser(user *models.User) (int64, error) {
+
+	query, err := ur.db.Prepare(`SELECT FROM users WHERE email=? AND password=?) VALUES(?,?)`)
+	if err != nil {
+		return -1, err
+	}
+	result, err := query.Exec(user.Email, user.Password)
+	if err != nil {
+		return -1, err
+	}
+	defer query.Close()
+	return result.LastInsertId()
+}
