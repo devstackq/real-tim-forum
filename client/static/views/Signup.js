@@ -2,12 +2,11 @@ export default class {
     constructor(params) {
         this.params = params;
     }
-
     setTitle(title) {
         document.title = title;
     }
     init() {
-
+        //post query
         document.getElementById('signup').onclick = async function() {
 
             let e = document.getElementById("email").value;
@@ -16,7 +15,7 @@ export default class {
             let f = document.getElementById("fName").value;
             let a = document.getElementById("age").value;
             let c = document.getElementById("city").value;
-    
+
             let user = {
                 email: e,
                 password: p,
@@ -37,10 +36,10 @@ export default class {
             // redirect signin page 
             console.log(result, 'result')
             if (result > 0 && result != undefined) {
-                window.location.replace('http://localhost:6969/signin')
+                window.location.replace('http://localhost:6969/login')
             }
         }
-     }
+    }
     async getHtml() {
         let wrapper = `
         <div>

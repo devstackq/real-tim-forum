@@ -11,6 +11,7 @@ import (
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
 	sqlite "github.com/mattn/go-sqlite3"
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -25,13 +26,68 @@ func NewUserService(repo repository.User) *UserService {
 
 func (us *UserService) Signin(user *models.User) (int, error) {
 
-	//check exist user & correct password ?
-	// if utils.AuthType == "default" {
-	fmt.Println(user.Username, "userNmae")
+	id, hashPassword, err := us.repository.SigninUser(user)
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
 
-	lastId, err := us.repository.CreateUser(user)
-	//check  is already user
-	fmt.Println(lastId, err)
+	err = bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(user.Password))
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
+	fmt.Println("pwd and login corect", id, user)
+
+	uuid := uuid.Must(uuid.NewV4(), err).String()
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	session := models.Session{}
+	session.UserID = id
+	session.UUID = uuid
+	session.StartTimeCookie = time.Now()
+
+	us.repository.UpdateSession(&session)
+
+	//SetCookie in Borowser
+
+	// //1 time set uuid user, set cookie in Browser
+	// newSession := general.Session{
+	// 	UserID: user.ID,
+	// }
+
+	// uuid := uuid.Must(uuid.NewV4(), err).String()
+	// if err != nil {
+	// 	utils.AuthError(w, r, err, "uuid problem", utils.AuthType)
+	// 	return
+	// }
+	// //create uuid and set uid DB table session by userid,
+	// userPrepare, err := DB.Prepare(`INSERT INTO session(uuid, user_id, cookie_time) VALUES (?, ?, ?)`)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+
+	// _, err = userPrepare.Exec(uuid,  newSession.UserID, time.Now())
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	// defer userPrepare.Close()
+
+	// if err != nil {
+	// 	utils.AuthError(w, r, err, "the user is already in the system", utils.AuthType)
+	// 	//get ssesion id, by local struct uuid
+	// 	log.Println(err)
+	// 	return
+	// }
+
+	// // get user in info by session Id
+	// err = DB.QueryRow("SELECT id, uuid FROM session WHERE user_id = ?", newSession.UserID).Scan(&newSession.ID, &newSession.UUID)
+	// if err != nil {
+	// 	utils.AuthError(w, r, err, "not find user from session", utils.AuthType)
+	// 	log.Println(err, "her")
+	// 	return
+	// }
+	// utils.SetCookie(w, newSession.UUID)
+
 	return http.StatusOK, nil
 
 }

@@ -7,12 +7,12 @@ export default class {
         document.title = title;
     }
     init() {
-    
+
         document.getElementById('signin').onclick = async function() {
 
             let e = document.getElementById("email").value;
             let p = document.getElementById("password").value;
-            
+
             let user = {
                 email: e,
                 password: p,
@@ -28,8 +28,8 @@ export default class {
             let result = await response.json();
             // redirect signin page 
             console.log(result, 'result')
-            if (result > 0 && result != undefined) {
-                // window.location.replace('http://localhost:6969/signin')
+            if (result == 'success' && result != undefined) {
+                window.location.replace('http://localhost:6969/profile')
             }
         }
     }

@@ -20,48 +20,12 @@ const navigateTo = url => {
     router();
 };
 
-const signup = () => {
-
-    document.getElementById('signup').onclick = async function() {
-
-        let e = document.getElementById("email").value;
-        let p = document.getElementById("password").value;
-        let u = document.getElementById("username").value;
-        let f = document.getElementById("fName").value;
-        let a = document.getElementById("age").value;
-        let c = document.getElementById("city").value;
-
-        let user = {
-            email: e,
-            password: p,
-            username: u,
-            fullname: f,
-            age: a,
-            city: c
-        };
-        console.log(user, "user")
-        let response = await fetch('http://localhost:6969/signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify(user)
-        });
-        let result = await response.json();
-        // redirect signin page 
-        console.log(result, 'result')
-        if (result > 0 && result != undefined) {
-            window.location.replace('http://localhost:6969/signin')
-        }
-    }
-}
-
 const router = async() => {
     const routes = [
         { path: "/", view: Main },
         { path: "/profile", view: Profile },
-        { path: "/signup", view: Signup },
-        { path: "/signin", view: Signin },
+        { path: "/register", view: Signup },
+        { path: "/login", view: Signin },
         // { path: "/post/:id", view: PostView },
     ];
 
@@ -84,10 +48,8 @@ const router = async() => {
 
     const view = new match.route.view(getParams(match));
     view.setTitle(match.result[0])
-
     document.querySelector("#app").innerHTML = await view.getHtml();
     view.init()
-
 };
 
 window.addEventListener("popstate", router);

@@ -12,7 +12,7 @@ type Session struct {
 	TokenType       string    `json:"token_type"`
 	Scope           string    `json:"scope"`
 	StartTimeCookie time.Time `json:"cookieTime"`
-	Time            string
+	Time            string    `json:"time"`
 }
 
 //general global variable

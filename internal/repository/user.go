@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 )
@@ -30,16 +31,25 @@ func (ur *UserRepository) CreateUser(user *models.User) (int64, error) {
 	return result.LastInsertId()
 }
 
-func (ur *UserRepository) SigninUser(user *models.User) (int64, error) {
+func (ur *UserRepository) SigninUser(user *models.User) (int, string, error) {
 
-	query, err := ur.db.Prepare(`SELECT FROM users WHERE email=? AND password=?) VALUES(?,?)`)
+	var id int
+	var hashPassword string
+
+	sqlStatement := `SELECT id, password FROM users WHERE email=?`
+	row := ur.db.QueryRow(sqlStatement, user.Email)
+	err := row.Scan(&id, &hashPassword)
 	if err != nil {
-		return -1, err
+		if err == sql.ErrNoRows {
+			fmt.Println("Zero rows found")
+			return -1, "", err
+		} else {
+			panic(err)
+		}
 	}
-	result, err := query.Exec(user.Email, user.Password)
-	if err != nil {
-		return -1, err
-	}
-	defer query.Close()
-	return result.LastInsertId()
+	return id, hashPassword, nil
+}
+
+func (ur *UserRepository) UpdateSession(session *models.Session) error {
+	return nil
 }

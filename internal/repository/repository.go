@@ -8,7 +8,8 @@ import (
 
 type User interface {
 	CreateUser(*models.User) (int64, error)
-	SigninUser(*models.User) (int64, error)
+	SigninUser(*models.User) (int, string, error)
+	UpdateSession(*models.Session) error
 }
 
 type Post interface {
