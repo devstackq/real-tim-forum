@@ -24,7 +24,7 @@ func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
 
 		uuid, err := h.Services.User.GetDataInDb(uid.Value, "uuid")
 
-		if uuid == session {
+		if uuid == session.Value {
 			log.Println("OK go to hanlde")
 		}
 
