@@ -24,77 +24,47 @@ func NewUserService(repo repository.User) *UserService {
 	return &UserService{repo}
 }
 
-func (us *UserService) Signin(user *models.User) (int, error) {
+func (us *UserService) Signin(user *models.User) (int, *models.Session, error) {
 
 	id, hashPassword, err := us.repository.SigninUser(user)
 	if err != nil {
-		return http.StatusBadRequest, err
+		return http.StatusBadRequest, nil, err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(user.Password))
 	if err != nil {
-		return http.StatusBadRequest, err
+		return http.StatusBadRequest, nil, err
 	}
 	fmt.Println("pwd and login corect", id, user)
 
 	uuid := uuid.Must(uuid.NewV4(), err).String()
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return http.StatusInternalServerError, nil, err
 	}
 	session := models.Session{}
 	session.UserID = id
 	session.UUID = uuid
 	session.StartTimeCookie = time.Now()
 
-	us.repository.UpdateSession(&session)
+	err = us.repository.UpdateSession(&session)
+	if err != nil {
+		return http.StatusBadRequest, nil, err
+	}
 
-	//SetCookie in Borowser
+	return http.StatusOK, &session, nil
 
-	// //1 time set uuid user, set cookie in Browser
-	// newSession := general.Session{
-	// 	UserID: user.ID,
-	// }
+	//SetCookie in Browser
 
-	// uuid := uuid.Must(uuid.NewV4(), err).String()
-	// if err != nil {
-	// 	utils.AuthError(w, r, err, "uuid problem", utils.AuthType)
-	// 	return
-	// }
-	// //create uuid and set uid DB table session by userid,
-	// userPrepare, err := DB.Prepare(`INSERT INTO session(uuid, user_id, cookie_time) VALUES (?, ?, ?)`)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
+	//1 time set uuid user, set cookie in Browser
 
-	// _, err = userPrepare.Exec(uuid,  newSession.UserID, time.Now())
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-	// defer userPrepare.Close()
-
-	// if err != nil {
-	// 	utils.AuthError(w, r, err, "the user is already in the system", utils.AuthType)
-	// 	//get ssesion id, by local struct uuid
-	// 	log.Println(err)
-	// 	return
-	// }
-
-	// // get user in info by session Id
-	// err = DB.QueryRow("SELECT id, uuid FROM session WHERE user_id = ?", newSession.UserID).Scan(&newSession.ID, &newSession.UUID)
-	// if err != nil {
-	// 	utils.AuthError(w, r, err, "not find user from session", utils.AuthType)
-	// 	log.Println(err, "her")
-	// 	return
-	// }
-	// utils.SetCookie(w, newSession.UUID)
-
-	return http.StatusOK, nil
+	//event create post/comment, etc -> middleware()
+	//middleware -> get userId & email(from client) -> chek in DB -> have session table
+	//uuid field -> compare uuidDb & uuid localStorage -> if true -> run handler
 
 }
 
 func (us *UserService) Create(user *models.User) (int, int, error) {
-	//create user, use middleware, chek email, pwd another things
-	// -> then call repos.CreateUser()
+
 	validEmail := us.isEmailValid(user)
 	validPassword := us.isPasswordValid(user)
 
@@ -104,18 +74,15 @@ func (us *UserService) Create(user *models.User) (int, int, error) {
 		if err != nil {
 			return http.StatusInternalServerError, -1, err
 		}
-		fmt.Println(user.Username, "userNmae")
 		user.Password = string(hashPwd)
 		user.CreatedTime = time.Now()
 		//go to repo, interface -> method call
 		lastId, err := us.repository.CreateUser(user)
 		//check  is already user
 		if err != nil {
-			fmt.Println(err)
 			if sqliteErr, ok := err.(sqlite.Error); ok {
-				fmt.Println(sqliteErr)
 				if sqliteErr.ExtendedCode == sqlite.ErrConstraintUnique {
-					return http.StatusBadRequest, -1, errors.New("User already created")
+					return http.StatusBadRequest, -1, errors.New("Nickname or email exist")
 				}
 			}
 			return http.StatusInternalServerError, -1, err
@@ -129,6 +96,20 @@ func (us *UserService) Create(user *models.User) (int, int, error) {
 	} else {
 		return http.StatusBadRequest, 0, errors.New("password incorrect, 123User!")
 	}
+}
+
+func (us *UserService) GetDataInDb(uid string, what string) (string, error) {
+
+	var data string
+	var err error
+
+	if what == "uuid" {
+		data, err = us.repository.GetUuidInDb(uid)
+		if err != nil {
+			return "", err
+		}
+	}
+	return data, nil
 }
 
 func (us *UserService) isEmailValid(user *models.User) bool {

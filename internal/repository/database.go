@@ -96,7 +96,7 @@ func createTables(db *sql.DB) error {
 		password TEXT,
 		isAdmin INTEGER DEFAULT 0, 
 		age INTEGER, 
-		sex TEXT, 
+		sex TEXT,
 		created_time DATETIME, 
 		last_seen DATETIME, 
 		city TEXT, 

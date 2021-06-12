@@ -9,7 +9,7 @@ func JsonResponse(w http.ResponseWriter, status int, data interface{}) {
 	w.WriteHeader(status)
 	js, err := json.Marshal(data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, string(js), status)
 		return
 	}
 	// fmt.Println(string(js), "send data")

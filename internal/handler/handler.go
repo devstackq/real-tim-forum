@@ -11,10 +11,10 @@ type Handler struct {
 }
 
 type Route struct {
-	Path     string
-	Handler  http.HandlerFunc
-	NeedAuth bool
-	UnAuth   bool
+	Path    string
+	Handler http.HandlerFunc
+	IsAuth  bool
+	UnAuth  bool
 }
 
 func NewHandler(s *service.Service) *Handler {
@@ -29,15 +29,15 @@ func (h *Handler) InitRouter() *http.ServeMux {
 	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
 	for _, route := range routes {
-		if route.NeedAuth {
+		if route.IsAuth {
 			//add middleware redirect - signin
-			// route.Handler = h.needAuthMiddleware(route.Handler), route /signup
+			//route /create/post -> if have sesiion & session correct -> createPost -> else signin page
+			route.Handler = h.IsCookieValid(route.Handler)
 		}
 		if route.UnAuth {
 			//addMiddleware redirect =
 			// route.Handler =   h.UnAuthMiddleware(route.Handler), route /
 		}
-
 		//default
 		// route.Handler = h.CookieIsValid(route.Handler) //
 		//add  mux, handler
@@ -50,28 +50,34 @@ func (h *Handler) createRoutes() []Route {
 
 	return []Route{
 		{
-			Path:     "/",
-			Handler:  h.IndexParse,
-			NeedAuth: false,
-			UnAuth:   false,
+			Path:    "/",
+			Handler: h.IndexParse,
+			IsAuth:  false,
+			UnAuth:  false,
 		},
 		{
-			Path:     "/signup",
-			Handler:  h.SignUp,
-			NeedAuth: false,
-			UnAuth:   true,
+			Path:    "/api/signup",
+			Handler: h.SignUp,
+			IsAuth:  false,
+			UnAuth:  true,
 		},
 		{
-			Path:     "/signin",
-			Handler:  h.SignIn,
-			NeedAuth: false,
-			UnAuth:   true,
+			Path:    "/api/signin",
+			Handler: h.SignIn,
+			IsAuth:  false,
+			UnAuth:  true,
 		},
 		{
-			Path:     "/create/post",
-			Handler:  h.CreatePost,
-			NeedAuth: false,
-			UnAuth:   true,
+			Path:    "/api/create/post",
+			Handler: h.CreatePost,
+			IsAuth:  false,
+			UnAuth:  true,
+		},
+		{
+			Path:    "/api/profile",
+			Handler: h.ProfileHandle,
+			IsAuth:  true,
+			UnAuth:  false,
 		},
 	}
 }

@@ -10,7 +10,7 @@ type User struct {
 	Password    string    `json:"password"`
 	IsAdmin     bool      `json:"isadmin"`
 	Age         string    `json:"age"`
-	Sex         string    `json:"sex"`
+	Sex         string    `json:"gender"`
 	CreatedTime time.Time `json:"createdtime"`
 	City        string    `json:"city"`
 	Image       []byte    `json:"image"`

@@ -24,8 +24,8 @@ const router = async() => {
     const routes = [
         { path: "/", view: Main },
         { path: "/profile", view: Profile },
-        { path: "/register", view: Signup },
-        { path: "/login", view: Signin },
+        { path: "/signup", view: Signup },
+        { path: "/signin", view: Signin },
         // { path: "/post/:id", view: PostView },
     ];
 
@@ -45,14 +45,14 @@ const router = async() => {
             result: [location.pathname]
         };
     }
-
+    console.log(match, 123)
     const view = new match.route.view(getParams(match));
     view.setTitle(match.result[0])
     document.querySelector("#app").innerHTML = await view.getHtml();
     view.init()
 };
 
-window.addEventListener("popstate", router);
+// window.addEventListener("popstate", router);
 
 document.addEventListener("DOMContentLoaded", () => {
     document.body.addEventListener("click", e => {

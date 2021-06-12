@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 )
@@ -33,7 +35,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		//user.ID = id
 		JsonResponse(w, status, id)
 	default:
-		//JsonResponse(w, http.StatusBadRequest, "Bad Request")
+		JsonResponse(w, http.StatusBadRequest, "Bad Request")
 	}
 }
 
@@ -50,13 +52,18 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		status, err := h.Services.User.Signin(user)
-		fmt.Println("send id", err)
-
+		status, session, err := h.Services.User.Signin(user)
 		if err != nil {
-			JsonResponse(w, status, err.Error())
+			JsonResponse(w, status, "login or password incorrect")
 			return
 		}
-		JsonResponse(w, status, "succes")
+		uid := strconv.Itoa(session.UserID)
+		sessionCookie := &http.Cookie{Name: "session", Value: session.UUID, HttpOnly: false, Expires: time.Now().Add(20 * time.Minute)}
+		uidCookie := &http.Cookie{Name: "user_id", Value: uid, HttpOnly: false, Expires: time.Now().Add(20 * time.Minute)}
+
+		http.SetCookie(w, sessionCookie)
+		http.SetCookie(w, uidCookie)
+		//save global variabale session
+		JsonResponse(w, status, session)
 	}
 }

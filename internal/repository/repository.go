@@ -10,6 +10,7 @@ type User interface {
 	CreateUser(*models.User) (int64, error)
 	SigninUser(*models.User) (int, string, error)
 	UpdateSession(*models.Session) error
+	GetUuidInDb(string) (string, error)
 }
 
 type Post interface {
@@ -32,4 +33,3 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 // Model -> CreateUser func, Repo - conn Db, -> service -> handler
-// route -> handle ->service-> repo -> dbFunc

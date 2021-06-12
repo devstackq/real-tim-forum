@@ -2,7 +2,8 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
+	"strconv"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 )
@@ -41,7 +42,7 @@ func (ur *UserRepository) SigninUser(user *models.User) (int, string, error) {
 	err := row.Scan(&id, &hashPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			fmt.Println("Zero rows found")
+			log.Println("Zero rows found")
 			return -1, "", err
 		} else {
 			panic(err)
@@ -51,5 +52,46 @@ func (ur *UserRepository) SigninUser(user *models.User) (int, string, error) {
 }
 
 func (ur *UserRepository) UpdateSession(session *models.Session) error {
+	//userid, uuid, same UserId -> remove Db, then create New-> row -> session table
+	//logout -> remove cookie by userId, cookie delete browser || expires time
+
+	uid := strconv.Itoa(session.UserID)
+	_, err := ur.GetUuidInDb(uid)
+	if err == nil {
+		// return error.New("insert new uuid")
+		query, err := ur.db.Prepare(`UPDATE session SET uuid=?, cookie_time=? WHERE user_id=?`)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		_, err = query.Exec(session.UUID, session.StartTimeCookie, session.UserID)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	} else {
+		query, err := ur.db.Prepare(`INSERT INTO session(uuid, user_id, cookie_time) VALUES(?,?,?)`)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		_, err = query.Exec(session.UUID, session.UserID, session.StartTimeCookie)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
 	return nil
+}
+
+func (ur *UserRepository) GetUuidInDb(uid string) (string, error) {
+
+	var uuid string
+	query := `SELECT uuid FROM session WHERE user_id=?`
+	row := ur.db.QueryRow(query, uid)
+	err := row.Scan(&uuid)
+	if err != nil {
+		return "", err
+	}
+	return uuid, nil
 }

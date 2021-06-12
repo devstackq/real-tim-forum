@@ -15,6 +15,7 @@ export default class {
             let f = document.getElementById("fName").value;
             let a = document.getElementById("age").value;
             let c = document.getElementById("city").value;
+            let g = document.getElementById("gender").value;
 
             let user = {
                 email: e,
@@ -22,10 +23,12 @@ export default class {
                 username: u,
                 fullname: f,
                 age: a,
-                city: c
+                city: c,
+                gender: g,
             };
+
             console.log(user, "user")
-            let response = await fetch('http://localhost:6969/signup', {
+            let response = await fetch('http://localhost:6969/api/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -34,21 +37,30 @@ export default class {
             });
             let result = await response.json();
             // redirect signin page 
-            console.log(result, 'result')
             if (result > 0 && result != undefined) {
-                window.location.replace('http://localhost:6969/login')
+                window.location.replace('http://localhost:6969/signin')
+            } else {
+                //show notiy
+                console.log(result)
             }
         }
     }
     async getHtml() {
         let wrapper = `
         <div>
-        <input type="text" id='fName' placeholder='full name'>
-        <input type='email' id='email' placeholder='email'>
-        <input type="text" id='username' placeholder='nick'>
-        <input type="password" id="password" placeholder='password'>
-        <input type="number" id='age' placeholder='age'>
-        <input type="text" id='city' placeholder='city'>
+        <input type="text" id='fName' required="true" placeholder='full name'>
+        <input type='email' id='email' required placeholder='email'>
+        <input type="text" id='username' required placeholder='nick'>
+        <input type="password" id="password" required placeholder='password'>
+        <input type="number" id='age' required placeholder='age'>
+      <label> gender
+        <select id='gender' placeholder='gender'>
+        <option></option>
+        <option>man</option>
+        <option>woman</option>
+      </select>
+      </label>
+        <input type="text" id='city' required placeholder='city'>
         <input type='submit' id='signup' value="register"/>
         </div>
         `

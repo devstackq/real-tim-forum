@@ -6,17 +6,29 @@ import (
 	"net/http"
 )
 
-func (h *Handler) CookieIsValid(f http.HandlerFunc) http.HandlerFunc {
+func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		//check expires cookie
-		c, err := r.Cookie("_cookie")
+		session, err := r.Cookie("session")
 		if err != nil {
 			log.Println(err, "expires timeout || cookie deleted")
 			// utils.Logout(w, r, *session)
 			return
 		}
-		fmt.Println(c)
+		uid, err := r.Cookie("user_id")
+		//check client uuid - in Db Uuid if correct -> goToHandle
+		fmt.Println(session, uid, "cookie")
+		f.ServeHTTP(w, r)
+		// best practice ?
+
+		uuid, err := h.Services.User.GetDataInDb(uid.Value, "uuid")
+
+		if uuid == session {
+			log.Println("OK go to hanlde")
+		}
+
+		//|| db query here ?
 		//cookie Browser -> send IsCookie(check if this user ->)
 		// then call handler -> middleware
 		// if isValidCookie, sessionF := utils.IsCookie(w, r, c.Value); isValidCookie {

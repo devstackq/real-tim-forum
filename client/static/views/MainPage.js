@@ -9,7 +9,7 @@ export default class {
     }
 
     async getHtml() {
-        //show list last created post, filter page
+        //show list last created post, filter page getAllPost()
         return "";
     }
 }
