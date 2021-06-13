@@ -11,9 +11,12 @@ func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
 	//get data from middleware -> query in Db, by userId
 	switch r.Method {
 	case "GET":
-		fmt.Println("call proflie handle Get, need Au")
+		fmt.Println("call proflie handle Get, need Auth")
+		//posts/comment/votes/ user datas
 		JsonResponse(w, r, http.StatusOK, "user data")
 	case "POST":
+		//update name, age, etc
+		//delete user
 		//update, delete request
 	}
 }
