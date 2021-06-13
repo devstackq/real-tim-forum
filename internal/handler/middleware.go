@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -12,41 +11,30 @@ func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
 		//check expires cookie
 		session, err := r.Cookie("session")
 		if err != nil {
-			log.Println(err, "expires timeout || cookie deleted")
+			log.Println("session expires or incorrect")
 			// utils.Logout(w, r, *session)
+			JsonResponse(w, r, http.StatusUnauthorized, "cookie expires or not correct")
 			return
 		}
-		uid, err := r.Cookie("user_id")
-		//check client uuid - in Db Uuid if correct -> goToHandle
-		fmt.Println(session, uid, "cookie")
-		f.ServeHTTP(w, r)
+		// fmt.Println(r, "qwe")
+		userId, err := r.Cookie("user_id")
 		// best practice ?
-
-		uuid, err := h.Services.User.GetDataInDb(uid.Value, "uuid")
+		if err != nil {
+			log.Println("userid expires or incorrect")
+			JsonResponse(w, r, http.StatusUnauthorized, "userId incorrect")
+			return
+		}
+		uuid, err := h.Services.User.GetDataInDb(userId.Value, "uuid")
 
 		if uuid == session.Value {
 			log.Println("OK go to hanlde")
+			JsonResponse(w, r, http.StatusOK, "all right")
+			f.ServeHTTP(w, r)
+		} else {
+			log.Println("session not equal in Db")
+
+			JsonResponse(w, r, http.StatusUnauthorized, "cookie incorrect")
 		}
-
-		//|| db query here ?
-		//cookie Browser -> send IsCookie(check if this user ->)
-		// then call handler -> middleware
-		// if isValidCookie, sessionF := utils.IsCookie(w, r, c.Value); isValidCookie {
-		// 	err = DB.QueryRow("SELECT cookie_time FROM session WHERE user_id = ?", sessionF.UserID).Scan(&sessionF.Time)
-		// 	if err != nil {
-		// 		log.Println(err)
-		// 	}
-		// 	strToTime, _ := time.Parse(time.RFC3339, sessionF.Time)
-		// 	diff := time.Now().Sub(strToTime)
-
-		// 	if int(diff.Minutes()) > 290 && int(diff.Seconds()) < 298 {
-		// 		uuid := utils.CreateUuid()
-		// 		utils.SetCookie(w, uuid)
-		// 		utils.ReSession(sessionF.UserID, session, "timeout", uuid)
-		// 		fmt.Println("change cookie Browser and update sessiontime and uuid in Db")
-		// 	}
 		// 	*session = sessionF
-		// 	f(w, r)
-		// }
 	}
 }

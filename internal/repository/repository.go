@@ -10,6 +10,7 @@ type User interface {
 	CreateUser(*models.User) (int64, error)
 	SigninUser(*models.User) (int, string, error)
 	UpdateSession(*models.Session) error
+	Logout(*models.Session) error
 	GetUuidInDb(string) (string, error)
 }
 

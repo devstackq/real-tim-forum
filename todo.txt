@@ -3,6 +3,8 @@
 json -> api
 todo forum - ca
 auth - middleware -> crud post/comment etc
+//logout, -> btn
+progfile servie
 start chat
 
 2 stage

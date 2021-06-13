@@ -64,6 +64,8 @@ export default class {
         <input type='submit' id='signup' value="register"/>
         </div>
         `
-        return wrapper;
+        let h = super.showHeader('free');
+        // console.log(h, 'hed')
+        return h + wrapper
     }
 }

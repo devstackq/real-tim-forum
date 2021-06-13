@@ -8,6 +8,7 @@ import (
 type User interface {
 	Create(*models.User) (int, int, error)
 	Signin(*models.User) (int, *models.Session, error)
+	Logout(*models.Session) error
 	GetDataInDb(string, string) (string, error)
 	// Delete(id int) error
 }

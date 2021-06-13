@@ -29,13 +29,13 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("send id", err, id)
 
 		if err != nil {
-			JsonResponse(w, status, err.Error())
+			JsonResponse(w, r, status, err.Error())
 			return
 		}
 		//user.ID = id
-		JsonResponse(w, status, id)
+		JsonResponse(w, r, status, id)
 	default:
-		JsonResponse(w, http.StatusBadRequest, "Bad Request")
+		JsonResponse(w, r, http.StatusBadRequest, "Bad Request")
 	}
 }
 
@@ -45,6 +45,7 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("call signin handle Get")
 		// JsonResponse(w, http.StatusOK, "signin page")
 	case "POST":
+		fmt.Println("signin Post")
 		user := &models.User{}
 		resBody, err := ioutil.ReadAll(r.Body)
 		err = json.Unmarshal(resBody, user)
@@ -54,16 +55,37 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 		}
 		status, session, err := h.Services.User.Signin(user)
 		if err != nil {
-			JsonResponse(w, status, "login or password incorrect")
+			JsonResponse(w, r, status, "login or password incorrect")
 			return
 		}
 		uid := strconv.Itoa(session.UserID)
-		sessionCookie := &http.Cookie{Name: "session", Value: session.UUID, HttpOnly: false, Expires: time.Now().Add(20 * time.Minute)}
-		uidCookie := &http.Cookie{Name: "user_id", Value: uid, HttpOnly: false, Expires: time.Now().Add(20 * time.Minute)}
+		sessionCookie := &http.Cookie{Name: "session", Value: session.UUID, Path: "/", HttpOnly: false, Expires: time.Now().Add(20 * time.Minute)}
+		uidCookie := &http.Cookie{Name: "user_id", Value: uid, Path: "/", HttpOnly: false, Expires: time.Now().Add(20 * time.Minute)}
 
 		http.SetCookie(w, sessionCookie)
 		http.SetCookie(w, uidCookie)
 		//save global variabale session
-		JsonResponse(w, status, session)
+		JsonResponse(w, r, status, session)
+	}
+}
+
+func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		fmt.Println("call logout handle Get")
+		s := models.Session{}
+		resBody, err := ioutil.ReadAll(r.Body)
+		err = json.Unmarshal(resBody, &s)
+		if err != nil {
+			JsonResponse(w, r, http.StatusBadRequest, "")
+			return
+		}
+		err = h.Services.User.Logout(&s)
+		if err != nil {
+			JsonResponse(w, r, http.StatusBadRequest, "")
+			return
+		}
+		JsonResponse(w, r, http.StatusOK, "logout success")
+	case "POST":
 	}
 }

@@ -30,12 +30,10 @@ func (h *Handler) InitRouter() *http.ServeMux {
 
 	for _, route := range routes {
 		if route.IsAuth {
-			//add middleware redirect - signin
 			//route /create/post -> if have sesiion & session correct -> createPost -> else signin page
 			route.Handler = h.IsCookieValid(route.Handler)
 		}
 		if route.UnAuth {
-			//addMiddleware redirect =
 			// route.Handler =   h.UnAuthMiddleware(route.Handler), route /
 		}
 		//default

@@ -2,6 +2,7 @@ import Main from "./views/MainPage.js";
 import Profile from "./views/Profile.js";
 import Signup from './views/Signup.js';
 import Signin from './views/Signin.js';
+import Logout from './views/Logout.js';
 
 const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
 
@@ -26,6 +27,7 @@ const router = async() => {
         { path: "/profile", view: Profile },
         { path: "/signup", view: Signup },
         { path: "/signin", view: Signin },
+        { path: "/logout", view: Logout },
         // { path: "/post/:id", view: PostView },
     ];
 
@@ -50,6 +52,8 @@ const router = async() => {
     view.setTitle(match.result[0])
     document.querySelector("#app").innerHTML = await view.getHtml();
     view.init()
+
+    // view.show()
 };
 
 // window.addEventListener("popstate", router);

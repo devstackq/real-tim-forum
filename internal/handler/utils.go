@@ -5,14 +5,21 @@ import (
 	"net/http"
 )
 
-func JsonResponse(w http.ResponseWriter, status int, data interface{}) {
+func JsonResponse(w http.ResponseWriter, r *http.Request, status int, data interface{}) {
 	w.WriteHeader(status)
 	js, err := json.Marshal(data)
 	if err != nil {
 		http.Error(w, string(js), status)
 		return
 	}
-	// fmt.Println(string(js), "send data")
+
+	if origin := r.Header.Get("Origin"); origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	}
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("Content-Type", "application/json")
+	// fmt.Println(string(js), "send data")
 	w.Write(js)
 }

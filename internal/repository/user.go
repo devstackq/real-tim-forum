@@ -50,7 +50,19 @@ func (ur *UserRepository) SigninUser(user *models.User) (int, string, error) {
 	}
 	return id, hashPassword, nil
 }
+func (ur *UserRepository) Logout(session *models.Session) error {
 
+	_, err := ur.GetUuidInDb(session.UUID)
+	if err != nil {
+		return err
+	}
+	sqlStatement := `DELETE FROM session WHERE uuid=?;`
+	_, err = ur.db.Exec(sqlStatement, session.UUID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func (ur *UserRepository) UpdateSession(session *models.Session) error {
 	//userid, uuid, same UserId -> remove Db, then create New-> row -> session table
 	//logout -> remove cookie by userId, cookie delete browser || expires time

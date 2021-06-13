@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"time"
@@ -50,17 +51,9 @@ func (us *UserService) Signin(user *models.User) (int, *models.Session, error) {
 	if err != nil {
 		return http.StatusBadRequest, nil, err
 	}
+	log.Println("session update -> signin in system")
 
 	return http.StatusOK, &session, nil
-
-	//SetCookie in Browser
-
-	//1 time set uuid user, set cookie in Browser
-
-	//event create post/comment, etc -> middleware()
-	//middleware -> get userId & email(from client) -> chek in DB -> have session table
-	//uuid field -> compare uuidDb & uuid localStorage -> if true -> run handler
-
 }
 
 func (us *UserService) Create(user *models.User) (int, int, error) {
@@ -98,16 +91,28 @@ func (us *UserService) Create(user *models.User) (int, int, error) {
 	}
 }
 
-func (us *UserService) GetDataInDb(uid string, what string) (string, error) {
+func (us *UserService) Logout(session *models.Session) error {
+
+	if session.UUID != "" {
+		err := us.repository.Logout(session)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func (us *UserService) GetDataInDb(str string, what string) (string, error) {
 
 	var data string
 	var err error
 
 	if what == "uuid" {
-		data, err = us.repository.GetUuidInDb(uid)
+		data, err = us.repository.GetUuidInDb(str)
 		if err != nil {
 			return "", err
 		}
+	} else if what == "email" {
+		// data, err = us.repository.GetEmailInDb(str)
 	}
 	return data, nil
 }

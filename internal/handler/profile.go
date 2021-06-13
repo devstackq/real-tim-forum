@@ -12,7 +12,7 @@ func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		fmt.Println("call proflie handle Get, need Au")
-		JsonResponse(w, http.StatusOK, "user data")
+		JsonResponse(w, r, http.StatusOK, "user data")
 	case "POST":
 		//update, delete request
 	}

@@ -1,42 +1,60 @@
-export default class {
-    constructor(params) {
+import Parent from "./Parent.js";
+
+export const global = { isAuth: false }
+window.isAuth = false
+
+export default class Signin extends Parent {
+
+    constructor(text, type, params) {
+        super(text, type)
         this.params = params;
+        this.status = false
+            // this.show = this.showNotify
     }
 
     setTitle(title) {
         document.title = title;
     }
-    init() {
 
-        document.getElementById('signin').onclick = async function() {
+    async signin() {
 
-            let e = document.getElementById("email").value;
-            let p = document.getElementById("password").value;
+        let e = document.getElementById("email").value;
+        let p = document.getElementById("password").value;
 
-            let user = {
-                email: e,
-                password: p,
-            };
-            console.log(user, "user")
-            let response = await fetch('http://localhost:6969/api/signin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                },
-                body: JSON.stringify(user)
-            });
-            let result = await response.json();
-            // redirect signin page 
-            if (result !== '') {
-                console.log(result)
+        let user = {
+            email: e,
+            password: p,
+        };
+        console.log(user, "user")
 
-                window.location.replace('http://localhost:6969/profile')
-            } else {
-                //show wrong error message
-                console.log(result, 'error')
-            }
+        let response = await fetch('http://localhost:6969/api/signin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(user)
+        });
+        // redirect signin page 
+        if (response.status == 200) {
+            // super.toggleLinks('signin')
+            super.showNotify('', 'hide')
+            global.isAuth = true
+            window.isAuth = true
+            window.location.replace('http://localhost:6969/profile')
+        } else {
+            window.isAuth = false
+            super.showNotify('incorrect login or password', 'error')
         }
     }
+
+    init() {
+
+        let btn = document.querySelector('#signin')
+        btn.onclick = this.signin
+            //send data to Parent constructoer -> then use parent method value
+            // let n = new Signin('soma', 'error')
+    }
+
     async getHtml() {
         let wrapper = `
         <div>
@@ -45,6 +63,8 @@ export default class {
         <input type='submit' id='signin' value="signin"/>
         </div>
         `
-        return wrapper;
+        let h = super.showHeader('free');
+        // console.log(h, 'hed')
+        return h + wrapper
     }
-}
+};
