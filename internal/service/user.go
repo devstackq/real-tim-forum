@@ -98,9 +98,24 @@ func (us *UserService) Logout(session *models.Session) error {
 		if err != nil {
 			return err
 		}
+	} else {
+		log.Println("uuid empty")
+		// return error.new("error uuid")
 	}
 	return nil
 }
+
+func (us *UserService) GetUserById(userId string) (*models.User, error) {
+
+	// if userId != "" {
+	user, err := us.repository.GetUserById(userId)
+	fmt.Print(user, 1)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func (us *UserService) GetDataInDb(str string, what string) (string, error) {
 
 	var data string

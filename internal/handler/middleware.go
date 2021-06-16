@@ -11,12 +11,10 @@ func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
 		//check expires cookie
 		session, err := r.Cookie("session")
 		if err != nil {
-			log.Println("session expires or incorrect")
-			// utils.Logout(w, r, *session)
+			log.Println("session expires")
 			JsonResponse(w, r, http.StatusUnauthorized, "cookie expires or not correct")
 			return
 		}
-		// fmt.Println(r, "qwe")
 		userId, err := r.Cookie("user_id")
 		// best practice ?
 		if err != nil {
@@ -27,12 +25,11 @@ func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
 		uuid, err := h.Services.User.GetDataInDb(userId.Value, "uuid")
 
 		if uuid == session.Value {
-			log.Println("OK go to hanlde")
+			log.Println("call hanlde, ok")
 			JsonResponse(w, r, http.StatusOK, "all right")
 			f.ServeHTTP(w, r)
 		} else {
 			log.Println("session not equal in Db")
-
 			JsonResponse(w, r, http.StatusUnauthorized, "cookie incorrect")
 		}
 		// 	*session = sessionF

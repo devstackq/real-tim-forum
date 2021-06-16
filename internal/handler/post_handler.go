@@ -15,7 +15,7 @@ import (
 	"github.com/devstackq/real-time-forum/internal/models"
 )
 
-// curl --header "Content-Type: application/json"   --request POST   --data '{"username":"xyz","password":"xyz", "email":"meow"}'   http://localhost:6969/signup
+//getAllPost / PostByCategory() todo:
 
 //route -> handler -> service -> repos -> dbFunc
 func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {

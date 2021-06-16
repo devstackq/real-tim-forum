@@ -33,9 +33,9 @@ export default class Parent {
         <div class="dropdown">
           <button class="dropbtn">Categories</button>
           <div class="dropdown-content">
-          <a href="#">category 1</a>
-          <a href="#">category 2</a>
-          <a href="#">category 3</a>
+          <a href="/love" data-link>love</a>
+          <a href="/science" data-link>science</a>
+          <a href="/nature" data-link>nature</a>
         </div>
         </div>
        ${profile}
@@ -56,24 +56,4 @@ export default class Parent {
             notify.style.display = 'none'
         }
     }
-
-    // toggleLinks(type) {
-    //     console.log(type, 'toggle')
-    //     this.value = type
-
-    //     let signin = document.getElementsByClassName('signin')[0]
-    //     let signup = document.getElementsByClassName('signup')[0]
-    //     let logout = document.getElementsByClassName('logout')[0]
-
-    //     if (type === 'logout') {
-    //         console.log('sginin type, hide links')
-    //         signin.style.display = 'block'
-    //         signup.style.display = 'block'
-    //         logout.style.display = 'none'
-    //     } else if (type === 'signin') {
-    //         signin.style.display = 'none'
-    //         signup.style.display = 'none'
-    //         logout.style.display = 'block'
-    //     }
-    // }
 }

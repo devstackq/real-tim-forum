@@ -22,7 +22,8 @@ type User struct {
 	Name        string    `json:"name"`
 	Location    string    `json:"location"`
 	Username    string    `json:"username"`
-	Session     *Session
 	LastTime    time.Time `json:"lasttime"`
 	LastSeen    string    `json:"lastseen"`
 }
+
+// Session     *Session  `json:"session"`

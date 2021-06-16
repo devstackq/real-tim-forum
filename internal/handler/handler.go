@@ -14,7 +14,6 @@ type Route struct {
 	Path    string
 	Handler http.HandlerFunc
 	IsAuth  bool
-	UnAuth  bool
 }
 
 func NewHandler(s *service.Service) *Handler {
@@ -33,9 +32,9 @@ func (h *Handler) InitRouter() *http.ServeMux {
 			//route /create/post -> if have sesiion & session correct -> createPost -> else signin page
 			route.Handler = h.IsCookieValid(route.Handler)
 		}
-		if route.UnAuth {
-			// route.Handler =   h.UnAuthMiddleware(route.Handler), route /
-		}
+		// if route.UnAuth {
+		// route.Handler =   h.UnAuthMiddleware(route.Handler), route /
+		// }
 		//default
 		// route.Handler = h.CookieIsValid(route.Handler) //
 		//add  mux, handler
@@ -51,31 +50,26 @@ func (h *Handler) createRoutes() []Route {
 			Path:    "/",
 			Handler: h.IndexParse,
 			IsAuth:  false,
-			UnAuth:  false,
 		},
 		{
 			Path:    "/api/signup",
 			Handler: h.SignUp,
 			IsAuth:  false,
-			UnAuth:  true,
 		},
 		{
 			Path:    "/api/signin",
 			Handler: h.SignIn,
 			IsAuth:  false,
-			UnAuth:  true,
 		},
 		{
 			Path:    "/api/create/post",
 			Handler: h.CreatePost,
 			IsAuth:  false,
-			UnAuth:  true,
 		},
 		{
 			Path:    "/api/profile",
 			Handler: h.ProfileHandle,
 			IsAuth:  true,
-			UnAuth:  false,
 		},
 	}
 }

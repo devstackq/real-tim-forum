@@ -10,7 +10,7 @@ type User interface {
 	Signin(*models.User) (int, *models.Session, error)
 	Logout(*models.Session) error
 	GetDataInDb(string, string) (string, error)
-	// Delete(id int) error
+	GetUserById(string) (*models.User, error)
 }
 type Post interface {
 	Create(*models.Post) (int, int, error)

@@ -12,6 +12,7 @@ type User interface {
 	UpdateSession(*models.Session) error
 	Logout(*models.Session) error
 	GetUuidInDb(string) (string, error)
+	GetUserById(string) (*models.User, error)
 }
 
 type Post interface {

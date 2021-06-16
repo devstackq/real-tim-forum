@@ -1,15 +1,10 @@
 import Parent from "./Parent.js";
 
-export const global = { isAuth: false }
-window.isAuth = false
-
 export default class Signin extends Parent {
 
     constructor(text, type, params) {
         super(text, type)
         this.params = params;
-        this.status = false
-            // this.show = this.showNotify
     }
 
     setTitle(title) {
@@ -36,13 +31,11 @@ export default class Signin extends Parent {
         });
         // redirect signin page 
         if (response.status == 200) {
-            // super.toggleLinks('signin')
             super.showNotify('', 'hide')
-            global.isAuth = true
-            window.isAuth = true
+            localStorage.setItem('isAuth', true)
             window.location.replace('http://localhost:6969/profile')
         } else {
-            window.isAuth = false
+            localStorage.setItem('isAuth', false)
             super.showNotify('incorrect login or password', 'error')
         }
     }

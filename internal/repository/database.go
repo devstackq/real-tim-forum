@@ -92,7 +92,7 @@ func createTables(db *sql.DB) error {
 		id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
 		full_name TEXT NOT NULL,
 		email TEXT NOT NULL UNIQUE, 
-		username TEXT NOT NULL UNIQUE, 
+		user_name TEXT NOT NULL UNIQUE, 
 		password TEXT,
 		isAdmin INTEGER DEFAULT 0, 
 		age INTEGER, 
@@ -154,7 +154,7 @@ func putCategoriesInDb(db *sql.DB) {
 	//count := utils.GetCountTable("category", db)
 	count := 0
 	if count != 3 {
-		categories := []string{"science", "love", "sapid"}
+		categories := []string{"science", "love", "nature"}
 		for i := 0; i < count; i++ {
 			categoryPrepare, err := db.Prepare(`INSERT INTO category(name) VALUES(?)`)
 			if err != nil {

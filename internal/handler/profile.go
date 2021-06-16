@@ -6,17 +6,25 @@ import (
 )
 
 func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
-	//show statistics user: data, created post/comment, lost votes
-	//after update, delete profile
-	//get data from middleware -> query in Db, by userId
 	switch r.Method {
 	case "GET":
-		fmt.Println("call proflie handle Get, need Auth")
-		//posts/comment/votes/ user datas
-		JsonResponse(w, r, http.StatusOK, "user data")
+		uid, err := r.Cookie("user_id")
+		if err != nil {
+			JsonResponse(w, r, http.StatusUnauthorized, err)
+		}
+		//userExist() ?
+		data, err := h.Services.User.GetUserById(uid.Value)
+
+		if err != nil {
+			JsonResponse(w, r, http.StatusNotFound, err.Error())
+			return
+		}
+		//getCreatedPost() post/ array post
+		//getCreatedComment() comment /array comment
+		//getVotedPost() vote / array post
+		fmt.Println(data)
+		JsonResponse(w, r, http.StatusOK, data)
 	case "POST":
-		//update name, age, etc
-		//delete user
-		//update, delete request
+		//update name, age, etc, delete user, update, delete request
 	}
 }

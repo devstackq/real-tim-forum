@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -12,7 +13,6 @@ func JsonResponse(w http.ResponseWriter, r *http.Request, status int, data inter
 		http.Error(w, string(js), status)
 		return
 	}
-
 	if origin := r.Header.Get("Origin"); origin != "" {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 	}
@@ -20,6 +20,6 @@ func JsonResponse(w http.ResponseWriter, r *http.Request, status int, data inter
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("Content-Type", "application/json")
-	// fmt.Println(string(js), "send data")
+	fmt.Println(string(js), "send data client")
 	w.Write(js)
 }

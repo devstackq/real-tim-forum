@@ -16,7 +16,6 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		fmt.Println("call signup handle Get")
-		// JsonResponse(w, http.StatusOK, "signup page")
 	case "POST":
 		user := &models.User{}
 		resBody, err := ioutil.ReadAll(r.Body)
@@ -25,13 +24,16 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		fmt.Println(err, string(resBody))
+
 		status, id, err := h.Services.User.Create(user)
-		fmt.Println("send id", err, id)
+		fmt.Println(err, status, 2)
 
 		if err != nil {
 			JsonResponse(w, r, status, err.Error())
 			return
 		}
+		fmt.Println("send id", err, id)
 		//user.ID = id
 		JsonResponse(w, r, status, id)
 	default:
@@ -43,7 +45,6 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		fmt.Println("call signin handle Get")
-		// JsonResponse(w, http.StatusOK, "signin page")
 	case "POST":
 		fmt.Println("signin Post")
 		user := &models.User{}

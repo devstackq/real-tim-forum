@@ -1,11 +1,15 @@
-export default class {
+import Parent from "./Parent.js";
+
+export default  class Signup extends Parent {
     constructor(params) {
+        super()
         this.params = params;
+        this.name = name
     }
     setTitle(title) {
         document.title = title;
     }
-    init() {
+     init() {
         //post query
         document.getElementById('signup').onclick = async function() {
 
@@ -35,16 +39,18 @@ export default class {
                 },
                 body: JSON.stringify(user)
             });
-            let result = await response.json();
+            let result =  await response.json();
             // redirect signin page 
             if (result > 0 && result != undefined) {
+                // super.showNotify('', 'hide')
                 window.location.replace('http://localhost:6969/signin')
             } else {
-                //show notiy
-                console.log(result)
+                // super.showNotify(response.statusText, 'error')
+                //valid params func()
+                console.log( response.statusText, 'error signup')
             }
         }
-    }
+    }   
     async getHtml() {
         let wrapper = `
         <div>
@@ -67,5 +73,6 @@ export default class {
         let h = super.showHeader('free');
         // console.log(h, 'hed')
         return h + wrapper
+   
     }
-}
+    }
