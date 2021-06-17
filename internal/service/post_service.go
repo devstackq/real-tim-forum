@@ -131,3 +131,9 @@ func (ps *PostService) isEmpty(text string) bool {
 // 	// InternalError(w, r, tpl.ExecuteTemplate(w, "createpost.html", data))
 // 	return
 // }
+
+func (ps *PostService) GetPostsByCategory(category string) (*models.Post, error) {
+
+	posts, err := ps.repository.GetPostsByCategory(category)
+	return posts, nil
+}

@@ -64,3 +64,10 @@ func (ur *PostRepository) CreatePost(post *models.Post) (int64, error) {
 
 	return result.LastInsertId()
 }
+
+func (pr *PostRepository) GetPostsByCategory(category string) (*models.Post, error) {
+
+	posts := models.Post{}
+
+	return &posts, nil
+}

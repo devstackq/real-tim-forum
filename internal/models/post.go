@@ -17,3 +17,7 @@ type Post struct {
 	CountLike    int       `json:"countLike"`
 	CountDislike int       `json:"countDislike"`
 }
+
+type Category struct {
+	Name string `json:"name"`
+}

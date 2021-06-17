@@ -1,9 +1,4 @@
 // curl --header "Content-Type: application/json"   --request POST   --data '{"username":"xyz","password":"xyz", "email":"meow"}'   http://localhost:6969/signup
-//profile service
 
+//start posts
 start chat
-
-2 stage
-spa
-
-middleware - route -auth/non auth

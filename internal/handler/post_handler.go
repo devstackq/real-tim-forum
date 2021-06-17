@@ -2,15 +2,10 @@ package handler
 
 import (
 	"encoding/json"
-
-	"log"
-	// "time"
-	"html/template"
+	"fmt"
 	"io/ioutil"
-
-	// "os"
+	"log"
 	"net/http"
-	// "log"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 )
@@ -22,11 +17,8 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		tmpl := template.Must(template.ParseFiles("../client/template/index.html"))
-		tmpl.Execute(w, nil)
-		// every index html, change route
+		fmt.Println("get create post")
 	case "POST":
-
 		post := &models.Post{}
 		resBody, err := ioutil.ReadAll(r.Body)
 		err = json.Unmarshal(resBody, post)

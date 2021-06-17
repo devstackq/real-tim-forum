@@ -18,10 +18,8 @@ type User interface {
 
 type Post interface {
 	CreatePost(*models.Post) (int64, error)
+	GetPostsByCategory(string) (*models.Post, error)
 }
-
-//struct -> User interface -> CreateUser
-//User receive db, UserRepo Struct -> have method CreateUser()
 
 type Repository struct {
 	User
@@ -34,5 +32,3 @@ func NewRepository(db *sql.DB) *Repository {
 		Post: NewPostRepository(db),
 	}
 }
-
-// Model -> CreateUser func, Repo - conn Db, -> service -> handler

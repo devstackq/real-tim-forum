@@ -20,7 +20,6 @@ export default class Signin extends Parent {
             email: e,
             password: p,
         };
-        // console.log(user, "user")
 
         let response = await fetch('http://localhost:6969/api/signin', {
             method: 'POST',

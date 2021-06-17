@@ -96,18 +96,6 @@ func (ur *UserRepository) UpdateSession(session *models.Session) error {
 	return nil
 }
 
-func (ur *UserRepository) GetUuidInDb(uid string) (string, error) {
-
-	var uuid string
-	query := `SELECT uuid FROM session WHERE user_id=?`
-	row := ur.db.QueryRow(query, uid)
-	err := row.Scan(&uuid)
-	if err != nil {
-		return "", err
-	}
-	return uuid, nil
-}
-
 func (ur *UserRepository) GetUserById(uid string) (*models.User, error) {
 
 	user := models.User{}
@@ -124,4 +112,16 @@ func (ur *UserRepository) GetUserPosts(uid string) (*[]models.Post, error) {
 	//for loop []posts, where user_id =?, query db append each post
 
 	return &posts, nil
+}
+
+func (ur *UserRepository) GetUuidInDb(uid string) (string, error) {
+
+	var uuid string
+	query := `SELECT uuid FROM session WHERE user_id=?`
+	row := ur.db.QueryRow(query, uid)
+	err := row.Scan(&uuid)
+	if err != nil {
+		return "", err
+	}
+	return uuid, nil
 }

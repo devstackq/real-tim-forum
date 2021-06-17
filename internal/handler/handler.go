@@ -26,18 +26,11 @@ func (h *Handler) InitRouter() *http.ServeMux {
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir("../client/static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))
-
+	//add middleware each auth route
 	for _, route := range routes {
 		if route.IsAuth {
-			//route /create/post -> if have sesiion & session correct -> createPost -> else signin page
 			route.Handler = h.IsCookieValid(route.Handler)
 		}
-		// if route.UnAuth {
-		// route.Handler =   h.UnAuthMiddleware(route.Handler), route /
-		// }
-		//default
-		// route.Handler = h.CookieIsValid(route.Handler) //
-		//add  mux, handler
 		mux.HandleFunc(route.Path, route.Handler)
 	}
 	return mux

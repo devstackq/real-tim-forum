@@ -24,9 +24,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		status, id, err := h.Services.User.Create(user)
-
 		if err != nil {
 			JsonResponse(w, r, status, err.Error())
 			return

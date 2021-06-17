@@ -42,6 +42,7 @@ func (us *UserService) Signin(user *models.User) (int, *models.Session, error) {
 	if err != nil {
 		return http.StatusInternalServerError, nil, err
 	}
+
 	session := models.Session{}
 	session.UserID = id
 	session.UUID = uuid
@@ -140,6 +141,7 @@ func (us *UserService) GetDataInDb(str string, what string) (string, error) {
 	return data, nil
 }
 
+// take out utils ?
 func (us *UserService) isEmailValid(user *models.User) bool {
 	Re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,6}$`)
 	return Re.MatchString(user.Email)

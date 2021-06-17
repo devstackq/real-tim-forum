@@ -24,6 +24,5 @@ type User struct {
 	Username    string    `json:"username"`
 	LastTime    time.Time `json:"lasttime"`
 	LastSeen    string    `json:"lastseen"`
+	Session     *Session  `json:"session"`
 }
-
-// Session     *Session  `json:"session"`
