@@ -16,6 +16,7 @@ type Post struct {
 	Image        []byte    `json:"image"`
 	CountLike    int       `json:"countLike"`
 	CountDislike int       `json:"countDislike"`
+	Category     string    `json:"category"`
 }
 
 type Category struct {

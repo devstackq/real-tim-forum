@@ -17,8 +17,8 @@ type User interface {
 }
 
 type Post interface {
-	CreatePost(*models.Post) (int64, error)
-	GetPostsByCategory(string) (*models.Post, error)
+	CreatePost(*models.Post) (int, error)
+	GetPostsByCategory(string) (*[]models.Post, error)
 }
 
 type Repository struct {

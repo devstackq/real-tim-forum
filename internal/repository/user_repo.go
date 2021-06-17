@@ -110,6 +110,7 @@ func (ur *UserRepository) GetUserById(uid string) (*models.User, error) {
 func (ur *UserRepository) GetUserPosts(uid string) (*[]models.Post, error) {
 	posts := []models.Post{}
 	//for loop []posts, where user_id =?, query db append each post
+	// post_category_bridge
 
 	return &posts, nil
 }

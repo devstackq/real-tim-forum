@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 )
 
@@ -25,7 +26,7 @@ func createTables(db *sql.DB) error {
 	db.Exec("PRAGMA foreign_keys=ON")
 
 	postCategoryBridge, err := db.Prepare(`
-	CREATE TABLE IF NOT EXISTS post_cat_bridge(
+	CREATE TABLE IF NOT EXISTS post_category_bridge(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		post_id INTEGER,
 		category_id INTEGER,
@@ -46,8 +47,8 @@ func createTables(db *sql.DB) error {
 		creator_id INTEGER DEFAULT 0, 
 		toWho INTEGER DEFAULT 0, 
 		fromWho INTEGER DEFAULT 0, 
-		create_time DATETIME,  
-		update_time	DATETIME DEFAULT CURRENT_TIMESTAMP, 
+		create_time DATETIME DEFAULT CURRENT_TIMESTAMP,  
+		update_time	DATETIME, 
 		count_like INTEGER DEFAULT 0, 
 		count_dislike  INTEGER DEFAULT 0, 
 		CONSTRAINT fk_key_post_comment 
@@ -64,8 +65,8 @@ func createTables(db *sql.DB) error {
 		thread TEXT,
 		content TEXT,
 		creator_id INTEGER,
-		create_time DATETIME, 
-		update_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+		create_time DATETIME DEFAULT CURRENT_TIMESTAMP, 
+		update_time DATETIME,
 		image BLOB,
 		count_like INTEGER DEFAULT 0,
 		count_dislike INTEGER DEFAULT 0, 
@@ -97,7 +98,7 @@ func createTables(db *sql.DB) error {
 		isAdmin INTEGER DEFAULT 0, 
 		age INTEGER, 
 		sex TEXT,
-		created_time DATETIME, 
+		created_time DATETIME CURRENT_TIMESTAMP, 
 		last_seen DATETIME, 
 		city TEXT, 
 		image BLOB)`,
@@ -127,7 +128,7 @@ func createTables(db *sql.DB) error {
 		post_id INTEGER,  
 		current_user_id INTEGER, 
 		voteState INTEGER DEFAULT 0, 
-		created_time DATETIME, 
+		created_time DATETIME DEFAULT CURRENT_TIMESTAMP, 
 		to_whom INTEGER, 
 		comment_id INTEGER )`)
 	if err != nil {
@@ -139,7 +140,6 @@ func createTables(db *sql.DB) error {
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		name TEXT UNIQUE)`,
 	)
-
 	if err != nil {
 		return err
 	}
@@ -151,15 +151,22 @@ func createTables(db *sql.DB) error {
 
 func putCategoriesInDb(db *sql.DB) {
 
-	//count := utils.GetCountTable("category", db)
 	count := 0
-	if count != 3 {
+
+	err := db.QueryRow("SELECT count(*) FROM category").Scan(&count)
+	if err != nil {
+		log.Println(err)
+	}
+
+	if count == 0 {
 		categories := []string{"science", "love", "nature"}
-		for i := 0; i < count; i++ {
+		for i := 0; i < 3; i++ {
 			categoryPrepare, err := db.Prepare(`INSERT INTO category(name) VALUES(?)`)
 			if err != nil {
 				log.Println(err)
 			}
+			fmt.Println("cat create2", categories[i])
+
 			_, err = categoryPrepare.Exec(categories[i])
 			if err != nil {
 				log.Println(err)

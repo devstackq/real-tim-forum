@@ -14,30 +14,34 @@ import (
 
 //route -> handler -> service -> repos -> dbFunc
 func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
-
 	switch r.Method {
 	case "GET":
 		fmt.Println("get create post")
 	case "POST":
 		post := &models.Post{}
 		resBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		fmt.Println(string(resBody), "json")
+
 		err = json.Unmarshal(resBody, post)
 		if err != nil {
+			fmt.Println(err, "error")
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		log.Println("after", post, post.Content)
 
-		// ***
-		status, id, err := h.Services.Post.Create(post)
-		if err != nil {
-			w.WriteHeader(status)
+		status, err := h.Services.Post.Create(post)
 
+		if err != nil {
+			fmt.Println(err, "error")
+			JsonResponse(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
-		//user.ID = id
-		log.Println(id, status, "id  status")
-
+		log.Println(status, "id  status")
 		http.Redirect(w, r, "/", http.StatusFound)
 
 	default:

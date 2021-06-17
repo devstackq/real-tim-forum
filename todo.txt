@@ -2,3 +2,10 @@
 
 //start posts
 start chat
+
+{
+"thread" : "how do child",
+"category" : "2",
+"content" : "sunulvynul",
+"creatorID" : 1
+}

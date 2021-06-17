@@ -1,14 +1,13 @@
 package service
 
 import (
-	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
-	sqlite "github.com/mattn/go-sqlite3"
 )
 
 type PostService struct {
@@ -19,27 +18,22 @@ type PostService struct {
 func NewPostService(repo repository.Post) *PostService {
 	return &PostService{repo}
 }
-func (ps *PostService) Create(post *models.Post) (int, int, error) {
+func (ps *PostService) Create(post *models.Post) (int, error) {
 
-	if !ps.isValid(post) {
+	// if !ps.isValid(post) {
 
-		lastID, err := ps.repository.CreatePost(post)
-
-		post.CreatedTime = time.Now()
-		if err != nil {
-			if sqliteErr, ok := err.(sqlite.Error); ok {
-				if sqliteErr.ExtendedCode == sqlite.ErrConstraintUnique {
-					return http.StatusBadRequest, -1, errors.New("Post already created")
-				}
-			}
-			return http.StatusInternalServerError, -1, err
-		}
-
-		log.Println(post, "Create service")
-		return http.StatusOK, int(lastID), nil
-	} else {
-		return http.StatusBadRequest, 0, errors.New("content is empty")
+	status, err := ps.repository.CreatePost(post)
+	if err != nil {
+		return http.StatusBadRequest, err
 	}
+	post.CreatedTime = time.Now()
+
+	log.Println(post, status, "Created post")
+	return http.StatusOK, nil
+
+	// } else {
+	// 	return http.StatusBadRequest, errors.New("content is empty")
+	// }
 }
 
 // func (ps *PostService) isImageValid(post *models.Post) bool {
@@ -72,7 +66,7 @@ func (ps *PostService) isValid(post *models.Post) bool {
 }
 
 func (ps *PostService) isEmpty(text string) bool {
-
+	fmt.Println(text)
 	for _, v := range text {
 		if !(v <= 32) {
 			return false
@@ -132,8 +126,8 @@ func (ps *PostService) isEmpty(text string) bool {
 // 	return
 // }
 
-func (ps *PostService) GetPostsByCategory(category string) (*models.Post, error) {
-
+func (ps *PostService) GetPostsByCategory(category string) (*[]models.Post, error) {
 	posts, err := ps.repository.GetPostsByCategory(category)
-	return posts, nil
+
+	return posts, err
 }
