@@ -22,7 +22,7 @@ const navigateTo = url => {
 
 const router = async() => {
     const routes = [
-        { path: "/", view: Posts },
+        { path: "/all", view: Posts },
         { path: "/love", view: Posts },
         { path: "/science", view: Posts },
         { path: "/nature", view: Posts },
@@ -53,7 +53,10 @@ const router = async() => {
     const view = new match.route.view(getParams(match));
     view.setTitle(match.result[0])
     document.querySelector("#app").innerHTML = await view.getHtml();
+    // let category = match.result[0] === '/science' ? match.result[0] === '/love' ? match.result[0] === '/all' ? match.result[0] === '/nature'
+    document.cookie = `category=${match.result[0]}`
     view.init()
+
 };
 
 // window.addEventListener("popstate", router);

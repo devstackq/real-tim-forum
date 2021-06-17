@@ -64,5 +64,10 @@ func (h *Handler) createRoutes() []Route {
 			Handler: h.ProfileHandle,
 			IsAuth:  true,
 		},
+		{
+			Path:    "/api/posts/",
+			Handler: h.GetPosts,
+			IsAuth:  false,
+		},
 	}
 }

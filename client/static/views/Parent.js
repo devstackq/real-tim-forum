@@ -6,6 +6,24 @@ export default class Parent {
         this.value = ''
     }
 
+    render(data, where) {
+
+        let wrapper = document.querySelector(where)
+
+        for (let i = 0; i < wrapper.children.length; i++) {
+            correct render
+            for (let [k, v] of Object.entries(data)) {
+                console.log(k, wrapper.children[i].id)
+                if (k == wrapper.children[i].id) {
+                    wrapper.children[i].textContent = ` ${k} : ${v}`
+                }
+            }
+        }
+        console.log('render', data)
+    }
+
+
+
     showHeader(type) {
 
         let login = ""
@@ -27,7 +45,7 @@ export default class Parent {
 
         return `
         <nav class="nav">
-        <a href="/" class="nav__link" data-link>Main</a>
+        <a href="/all" class="nav__link" data-link>Main</a>
         ${login}
         ${register}
         <div class="dropdown">
@@ -41,6 +59,7 @@ export default class Parent {
        ${profile}
         ${logout}
     </nav>
+    
     <span class='notify' > </span> 
 `
     }

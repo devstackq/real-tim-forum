@@ -17,6 +17,7 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		fmt.Println("get create post")
+
 	case "POST":
 		post := &models.Post{}
 		resBody, err := ioutil.ReadAll(r.Body)
@@ -46,6 +47,25 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	default:
 		// writeResponse(w, http.StatusBadRequest, "Bad Request")
+	}
+}
+func (h *Handler) GetPosts(w http.ResponseWriter, r *http.Request) {
+
+	switch r.Method {
+
+	case "GET":
+		c, err := r.Cookie("category")
+		if err != nil {
+			JsonResponse(w, r, http.StatusBadRequest, "cookie incorrect")
+		}
+		//all, nature, etc
+		posts, err := h.Services.GetPostsByCategory(c.Value[1:])
+		fmt.Println(err, 22)
+		if err != nil {
+			JsonResponse(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		JsonResponse(w, r, http.StatusOK, posts)
 	}
 }
 

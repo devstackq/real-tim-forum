@@ -65,6 +65,7 @@ func createTables(db *sql.DB) error {
 		thread TEXT,
 		content TEXT,
 		creator_id INTEGER,
+		category TEXT,
 		create_time DATETIME DEFAULT CURRENT_TIMESTAMP, 
 		update_time DATETIME,
 		image BLOB,

@@ -10,16 +10,12 @@ export default class Profile extends Parent {
         }
         //auto create or create then -> fill data ?
     showBio(data) {
+
         let bio = document.querySelector('.profileBio')
-
         for (let i = 0; i < bio.children.length; i++) {
-
-            // console.log(bio.children[i])
-
             for (let [k, v] of Object.entries(data)) {
                 if (k == bio.children[i].id) {
                     bio.children[i].textContent = ` ${k} : ${v}`
-
                 }
             }
         }

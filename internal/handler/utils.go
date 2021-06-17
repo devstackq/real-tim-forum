@@ -6,6 +6,7 @@ import (
 )
 
 func JsonResponse(w http.ResponseWriter, r *http.Request, status int, data interface{}) {
+	r.Header.Add("Accept-Charset", "UTF-8;q=1, ISO-8859-1;q=0")
 	w.WriteHeader(status)
 	js, err := json.Marshal(data)
 	if err != nil {

@@ -13,14 +13,15 @@ export default class Posts extends Parent {
     async init() {
 
         let path = window.location.pathname
-        console.log(path)
-        let response = await fetch(`http://localhost:6969${path}`)
-        let result = await response.json()
-
-        console.log(response.statusText, result)
+            // document.cookie( sessionCookie)
+        let response = await fetch(`http://localhost:6969/api/posts/`)
+            // console.log(`http: //localhost:6969/api/posts/${path}`)
+        console.log(response)
 
         if (response.status == 200) {
-            console.log('main page func, get all posts or category posts show')
+            let result = await response.json()
+            console.log(result)
+            super.render(result, '.postContainer')
         }
     }
     async getHtml() {
@@ -28,11 +29,23 @@ export default class Posts extends Parent {
         //show list last created post, filter page getAllPost()
         let authState = localStorage.getItem('isAuth')
 
+        let wrapper = `
+        <div class="postContainer">
+            <span id="category"> </span>
+            <span id="content"> </span>
+            <span id="countLike"> </span>
+            <span id="countDislike"> </span>
+            <span id="thread"> </span>
+            <span id="username"> </span>
+            </div>
+            `
+        let h = ""
         if (authState == 'true') {
             // console.log(authState, 'auth state')
-            return super.showHeader('auth');
+            h = super.showHeader('auth');
         } else {
-            return super.showHeader('free');
+            h = super.showHeader('free');
         }
+        return h + wrapper
     }
 }
