@@ -25,11 +25,11 @@ func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
 		uuid, err := h.Services.User.GetDataInDb(userId.Value, "uuid")
 
 		if uuid == session.Value {
-			log.Println("call hanlde, ok")
+			// log.Println("call hanlde, ok")
 			// JsonResponse(w, r, http.StatusOK, "all right")
 			f.ServeHTTP(w, r)
 		} else {
-			log.Println("session not equal in Db")
+			log.Println("session is not equal in Db")
 			JsonResponse(w, r, http.StatusUnauthorized, "cookie incorrect")
 		}
 		// 	*session = sessionF

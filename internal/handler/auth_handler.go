@@ -24,16 +24,13 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		fmt.Println(err, string(resBody))
 
 		status, id, err := h.Services.User.Create(user)
-		fmt.Println(err, status, 2)
 
 		if err != nil {
 			JsonResponse(w, r, status, err.Error())
 			return
 		}
-		fmt.Println("send id", err, id)
 		//user.ID = id
 		JsonResponse(w, r, status, id)
 	default:

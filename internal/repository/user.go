@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"strconv"
 
@@ -115,7 +114,6 @@ func (ur *UserRepository) GetUserById(uid string) (*models.User, error) {
 	query := `SELECT full_name, email, user_name, age, sex, city FROM users WHERE id=?`
 	row := ur.db.QueryRow(query, uid)
 	err := row.Scan(&user.FullName, &user.Email, &user.Username, &user.Age, &user.Sex, &user.City)
-	fmt.Print(err, 2)
 	if err != nil {
 		return nil, err
 	}

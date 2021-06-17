@@ -1,4 +1,5 @@
 export default class Parent {
+
     constructor(text, type) {
         this.text = text
         this.type = type
@@ -6,7 +7,6 @@ export default class Parent {
     }
 
     showHeader(type) {
-        console.log(type, 'hedaer')
 
         let login = ""
         let register = ""

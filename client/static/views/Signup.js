@@ -1,6 +1,6 @@
 import Parent from "./Parent.js";
 
-export default  class Signup extends Parent {
+export default class Signup extends Parent {
     constructor(params) {
         super()
         this.params = params;
@@ -9,48 +9,51 @@ export default  class Signup extends Parent {
     setTitle(title) {
         document.title = title;
     }
-     init() {
-        //post query
-        document.getElementById('signup').onclick = async function() {
 
-            let e = document.getElementById("email").value;
-            let p = document.getElementById("password").value;
-            let u = document.getElementById("username").value;
-            let f = document.getElementById("fName").value;
-            let a = document.getElementById("age").value;
-            let c = document.getElementById("city").value;
-            let g = document.getElementById("gender").value;
+    async signup() {
 
-            let user = {
-                email: e,
-                password: p,
-                username: u,
-                fullname: f,
-                age: a,
-                city: c,
-                gender: g,
-            };
+        let e = document.getElementById("email").value;
+        let p = document.getElementById("password").value;
+        let u = document.getElementById("username").value;
+        let f = document.getElementById("fName").value;
+        let a = document.getElementById("age").value;
+        let c = document.getElementById("city").value;
+        let g = document.getElementById("gender").value;
 
-            console.log(user, "user")
-            let response = await fetch('http://localhost:6969/api/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                },
-                body: JSON.stringify(user)
-            });
-            let result =  await response.json();
-            // redirect signin page 
-            if (result > 0 && result != undefined) {
-                // super.showNotify('', 'hide')
-                window.location.replace('http://localhost:6969/signin')
-            } else {
-                // super.showNotify(response.statusText, 'error')
-                //valid params func()
-                console.log( response.statusText, 'error signup')
-            }
+        let user = {
+            email: e,
+            password: p,
+            username: u,
+            fullname: f,
+            age: a,
+            city: c,
+            gender: g,
+        };
+
+        // console.log(user, "user")
+        let response = await fetch('http://localhost:6969/api/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(user)
+        });
+        let result = await response.json();
+        // redirect signin page 
+        if (result > 0 && result != undefined) {
+            // super.showNotify('', 'hide')
+            window.location.replace('http://localhost:6969/signin')
+        } else {
+            //validParams()
+            super.showNotify(response.statusText, 'error')
+            console.log(response.statusText, 'error signup')
         }
-    }   
+    }
+
+    init() {
+        document.getElementById('signup').onclick = this.signup
+    }
+
     async getHtml() {
         let wrapper = `
         <div>
@@ -73,6 +76,6 @@ export default  class Signup extends Parent {
         let h = super.showHeader('free');
         // console.log(h, 'hed')
         return h + wrapper
-   
+
     }
-    }
+}

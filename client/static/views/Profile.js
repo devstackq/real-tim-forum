@@ -6,44 +6,45 @@ export default class Profile extends Parent {
         this.params = params;
     }
     setTitle(title) {
-        document.title = title;
-    }
-    //auto create or create then -> fill data ?
-    showBio(data) {
-let bio=  document.querySelector('.profileBio')
-
-for(let i =0; i< bio.children.length; i++) {
-
-console.log(bio.children[i])
-
-for( let [k,v] of Object.entries( data)) {
-if (k == bio.children[i].id) {
-    bio.children[i].textContent = ` ${k} : ${v}`
-
-}
+            document.title = title;
         }
+        //auto create or create then -> fill data ?
+    showBio(data) {
+        let bio = document.querySelector('.profileBio')
+
+        for (let i = 0; i < bio.children.length; i++) {
+
+            // console.log(bio.children[i])
+
+            for (let [k, v] of Object.entries(data)) {
+                if (k == bio.children[i].id) {
+                    bio.children[i].textContent = ` ${k} : ${v}`
+
+                }
             }
         }
+    }
 
     async init() {
         let response = await fetch('http://localhost:6969/api/profile')
         if (response.status === 200) {
             let result = await response.json()
             this.showBio(result)
-            } else {
-                console.log('not uuid || incorrect')
-                window.location.replace('/signin')
+        } else {
+            super.showNotify(response.statusText, 'error')
+                // console.log('not uuid || incorrect')
+            window.location.replace('/signin')
         }
 
-        document.querySelector('#editBio').onclick = ()=> {
+        document.querySelector('#editBio').onclick = () => {
             console.log('edit')
-            // let response = await fetch('http://localhost:6969/api/profile/edit')
+                // let response = await fetch('http://localhost:6969/api/profile/edit')
         }
     }
 
     async getHtml() {
 
-    let bio = `
+        let bio = `
     <div class="profileBio">
         <p id="fullname"> </p>
         <p id="email"> </p>
@@ -55,7 +56,7 @@ if (k == bio.children[i].id) {
     <button id="editBio"> edit </button>
         </div> 
     `
-         let h =  super.showHeader('auth');
-         return h + bio 
-        }
+        let h = super.showHeader('auth');
+        return h + bio
+    }
 }

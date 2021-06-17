@@ -49,16 +49,17 @@ const router = async() => {
             result: [location.pathname]
         };
     }
-    console.log(match, 123)
+    // console.log(match, 123)
     const view = new match.route.view(getParams(match));
     view.setTitle(match.result[0])
     if (match.result[0] == '/') {
         localStorage.setItem('category', 'all')
-    }else if(match.result[0] == '/science') {
+    } else if (match.result[0] == '/science') {
         localStorage.setItem('category', 'science')
-    }else if (match.result[0] == '/love') {
+    } else if (match.result[0] == '/love') {
         localStorage.setItem('category', 'love')
-    }if (match.result[0] == '/nature') {
+    }
+    if (match.result[0] == '/nature') {
         localStorage.setItem('category', 'nature')
     }
     document.querySelector("#app").innerHTML = await view.getHtml();

@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -21,27 +20,26 @@ func NewPostService(repo repository.Post) *PostService {
 	return &PostService{repo}
 }
 func (ps *PostService) Create(post *models.Post) (int, int, error) {
-	//if !ps.isValid(post) {
-	fmt.Println(post, "post data")
 
-	// log.Println("hereeeeee")
-	lastID, err := ps.repository.CreatePost(post)
+	if !ps.isValid(post) {
 
-	post.CreatedTime = time.Now()
-	if err != nil {
-		if sqliteErr, ok := err.(sqlite.Error); ok {
-			if sqliteErr.ExtendedCode == sqlite.ErrConstraintUnique {
-				return http.StatusBadRequest, -1, errors.New("Post already created")
+		lastID, err := ps.repository.CreatePost(post)
+
+		post.CreatedTime = time.Now()
+		if err != nil {
+			if sqliteErr, ok := err.(sqlite.Error); ok {
+				if sqliteErr.ExtendedCode == sqlite.ErrConstraintUnique {
+					return http.StatusBadRequest, -1, errors.New("Post already created")
+				}
 			}
+			return http.StatusInternalServerError, -1, err
 		}
-		return http.StatusInternalServerError, -1, err
-	}
 
-	log.Println(post, "Create service")
-	return http.StatusOK, int(lastID), nil
-	// } else {
-	// 	return http.StatusBadRequest, 0, errors.New("content is empty")
-	// }
+		log.Println(post, "Create service")
+		return http.StatusOK, int(lastID), nil
+	} else {
+		return http.StatusBadRequest, 0, errors.New("content is empty")
+	}
 }
 
 // func (ps *PostService) isImageValid(post *models.Post) bool {

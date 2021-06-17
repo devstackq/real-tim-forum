@@ -36,7 +36,7 @@ func (us *UserService) Signin(user *models.User) (int, *models.Session, error) {
 	if err != nil {
 		return http.StatusBadRequest, nil, err
 	}
-	fmt.Println("pwd and login corect", id, user)
+	// fmt.Println("pwd and login corect", id, user)
 
 	uuid := uuid.Must(uuid.NewV4(), err).String()
 	if err != nil {
@@ -109,7 +109,6 @@ func (us *UserService) GetUserById(userId string) (*models.User, error) {
 
 	// if userId != "" {
 	user, err := us.repository.GetUserById(userId)
-	fmt.Print(user, 1)
 	if err != nil {
 		return nil, err
 	}
