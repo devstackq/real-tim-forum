@@ -13,6 +13,7 @@ type User interface {
 	Logout(*models.Session) error
 	GetUuidInDb(string) (string, error)
 	GetUserById(string) (*models.User, error)
+	GetUserPosts(string) (*[]models.Post, error)
 }
 
 type Post interface {

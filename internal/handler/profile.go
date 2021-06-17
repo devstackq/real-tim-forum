@@ -13,17 +13,22 @@ func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
 			JsonResponse(w, r, http.StatusUnauthorized, err)
 		}
 		//userExist() ?
-		data, err := h.Services.User.GetUserById(uid.Value)
+		user, err := h.Services.User.GetUserById(uid.Value)
 
 		if err != nil {
 			JsonResponse(w, r, http.StatusNotFound, err.Error())
 			return
 		}
-		//getCreatedPost() post/ array post
+		posts, err := h.Services.User.GetUserPosts(uid.Value)
+
+		if err != nil {
+			JsonResponse(w, r, http.StatusNotFound, err.Error())
+			return
+		}
 		//getCreatedComment() comment /array comment
 		//getVotedPost() vote / array post
-		fmt.Println(data)
-		JsonResponse(w, r, http.StatusOK, data)
+		fmt.Println(user, posts)
+		JsonResponse(w, r, http.StatusOK, user)
 	case "POST":
 		//update name, age, etc, delete user, update, delete request
 	}

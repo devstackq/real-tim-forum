@@ -6,6 +6,19 @@
     border: none;
     cursor: pointer;
 }
+.profileBio {
+    width: 340px;
+    height: 340px;
+    padding: 10px;
+    background: #f5f5f5;
+    opacity: 1;
+}
+.profileBio:hover {
+    opacity: .9;
+}
+    #editBio {
+        color: red;
+    }
 
 .dropdown {
     position: relative;

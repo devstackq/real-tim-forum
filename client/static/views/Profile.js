@@ -10,33 +10,52 @@ export default class Profile extends Parent {
     }
     //auto create or create then -> fill data ?
     showBio(data) {
-        let div = document.createElement('div')
-         for( let [k,v] of Object.entries( data)) {
-            console.log(k,v)
-            let span = document.createElement('span')
-            span.textContent = `${k} : ${v}`
-            div.append(span)    
+let bio=  document.querySelector('.profileBio')
+
+for(let i =0; i< bio.children.length; i++) {
+
+console.log(bio.children[i])
+
+for( let [k,v] of Object.entries( data)) {
+if (k == bio.children[i].id) {
+    bio.children[i].textContent = ` ${k} : ${v}`
+
+}
         }
-        document.body.append(div)
-    }
+            }
+        }
 
     async init() {
-        //get by user_id -> data(posts/comments, votes) from backend
         let response = await fetch('http://localhost:6969/api/profile')
-        // console.log(response.status, response)
         if (response.status === 200) {
             let result = await response.json()
-        this.showBio(result)
-            // console.log(result, 'res')
-            //show data
+            this.showBio(result)
             } else {
                 console.log('not uuid || incorrect')
                 window.location.replace('/signin')
+        }
+
+        document.querySelector('#editBio').onclick = ()=> {
+            console.log('edit')
+            // let response = await fetch('http://localhost:6969/api/profile/edit')
         }
     }
 
     async getHtml() {
 
-        return super.showHeader('auth');
-    }
+    let bio = `
+    <div class="profileBio">
+        <p id="fullname"> </p>
+        <p id="email"> </p>
+        <p id="age"> </p>
+        <p id="gender"> </p>
+        <p id="city"> </p>
+        <p id="username"> </p>
+        <p id="lastseen"> </p>
+    <button id="editBio"> edit </button>
+        </div> 
+    `
+         let h =  super.showHeader('auth');
+         return h + bio 
+        }
 }

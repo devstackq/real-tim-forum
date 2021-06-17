@@ -121,3 +121,9 @@ func (ur *UserRepository) GetUserById(uid string) (*models.User, error) {
 	}
 	return &user, nil
 }
+func (ur *UserRepository) GetUserPosts(uid string) (*[]models.Post, error) {
+	posts := []models.Post{}
+	//for loop []posts, where user_id =?, query db append each post
+
+	return &posts, nil
+}
