@@ -74,5 +74,10 @@ func (h *Handler) createRoutes() []Route {
 			Handler: h.GetPostById,
 			IsAuth:  false,
 		},
+		{
+			Path:    "/api/vote",
+			Handler: h.VotePostById,
+			IsAuth:  false,
+		},
 	}
 }

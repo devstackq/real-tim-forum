@@ -9,23 +9,45 @@ export default class Parent {
         console.log(id, 'id')
     }
 
+    async Fetch(endpoint, object) {
+        let response = await fetch(`http://localhost:6969/api/${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(object)
+        });
+        if (response.status == 200) {
+            let result = await response.json()
+            return result, 200
+        }else {
+            return null, 400
+        }
+    }
+
+//render posts & getPostById
     render(item, idx, where) {
 
         let wrapper = document.querySelector(where)
         let btn = document.createElement('button')
+        let div = document.createElement('div')
 
         for (let [k, v] of Object.entries(item)) {
 
             if (v != "" && v != null) {
                 let span = document.createElement('span')
+                div.className = 'postWrapper'
                 span.id = k
                 span.textContent = ` ${k} : ${v}`
-                    // btn.id = 'getPostBy' + idx
-                    // btn.value = item['id']
+
+                // btn.onclick = this.getPostById & try DRY funcs
+
                 btn.onclick = async function() {
-                    // window.postId = item['id']
+                    
                     let postId = { id: 0 }
-                    postId.value = item['id']
+                    postId.id = item['id']
+                   
+                    // DRY - func 
                     let response = await fetch('http://localhost:6969/api/post/id', {
                         method: 'POST',
                         headers: {
@@ -36,28 +58,54 @@ export default class Parent {
                     let res = await response.json(0)
 
                     if (response.status == 200) {
-                        console.log(res)
-                            // window.location.replace(`/post/id:${res}`)
-                            //redirect post component
-                            // or here render () ?
-                            //prev hide, current post show
-                    }
+                        // let status, res  = this.Fetch('post/id', postId)
+                    // if (status == 200) {
+                    let parent = document.querySelector('.postContainer')
+                        
+                        parent.innerHTML = ""                    
+                    
+                        let btnLike = document.createElement('button')
+                                        
+                    let btnDislike = document.createElement('button')
+            btnLike.textContent='like'
+            btnDislike.textContent = 'dislike'
 
-                    // window.location.replace(`/post/id`)
+            btnLike.onclick= async ()=> {
+            let vote = {type: 'like'}
+
+    let response = await fetch('http://localhost:6969/api/vote', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify(vote)
+    });
+    let res = await response.json(0)
+console.log(res)
+    if (response.status == 200) {
+console.log('vote like')
+    }
+}
+                    for(let [k,v] of Object.entries(res)) {
+                            let span = document.createElement('span')
+                            if(v != null && v != "") {
+                                span.textContent = `${k} : ${v}`
+                            }
+                            parent.append(span)
+                        }
+                        parent.append(btnLike)
+                        parent.append(btnDislike)
+                        // window.location.replace(`/post/id`)
+                            //redirect post componen   or here render () ?
+                        }
                 };
-
                 btn.value = idx
                 btn.textContent = `see post`
-                wrapper.appendChild(span)
+                div.appendChild(span)
             }
-            wrapper.appendChild(btn)
-        }
-        //send backend - postId
-        // let btn = document.querySelector("#getPostById")
-        // console.log(btn)
-        // btn.onclick = this.getPostById(btn.value)
-    }
-
+            div.appendChild(btn)
+            wrapper.appendChild(div)
+            }}    
 
     showHeader(type) {
 

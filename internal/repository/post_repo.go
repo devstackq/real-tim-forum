@@ -119,7 +119,7 @@ func (pr *PostRepository) GetPostsByCategory(category string) (*[]models.Post, e
 func (pr *PostRepository) GetPostById(postId int) (*models.Post, error) {
 
 	post := models.Post{}
-
+	fmt.Println(postId)
 	query := `SELECT * FROM posts WHERE id=?`
 	row := pr.db.QueryRow(query, postId)
 	err := row.Scan(&post.ID, &post.Thread, &post.Content, &post.CreatorID, &post.Category, &post.CreatedTime, &post.UpdatedTime, &post.Image, &post.CountLike, &post.CountDislike)

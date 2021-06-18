@@ -55,7 +55,9 @@ const router = async() => {
     const view = new match.route.view(getParams(match));
     view.setTitle(match.result[0])
     document.querySelector("#app").innerHTML = await view.getHtml();
-    document.cookie = `category=${match.result[0]}`
+    let date = new Date(Date.now() + 86400);
+
+    document.cookie = `category=${match.result[0]}; path=/; expires=${date.toUTCString()}`
     view.init()
 };
 
