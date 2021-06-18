@@ -19,6 +19,7 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("get create post")
 
 	case "POST":
+
 		post := &models.Post{}
 		resBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {

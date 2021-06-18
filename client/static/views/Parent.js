@@ -6,23 +6,29 @@ export default class Parent {
         this.value = ''
     }
 
-    render(data, where) {
+    render(item, idx, where) {
 
         let wrapper = document.querySelector(where)
 
-        for (let i = 0; i < wrapper.children.length; i++) {
-            correct render
-            for (let [k, v] of Object.entries(data)) {
-                console.log(k, wrapper.children[i].id)
-                if (k == wrapper.children[i].id) {
-                    wrapper.children[i].textContent = ` ${k} : ${v}`
-                }
-            }
-        }
-        console.log('render', data)
+        for (let [k, v] of Object.entries(item)) {
+    if(v != "" && v != null  ) {
+        let span = document.createElement('span')
+        span.id = k
+        span.textContent = ` ${k} : ${v}`
+let btn = document.createElement('button')
+btn.id='postBtn'
+btn.textContent = `getPost ${idx}`
+wrapper.appendChild(btn)
+        wrapper.appendChild(span)
+    }
+
     }
 
 
+    }
+    send id from backend - each post,
+    handle click - post -> func -> getPostByiD
+    corerct show btn 1 post 1 btn
 
     showHeader(type) {
 

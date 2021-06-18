@@ -21,8 +21,10 @@ export default class Posts extends Parent {
         if (response.status == 200) {
             let result = await response.json()
             console.log(result)
-            super.render(result, '.postContainer')
-        }
+            result.forEach((element, idx)  => {
+            super.render(element, idx, '.postContainer')
+        })
+    }
     }
     async getHtml() {
         // let uuid = document.cookie.split(";")[1].slice(9, )
@@ -31,12 +33,7 @@ export default class Posts extends Parent {
 
         let wrapper = `
         <div class="postContainer">
-            <span id="category"> </span>
-            <span id="content"> </span>
-            <span id="countLike"> </span>
-            <span id="countDislike"> </span>
-            <span id="thread"> </span>
-            <span id="username"> </span>
+            
             </div>
             `
         let h = ""

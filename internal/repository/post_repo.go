@@ -86,6 +86,7 @@ func (pr *PostRepository) JoinCategoryPost(pid int64, category string) error {
 func (pr *PostRepository) GetPostsByCategory(category string) (*[]models.Post, error) {
 
 	arrPosts := []models.Post{}
+
 	post := models.Post{}
 	var rows *sql.Rows
 	var err error
@@ -100,7 +101,7 @@ func (pr *PostRepository) GetPostsByCategory(category string) (*[]models.Post, e
 		fmt.Println("all2")
 		rows, err = pr.db.Query("SELECT thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts ORDER  BY create_time  DESC")
 	}
-	// fmt.Println(category, temp)
+	fmt.Println(category)
 
 	if err != nil {
 		return nil, err

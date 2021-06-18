@@ -10,12 +10,12 @@ type Post struct {
 	Thread       string    `json:"thread"`
 	Content      string    `json:"content"`
 	Categories   []string  `json:"categories"`
-	CreatorID    int       `json:"creatorID"`
-	CreatedTime  time.Time `json:"createdTime"`
-	UpdatedTime  time.Time `json:"updatedTime"`
+	CreatorID    int       `json:"creatorid"`
+	CreatedTime  time.Time `json:"createdtime"`
+	UpdatedTime  time.Time `json:"updatedtime"`
 	Image        []byte    `json:"image"`
-	CountLike    int       `json:"countLike"`
-	CountDislike int       `json:"countDislike"`
+	CountLike    int       `json:"countlike"`
+	CountDislike int       `json:"countdislike"`
 	Category     string    `json:"category"`
 }
 
