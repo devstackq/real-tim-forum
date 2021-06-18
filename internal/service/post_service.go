@@ -127,10 +127,19 @@ func (ps *PostService) isEmpty(text string) bool {
 // }
 
 func (ps *PostService) GetPostsByCategory(category string) (*[]models.Post, error) {
-	fmt.Println(category)
+
 	posts, err := ps.repository.GetPostsByCategory(category)
 	if err != nil {
 		return nil, err
 	}
 	return posts, nil
+}
+
+func (ps *PostService) GetPostById(postId int) (*models.Post, error) {
+
+	post, err := ps.repository.GetPostById(postId)
+	if err != nil {
+		return nil, err
+	}
+	return post, nil
 }

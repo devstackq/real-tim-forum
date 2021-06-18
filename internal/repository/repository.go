@@ -19,6 +19,7 @@ type User interface {
 type Post interface {
 	CreatePost(*models.Post) (int, error)
 	GetPostsByCategory(string) (*[]models.Post, error)
+	GetPostById(int) (*models.Post, error)
 }
 
 type Repository struct {

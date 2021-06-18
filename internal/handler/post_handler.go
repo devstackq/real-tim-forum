@@ -70,12 +70,13 @@ func (h *Handler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		JsonResponse(w, r, http.StatusOK, posts)
 	}
 }
+
 func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 
 	case "GET":
-
+		fmt.Println("get post by id")
 	case "POST":
 		post := &models.Post{}
 		resBody, err := ioutil.ReadAll(r.Body)
@@ -83,7 +84,15 @@ func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		fmt.Println(string(resBody), "json getPostby id", post)
+		err = json.Unmarshal(resBody, post)
+		result, err := h.Services.GetPostById(post.ID)
+		if err != nil {
+			fmt.Println(err)
+			JsonResponse(w, r, http.StatusBadRequest, err)
+			return
+		}
+		JsonResponse(w, r, http.StatusOK, result)
+		fmt.Println(result)
 	}
 }
 

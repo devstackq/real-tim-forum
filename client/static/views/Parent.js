@@ -9,7 +9,6 @@ export default class Parent {
         console.log(id, 'id')
     }
 
-
     render(item, idx, where) {
 
         let wrapper = document.querySelector(where)
@@ -22,10 +21,11 @@ export default class Parent {
                 span.id = k
                 span.textContent = ` ${k} : ${v}`
                     // btn.id = 'getPostBy' + idx
+                    // btn.value = item['id']
                 btn.onclick = async function() {
-                    // this.getPostById(idx)
-                    let postId = { value: 0 }
-                    postId.value = idx
+                    // window.postId = item['id']
+                    let postId = { id: 0 }
+                    postId.value = item['id']
                     let response = await fetch('http://localhost:6969/api/post/id', {
                         method: 'POST',
                         headers: {
@@ -33,12 +33,19 @@ export default class Parent {
                         },
                         body: JSON.stringify(postId)
                     });
+                    let res = await response.json(0)
+
                     if (response.status == 200) {
-                        console.log(response.statusText)
+                        console.log(res)
+                            // window.location.replace(`/post/id:${res}`)
                             //redirect post component
                             // or here render () ?
+                            //prev hide, current post show
                     }
+
+                    // window.location.replace(`/post/id`)
                 };
+
                 btn.value = idx
                 btn.textContent = `see post`
                 wrapper.appendChild(span)

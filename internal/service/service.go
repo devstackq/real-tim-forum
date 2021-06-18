@@ -16,6 +16,7 @@ type User interface {
 type Post interface {
 	Create(*models.Post) (int, error)
 	GetPostsByCategory(string) (*[]models.Post, error)
+	GetPostById(int) (*models.Post, error)
 }
 type Service struct {
 	User

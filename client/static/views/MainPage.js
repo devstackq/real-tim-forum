@@ -15,9 +15,7 @@ export default class Posts extends Parent {
     }
 
     async init() {
-
         // let path = window.location.pathname
-
         let response = await fetch(`http://localhost:6969/api/post/`)
 
         if (response.status == 200) {
@@ -26,25 +24,20 @@ export default class Posts extends Parent {
             result.forEach((element, idx) => {
                 super.render(element, idx, '.postContainer')
             })
-
         }
     }
 
     async getHtml() {
         // let uuid = document.cookie.split(";")[1].slice(9, )
-
         let authState = localStorage.getItem('isAuth')
-
-        let wrapper = `
-        <div class="postContainer"</div>`
-
-        let h = ""
-        if (authState == 'true') {
             // console.log(authState, 'auth state')
-            h = super.showHeader('auth');
+        let wrapper = `<div class="postContainer"</div>`
+
+        if (authState == 'true') {
+            return super.showHeader('auth') + wrapper
         } else {
-            h = super.showHeader('free');
+            return super.showHeader('free') + wrapper
         }
-        return h + wrapper
+        // return h + wrapper
     }
 }
