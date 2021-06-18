@@ -43,9 +43,10 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 			JsonResponse(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
-		log.Println(status, "id  status")
-		http.Redirect(w, r, "/", http.StatusFound)
 
+		log.Println(status, "id  status")
+		//or redierct created cpost ?
+		// http.Redirect(w, r, "/", http.StatusFound)
 	default:
 		// writeResponse(w, http.StatusBadRequest, "Bad Request")
 	}
@@ -67,6 +68,22 @@ func (h *Handler) GetPosts(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		JsonResponse(w, r, http.StatusOK, posts)
+	}
+}
+func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
+
+	switch r.Method {
+
+	case "GET":
+
+	case "POST":
+		post := &models.Post{}
+		resBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		fmt.Println(string(resBody), "json getPostby id", post)
 	}
 }
 

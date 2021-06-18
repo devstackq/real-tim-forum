@@ -5,30 +5,52 @@ export default class Parent {
         this.type = type
         this.value = ''
     }
+    getPostById(id) {
+        console.log(id, 'id')
+    }
+
 
     render(item, idx, where) {
 
         let wrapper = document.querySelector(where)
+        let btn = document.createElement('button')
 
         for (let [k, v] of Object.entries(item)) {
-    if(v != "" && v != null  ) {
-        let span = document.createElement('span')
-        span.id = k
-        span.textContent = ` ${k} : ${v}`
-let btn = document.createElement('button')
-btn.id='postBtn'
-btn.textContent = `getPost ${idx}`
-wrapper.appendChild(btn)
-        wrapper.appendChild(span)
+
+            if (v != "" && v != null) {
+                let span = document.createElement('span')
+                span.id = k
+                span.textContent = ` ${k} : ${v}`
+                    // btn.id = 'getPostBy' + idx
+                btn.onclick = async function() {
+                    // this.getPostById(idx)
+                    let postId = { value: 0 }
+                    postId.value = idx
+                    let response = await fetch('http://localhost:6969/api/post/id', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json;charset=utf-8'
+                        },
+                        body: JSON.stringify(postId)
+                    });
+                    if (response.status == 200) {
+                        console.log(response.statusText)
+                            //redirect post component
+                            // or here render () ?
+                    }
+                };
+                btn.value = idx
+                btn.textContent = `see post`
+                wrapper.appendChild(span)
+            }
+            wrapper.appendChild(btn)
+        }
+        //send backend - postId
+        // let btn = document.querySelector("#getPostById")
+        // console.log(btn)
+        // btn.onclick = this.getPostById(btn.value)
     }
 
-    }
-
-
-    }
-    send id from backend - each post,
-    handle click - post -> func -> getPostByiD
-    corerct show btn 1 post 1 btn
 
     showHeader(type) {
 
@@ -65,7 +87,6 @@ wrapper.appendChild(btn)
        ${profile}
         ${logout}
     </nav>
-    
     <span class='notify' > </span> 
 `
     }

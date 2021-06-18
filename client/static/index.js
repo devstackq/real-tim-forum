@@ -57,6 +57,8 @@ const router = async() => {
     document.cookie = `category=${match.result[0]}`
     view.init()
 
+
+
 };
 
 // window.addEventListener("popstate", router);

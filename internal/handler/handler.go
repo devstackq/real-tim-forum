@@ -55,7 +55,7 @@ func (h *Handler) createRoutes() []Route {
 			IsAuth:  false,
 		},
 		{
-			Path:    "/api/create/post",
+			Path:    "/api/post/create",
 			Handler: h.CreatePost,
 			IsAuth:  true,
 		},
@@ -65,8 +65,13 @@ func (h *Handler) createRoutes() []Route {
 			IsAuth:  true,
 		},
 		{
-			Path:    "/api/posts/",
+			Path:    "/api/post/",
 			Handler: h.GetPosts,
+			IsAuth:  false,
+		},
+		{
+			Path:    "/api/post/id",
+			Handler: h.GetPostById,
 			IsAuth:  false,
 		},
 	}
