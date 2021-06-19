@@ -62,7 +62,7 @@ func (h *Handler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		}
 		//all, nature, etc
 		posts, err := h.Services.GetPostsByCategory(c.Value[1:])
-		fmt.Println(err, 22)
+		// fmt.Println(err, 22)
 		if err != nil {
 			JsonResponse(w, r, http.StatusInternalServerError, err)
 			return

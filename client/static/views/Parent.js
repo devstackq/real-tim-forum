@@ -2,7 +2,6 @@ export default class Parent {
   constructor(text, type) {
     this.text = text;
     this.type = type;
-    this.value = "";
     this.item = [];
   }
 
@@ -37,19 +36,37 @@ export default class Parent {
       if (v["class"] != undefined) {
         x.className = v["class"];
       }
+    
       if (v["child"] != undefined) {
         x.appendChild(v.child);
       }
       if (v["parent"] != undefined) {
         v["parent"].append(x);
       }
+        //check funcType == 'vote', comment
+        if (v["func"] != undefined) {
+            console.log(v['func'](v['text']) )
+            x.onclick = ()=> {
+                v["func"](v["text"])    
+            }
+          }
+    }
+  }
+
+  async lostComment(text) {
+    let comment = { msg: text };
+    let result = this.fetch("/comment", comment);
+    if (result != null) {
+      console.log(res);
+    } else {
+      this.showNotify("error msg  comment", "error");
     }
   }
 
   async votePost(type) {
+      console.lof(vote,2)
     let vote = { type: "" };
     vote.type = type;
-
     let object = await this.fetch("vote", vote);
 
     if (object != null) {
@@ -69,12 +86,12 @@ export default class Parent {
 
       parent.innerHTML = "";
 
-      let btnLike = document.createElement("button");
+      //   let btnLike = document.createElement("button");
       let btnDislike = document.createElement("button");
       let btnTextarea = document.createElement("button");
-      btnLike.id = "btnLike";
+      //   btnLike.id = "btnLike";
 
-      btnLike.textContent = "like";
+      //   btnLike.textContent = "like";
       btnDislike.textContent = "dislike";
       btnTextarea.textContent = "lost comment";
 
@@ -88,48 +105,57 @@ export default class Parent {
         }
         parent.append(span);
       }
-      parent.append(btnLike);
+      //   parent.append(btnLike);
       parent.append(btnDislike);
       parent.append(textarea);
       parent.append(btnTextarea);
 
-    //   this.createElement([
-    //     { type: "input" },
-    //     { id: "maestro" },
-    //     { text: "skr" },
-    //     { child: btnLike },
-    //     { parent: parent },
-    //   ]);
+      this.createElement([
+        { type: "button" },
+        { id: "btnLike" },
+        { text: "like" },
+        { parent: parent },
+        { func: this.votePost },
+      ]);
 
-      btnTextarea.onclick = () => {
-        // this.votePost("like");
+      //lost comment here ?
+      btnTextarea.onclick = async () => {
+        let text = document.getElementById("commentField").value;
+        let res = await this.lostComment(text);
         console.log(
+          res,
           "get data from text area, then create comment by post id, then -> show under current post new comment"
         );
       };
-
-      btnLike.onclick = () => {
-        this.votePost("like");
-      };
+      //   btnLike.onclick = () => {
+      //     this.votePost("like");
+      //   };
       btnDislike.onclick = () => {
         this.votePost("dislike");
       };
     }
   }
 
-  //render posts & getPostById
-  render(item, idx, where) {
+  //uniq func ? type - post -> postMethod etc
+  render(item, idx, where, type) {
     let wrapper = document.querySelector(where);
     let btn = document.createElement("button");
     let div = document.createElement("div");
+    // let className=''
+    // let f = null
+    //     if(type =='post') {
+    //         className = 'postWrapper'
+    //         f = this.postById
+    //     }else if (type=='profile'){
+    //         className = 'profileWrapper'
+    //         f = this.editProfile
+    div.className = "postWrapper";
 
     for (let [k, v] of Object.entries(item)) {
       if (v != "" && v != null) {
         let span = document.createElement("span");
-        div.className = "postWrapper";
         span.id = k;
         span.textContent = ` ${k} : ${v}`;
-
         btn.value = idx;
         btn.textContent = `see post`;
 

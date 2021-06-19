@@ -10,13 +10,10 @@ export default class Post extends Parent {
     document.title = title;
   }
 
-  1todo, post create
-2    use  super.createElement([
-
-  async init() {
+   init() {
     //use super.fetch(endpoit, object)
 
-    document.querySelector("#createPost").onclick = () => {
+    document.querySelector("#createPost").onclick = async() => {
       let post = {
         thread: "",
         content: "",

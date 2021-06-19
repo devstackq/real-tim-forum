@@ -20,6 +20,9 @@
     align-items: center;
     border: 1px solid red;
 }
+.postContainer span {
+    margin-bottom: 5px;
+}
 .postWrapper {
     display: flex;
     flex-direction: column;

@@ -20,17 +20,10 @@ export default class Signin extends Parent {
             email: e,
             password: p,
         };
-        // console.log('signin func')
-        let response = await fetch('http://localhost:6969/api/signin', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify(user)
-        });
-        // redirect signin page 
-        if (response.status == 200) {
-            super.showNotify('', 'hide')
+        
+        let result = await super.fetch('signin', user)
+        if (result != null) {
+            // super.showNotify('', 'hide')
             localStorage.setItem('isAuth', true)
             window.location.replace('http://localhost:6969/profile')
         } else {
@@ -40,23 +33,19 @@ export default class Signin extends Parent {
     }
 
     init() {
-
         let btn = document.querySelector('#signin')
         btn.onclick = this.signin
-            //send data to Parent constructoer -> then use parent method value
-            // let n = new Signin('soma', 'error')
     }
 
     async getHtml() {
-        let wrapper = `
+        let body = `
         <div>
         <input type='email' id='email' placeholder='email' required>
         <input type="password" id="password" placeholder='password' required>
         <input type='submit' id='signin' value="signin"/>
         </div>
         `
-        let h = super.showHeader('free');
-        // console.log(h, 'hed')
-        return h + wrapper
+        let header = super.showHeader('free');
+        return header + body
     }
 };
