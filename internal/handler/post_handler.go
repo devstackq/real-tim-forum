@@ -35,6 +35,8 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Println("after", post, post.Content)
+		uid, _ := r.Cookie("user_id")
+		post.CreatorID = uid.Value
 
 		status, err := h.Services.Post.Create(post)
 
@@ -60,11 +62,10 @@ func (h *Handler) GetPosts(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			JsonResponse(w, r, http.StatusBadRequest, "cookie incorrect")
 		}
-		//all, nature, etc
 		posts, err := h.Services.GetPostsByCategory(c.Value[1:])
 		// fmt.Println(err, 22)
 		if err != nil {
-			JsonResponse(w, r, http.StatusInternalServerError, err)
+			JsonResponse(w, r, http.StatusBadRequest, err)
 			return
 		}
 		JsonResponse(w, r, http.StatusOK, posts)

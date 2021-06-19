@@ -24,10 +24,13 @@ export default class Posts extends Parent {
   async getHtml() {
     // let uuid = document.cookie.split(";")[1].slice(9, )
     let authState = localStorage.getItem("isAuth");
-    let body = `<div class="postContainer"</div>`;
+    let body = `<div class="postContainer"> 
+    </div>`;
 
+    let create = `<a href="/post/create" class="nav__link" data-link>create</a>`
+    
     if (authState == "true") {
-      return super.showHeader("auth") + body;
+      return super.showHeader("auth") + body + create
     } else {
       return super.showHeader("free") + body;
     }

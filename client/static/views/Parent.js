@@ -20,6 +20,18 @@ export default class Parent {
       return null;
     }
   }
+
+  async votePost(type) {
+    console.log(type, 2);
+    let vote = { type: "" };
+    vote.type = type;
+    
+    let object = await this.fetch("vote", vote);
+    if (object != null) {
+      console.log("vote state", object);
+    }
+  }
+
   createElement(...params) {
     console.log(params[0]);
     let x = null;
@@ -36,20 +48,20 @@ export default class Parent {
       if (v["class"] != undefined) {
         x.className = v["class"];
       }
-    
+
       if (v["child"] != undefined) {
         x.appendChild(v.child);
       }
       if (v["parent"] != undefined) {
         v["parent"].append(x);
       }
-        //check funcType == 'vote', comment
-        if (v["func"] != undefined) {
-            console.log(v['func'](v['text']) )
-            x.onclick = ()=> {
-                v["func"](v["text"])    
-            }
-          }
+      //check funcType == 'vote', comment
+      if (v["func"] != undefined) {
+        console.log(v["text"]);
+        x.onclick = () => {
+            v.func('like')
+        };
+      }
     }
   }
 
@@ -63,17 +75,6 @@ export default class Parent {
     }
   }
 
-  async votePost(type) {
-      console.lof(vote,2)
-    let vote = { type: "" };
-    vote.type = type;
-    let object = await this.fetch("vote", vote);
-
-    if (object != null) {
-      console.log("vote state", object);
-    }
-  }
-
   async postById(id) {
     let postId = { id: 0 };
     postId.id = id;
@@ -83,14 +84,11 @@ export default class Parent {
     if (object != null) {
       // let status, res  = this.Fetch('post/id', postId)
       let parent = document.querySelector(".postContainer");
-
       parent.innerHTML = "";
-
       //   let btnLike = document.createElement("button");
       let btnDislike = document.createElement("button");
       let btnTextarea = document.createElement("button");
       //   btnLike.id = "btnLike";
-
       //   btnLike.textContent = "like";
       btnDislike.textContent = "dislike";
       btnTextarea.textContent = "lost comment";
@@ -117,7 +115,6 @@ export default class Parent {
         { parent: parent },
         { func: this.votePost },
       ]);
-
       //lost comment here ?
       btnTextarea.onclick = async () => {
         let text = document.getElementById("commentField").value;
@@ -135,6 +132,22 @@ export default class Parent {
       };
     }
   }
+
+// creatEleme func todo
+// another url path ->  server  error fix
+//DRY fillObject use another component
+//create button -> fix -> show only auth user show
+
+ 
+fillObject(obj) {
+
+for(let [k,v] of Object.entries(obj) ) {
+    if( document.getElementById(k) != null) {
+     obj[k]=document.getElementById(k).value
+   }
+  }
+return obj
+}
 
   //uniq func ? type - post -> postMethod etc
   render(item, idx, where, type) {
@@ -192,6 +205,7 @@ export default class Parent {
         <a href="/all" class="nav__link" data-link>Main</a>
         ${login}
         ${register}
+        
         <div class="dropdown">
           <button class="dropbtn">Categories</button>
           <div class="dropdown-content">
@@ -201,6 +215,7 @@ export default class Parent {
         </div>
         </div>
        ${profile}
+
         ${logout}
     </nav>
     <span class='notify' > </span> 

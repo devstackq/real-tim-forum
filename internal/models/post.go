@@ -10,7 +10,7 @@ type Post struct {
 	Thread       string    `json:"thread"`
 	Content      string    `json:"content"`
 	Categories   []string  `json:"categories"`
-	CreatorID    int       `json:"creatorid"`
+	CreatorID    string    `json:"creatorid"`
 	CreatedTime  time.Time `json:"createdtime"`
 	UpdatedTime  time.Time `json:"updatedtime"`
 	Image        []byte    `json:"image"`

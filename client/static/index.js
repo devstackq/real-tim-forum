@@ -23,10 +23,10 @@ const navigateTo = url => {
 
 const router = async() => {
     const routes = [
-        { path: "/all", view: Posts },
-        { path: "/love", view: Posts },
+        { path: "/all",     view: Posts },
+        { path: "/love",  view: Posts },
         { path: "/science", view: Posts },
-        { path: "/nature", view: Posts },
+        { path: "/nature",  view: Posts },
         { path: "/profile", view: Profile },
         { path: "/signup", view: Signup },
         { path: "/signin", view: Signin  },

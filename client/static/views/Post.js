@@ -7,39 +7,54 @@ export default class Post extends Parent {
   }
 
   setTitle(title) {
-    document.title = title;
+    document.title =  title;
   }
 
+  
    init() {
-    //use super.fetch(endpoit, object)
-
+    //use super.fetch(endpoit, object)h
     document.querySelector("#createPost").onclick = async() => {
       let post = {
         thread: "",
         content: "",
-        categoryid: 0,
-        category: "",
-        creatorid: 0,
+        category: 0,
       };
+//DRY
+post = super.fillObject(post)
+if(post == null) { 
+ super.showNotify('post fill error', 'error') 
+return
+}
+
+      // post.creatorid = document.cookie('user_id')
       //get value from html input
-      // post.thread =
       let object = await super.fetch("post/create", post);
       if (object != null) {
         console.log("post created");
+        //redirect -> created post
+      }else {
+        super.showNotify('not create post', 'error')
       }
     };
   }
+
   async getHtml() {
-    let wrapper = `
+    let body = `
         <div>
         <input id="thread" required placeholder='thread post'/>
         <input id="content" required placeholder='content'/>
-        <input id="category" required placeholder='thread post'/>
+        <label> category:
+        <select id='category' required>
+        <option></option>
+        <option value='2'>love</option>
+        <option value='1'>science</option>
+        <option value='3'>nature</option>
+      </select>
+      </label>
         <button id='createPost'> create </button>
         </div>
         `;
-    //authType
-    let h = super.showHeader("free");
-    return h + wrapper;
+    let header = super.showHeader("free");
+    return header + body;
   }
 }
