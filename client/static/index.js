@@ -3,7 +3,7 @@ import Profile from "./views/Profile.js";
 import Signup from './views/Signup.js';
 import Signin from './views/Signin.js';
 import Logout from './views/Logout.js';
-import Post from './views/Post.js';
+// import Post from './views/Post.js';
 
 const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
 
@@ -31,7 +31,7 @@ const router = async() => {
         { path: "/signup", view: Signup },
         { path: "/signin", view: Signin },
         { path: "/logout", view: Logout },
-        { path: "/post/id", view: Post },
+        // { path: "/post/id", view: Post },
         // { path: "/post/:id", view: PostView },
     ];
 
