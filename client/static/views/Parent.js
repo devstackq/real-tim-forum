@@ -3,8 +3,12 @@ export default class Parent {
     this.text = text;
     this.type = type;
     this.item = [];
-  }
+    this.userId = 0
+    }
 
+getUserId() {
+  return this.userId
+}
   getLocalStorageState(type) {
     return localStorage.getItem(type);
   }
@@ -25,17 +29,6 @@ export default class Parent {
     }
   }
 
-  async votePost(type) {
-    console.log(type, 2);
-    let vote = { type: "" };
-    vote.type = type;
-
-    let object = await this.fetch("vote", vote);
-    if (object != null) {
-      console.log("vote state", object);
-    }
-  }
-
   createElement(...params) {
     console.log(params[0]);
     let x = null;
@@ -49,10 +42,16 @@ export default class Parent {
       if (v["text"] != undefined) {
         x.textContent = v["text"];
       }
+      if (v["value"] != undefined) {
+        x.value = v["value"];
+      }
+   
       if (v["class"] != undefined) {
         x.className = v["class"];
       }
-
+      if (v["attr"] != undefined) {
+        x.setAttribute('id', v['id'])
+      }
       if (v["child"] != undefined) {
         x.appendChild(v.child);
       }
@@ -69,14 +68,15 @@ export default class Parent {
     }
   }
 
-  // send func inside -> getPost component ?
   
-  //isAuth - middleware -> showHeader - change
-  // creatEleme func todo
-  // another url path ->  server  error fix
-  // fix - > each post -> own url/id
-// create func - render - for uniq type, where etc
-  
+  isAuth - middleware -> showHeader - change
+  validParams -> userId >0, userId > 0, middleware
+  another url path ->  server  error fix backend
+  vote service continue
+
+  //create func - render - for uniq type, where etc super() Parent
+
+
 fillObject(obj) {
     for (let [k, v] of Object.entries(obj)) {
       if (document.getElementById(k) != null) {
@@ -123,6 +123,11 @@ fillObject(obj) {
   }
 
   showHeader(type) {
+
+    if(document.cookie.split(";").length > 1) {
+      this.userId = document.cookie.split(";")[1].slice(9, )
+    }
+
     let login = "";
     let register = "";
     let logout = "";

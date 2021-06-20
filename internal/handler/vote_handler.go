@@ -16,16 +16,23 @@ func (h *Handler) VotePostById(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("get post by id")
 	case "POST":
-		post := &models.Post{}
+		vote := &models.Vote{}
 		resBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		fmt.Println(string(resBody))
-		err = json.Unmarshal(resBody, post)
+		err = json.Unmarshal(resBody, vote)
+		if err != nil {
+			JsonResponse(w, r, http.StatusBadRequest, err)
+			return
+		}
+		// fmt.Println(vote, 11)
+		err := h.Services.Vote.VotePost(vote)
+		if err != nil {
+			JsonResponse(w, r, http.StatusInternalServerError, err)
+			return
+		}
 
-		// err := h.Services.Vote.VotePost(type)
 	}
-
 }

@@ -53,7 +53,7 @@ func (pr *PostRepository) CreatePost(post *models.Post) (int, error) {
 	defer query.Close()
 
 	postid, err := result.LastInsertId()
-	post.ID = int(postid)
+	post.ID = string(postid)
 	if err != nil {
 		return -1, err
 	}
@@ -116,10 +116,10 @@ func (pr *PostRepository) GetPostsByCategory(category string) (*[]models.Post, e
 	return &arrPosts, nil
 }
 
-func (pr *PostRepository) GetPostById(postId int) (*models.Post, error) {
+func (pr *PostRepository) GetPostById(postId string) (*models.Post, error) {
 
 	post := models.Post{}
-	fmt.Println(postId)
+	// fmt.Println(postId)
 	query := `SELECT * FROM posts WHERE id=?`
 	row := pr.db.QueryRow(query, postId)
 	err := row.Scan(&post.ID, &post.Thread, &post.Content, &post.CreatorID, &post.Category, &post.CreatedTime, &post.UpdatedTime, &post.Image, &post.CountLike, &post.CountDislike)

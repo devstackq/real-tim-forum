@@ -19,9 +19,7 @@ func NewPostService(repo repository.Post) *PostService {
 	return &PostService{repo}
 }
 func (ps *PostService) Create(post *models.Post) (int, error) {
-
 	// if !ps.isValid(post) {
-
 	status, err := ps.repository.CreatePost(post)
 	if err != nil {
 		return http.StatusBadRequest, err
@@ -30,7 +28,6 @@ func (ps *PostService) Create(post *models.Post) (int, error) {
 
 	log.Println(post, status, "Created post")
 	return http.StatusOK, nil
-
 	// } else {
 	// 	return http.StatusBadRequest, errors.New("content is empty")
 	// }
@@ -135,7 +132,7 @@ func (ps *PostService) GetPostsByCategory(category string) (*[]models.Post, erro
 	return posts, nil
 }
 
-func (ps *PostService) GetPostById(postId int) (*models.Post, error) {
+func (ps *PostService) GetPostById(postId string) (*models.Post, error) {
 
 	post, err := ps.repository.GetPostById(postId)
 	if err != nil {

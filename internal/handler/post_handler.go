@@ -71,16 +71,20 @@ func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		post := &models.Post{}
 		resBody, err := ioutil.ReadAll(r.Body)
+		fmt.Println(string(resBody))
 		if err != nil {
+			fmt.Println(err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		err = json.Unmarshal(resBody, post)
 		if err != nil {
+			fmt.Println(err)
 			JsonResponse(w, r, http.StatusBadRequest, err)
 			return
 		}
 		result, err := h.Services.GetPostById(post.ID)
+		fmt.Println(result)
 		if err != nil {
 			fmt.Println(err)
 			JsonResponse(w, r, http.StatusBadRequest, err)

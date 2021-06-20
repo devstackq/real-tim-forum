@@ -32,9 +32,9 @@ export default class Signup extends Parent {
     user.age = 21
   }
 
-  let result = await super.fetch("signup", user);
+  let uid = await super.fetch("signup", user);
 
-    if (result > 0 && result != undefined) {
+    if (uid > 0 ) {
       window.location.replace("http://localhost:6969/signin");
     } else {
       //validParams() todo
