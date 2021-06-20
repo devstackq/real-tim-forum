@@ -13,17 +13,14 @@ export default class Signin extends Parent {
 
     async signin() {
 
-        let e = document.getElementById("email").value;
-        let p = document.getElementById("password").value;
-
         let user = {
-            email: e,
-            password: p,
+            email: "",
+            password: "",
         };
+        user = super.fillObject(user)
         
         let result = await super.fetch('signin', user)
-        if (result != null) {
-            // super.showNotify('', 'hide')
+        if (result !== null) {
             localStorage.setItem('isAuth', true)
             window.location.replace('http://localhost:6969/profile')
         } else {
@@ -33,8 +30,8 @@ export default class Signin extends Parent {
     }
 
     init() {
-        let btn = document.querySelector('#signin')
-        btn.onclick = this.signin
+        localStorage.setItem('isAuth', false)
+        document.querySelector('#signin').onclick = this.signin
     }
 
     async getHtml() {

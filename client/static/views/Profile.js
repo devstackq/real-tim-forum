@@ -21,6 +21,7 @@ export default class Profile extends Parent {
   }
 
   async init() {
+    
     let response = await fetch("http://localhost:6969/api/profile");
     if (response.status === 200) {
       let result = await response.json();
@@ -30,7 +31,6 @@ export default class Profile extends Parent {
       // console.log('not uuid || incorrect')
       window.location.replace("/signin");
     }
-
     document.querySelector("#editBio").onclick = () => {
       console.log("edit");
       // let response = await fetch('http://localhost:6969/api/profile/edit')

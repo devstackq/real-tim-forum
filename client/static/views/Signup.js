@@ -11,32 +11,34 @@ export default class Signup extends Parent {
   }
 
   async signup() {
-    let e = document.getElementById("email").value;
-    let p = document.getElementById("password").value;
-    let u = document.getElementById("username").value;
-    let f = document.getElementById("fName").value;
-    let a = document.getElementById("age").value;
-    let c = document.getElementById("city").value;
-    let g = document.getElementById("gender").value;
 
     let user = {
-      email: e,
-      password: p,
-      username: u,
-      fullname: f,
-      age: a,
-      city: c,
-      gender: g,
+      email: "",
+      password: "",
+      username: "",
+      fullname: "",
+      age: 0,
+      city: "Almaty",
+      gender: "male"
     };
 
-    let result = await super.fetch("signup", user);
+    user = super.fillObject(user)
+  // console.log(user,0)
+  if(user.city=="") {
+    user.city = "Almaty"
+  }else if(user.gender == "") {
+    user.gender = "man"
+  }else if (user.age == 0) {
+    user.age = 21
+  }
+
+  let result = await super.fetch("signup", user);
 
     if (result > 0 && result != undefined) {
       window.location.replace("http://localhost:6969/signin");
     } else {
       //validParams() todo
       super.showNotify(response.statusText, "error");
-      console.log(response.statusText, "error signup");
     }
   }
 
@@ -47,7 +49,7 @@ export default class Signup extends Parent {
   async getHtml() {
     let body = `
         <div>
-        <input type="text" id='fName' required="true" placeholder='full name'>
+        <input type="text" id='fullname' required="true" placeholder='full name'>
         <input type='email' id='email' required placeholder='email'>
         <input type="text" id='username' required placeholder='nick'>
         <input type="password" id="password" required placeholder='password'>

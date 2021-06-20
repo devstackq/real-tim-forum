@@ -9,7 +9,7 @@ export default class Posts extends Parent {
   setTitle(title) {
     document.title = title;
   }
-  //async - swait -> then hell
+  //async - await -> then hell
   async init() {
     let response = await fetch(`http://localhost:6969/api/post/`);
     if (response.status == 200) {
@@ -24,15 +24,14 @@ export default class Posts extends Parent {
   async getHtml() {
     // let uuid = document.cookie.split(";")[1].slice(9, )
     let authState = localStorage.getItem("isAuth");
-    let body = `<div class="postContainer"> 
-    </div>`;
+    let body = `<div class="postContainer"> </div>`;
 
-    let create = `<a href="/post/create" class="nav__link" data-link>create</a>`
-    
+    let create = `<a href="/postcreate" class="nav__link" data-link>create post</a>`
+    console.log(authState)
     if (authState == "true") {
-      return super.showHeader("auth") + body + create
+      return super.showHeader("auth")  + create + body 
     } else {
-      return super.showHeader("free") + body;
+      return super.showHeader("free") + body + '';
     }
   }
 }

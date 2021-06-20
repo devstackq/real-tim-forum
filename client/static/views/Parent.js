@@ -5,6 +5,10 @@ export default class Parent {
     this.item = [];
   }
 
+  getLocalStorageState(type) {
+    return localStorage.getItem(type);
+  }
+
   async fetch(endpoint, object) {
     let response = await fetch(`http://localhost:6969/api/${endpoint}`, {
       method: "POST",
@@ -25,7 +29,7 @@ export default class Parent {
     console.log(type, 2);
     let vote = { type: "" };
     vote.type = type;
-    
+
     let object = await this.fetch("vote", vote);
     if (object != null) {
       console.log("vote state", object);
@@ -59,97 +63,31 @@ export default class Parent {
       if (v["func"] != undefined) {
         console.log(v["text"]);
         x.onclick = () => {
-            v.func('like')
+          v.func("like");
         };
       }
     }
   }
 
-  async lostComment(text) {
-    let comment = { msg: text };
-    let result = this.fetch("/comment", comment);
-    if (result != null) {
-      console.log(res);
-    } else {
-      this.showNotify("error msg  comment", "error");
-    }
-  }
-
-  async postById(id) {
-    let postId = { id: 0 };
-    postId.id = id;
-
-    let object = await this.fetch("post/id", postId);
-
-    if (object != null) {
-      // let status, res  = this.Fetch('post/id', postId)
-      let parent = document.querySelector(".postContainer");
-      parent.innerHTML = "";
-      //   let btnLike = document.createElement("button");
-      let btnDislike = document.createElement("button");
-      let btnTextarea = document.createElement("button");
-      //   btnLike.id = "btnLike";
-      //   btnLike.textContent = "like";
-      btnDislike.textContent = "dislike";
-      btnTextarea.textContent = "lost comment";
-
-      let textarea = document.createElement("textarea");
-      textarea.id = "commentField";
-
-      for (let [k, v] of Object.entries(object)) {
-        let span = document.createElement("span");
-        if (v != null && v != "") {
-          span.textContent = `${k} : ${v}`;
-        }
-        parent.append(span);
-      }
-      //   parent.append(btnLike);
-      parent.append(btnDislike);
-      parent.append(textarea);
-      parent.append(btnTextarea);
-
-      this.createElement([
-        { type: "button" },
-        { id: "btnLike" },
-        { text: "like" },
-        { parent: parent },
-        { func: this.votePost },
-      ]);
-      //lost comment here ?
-      btnTextarea.onclick = async () => {
-        let text = document.getElementById("commentField").value;
-        let res = await this.lostComment(text);
-        console.log(
-          res,
-          "get data from text area, then create comment by post id, then -> show under current post new comment"
-        );
-      };
-      //   btnLike.onclick = () => {
-      //     this.votePost("like");
-      //   };
-      btnDislike.onclick = () => {
-        this.votePost("dislike");
-      };
-    }
-  }
-
-// creatEleme func todo
-// another url path ->  server  error fix
-//DRY fillObject use another component
-//create button -> fix -> show only auth user show
-
- 
+  // send func inside -> getPost component ?
+  
+  //isAuth - middleware -> showHeader - change
+  // creatEleme func todo
+  // another url path ->  server  error fix
+  // fix - > each post -> own url/id
+// create func - render - for uniq type, where etc
+  
 fillObject(obj) {
-
-for(let [k,v] of Object.entries(obj) ) {
-    if( document.getElementById(k) != null) {
-     obj[k]=document.getElementById(k).value
-   }
+    for (let [k, v] of Object.entries(obj)) {
+      if (document.getElementById(k) != null) {
+        obj[k] = document.getElementById(k).value;
+      }
+    }
+    return obj;
   }
-return obj
-}
 
-  //uniq func ? type - post -> postMethod etc
+  //render -> send component inside  Posts
+  
   render(item, idx, where, type) {
     let wrapper = document.querySelector(where);
     let btn = document.createElement("button");
@@ -173,8 +111,10 @@ return obj
         btn.textContent = `see post`;
 
         btn.onclick = () => {
-          this.postById(item["id"]);
+        window.location.replace(`/postget?id=${item["id"]}`)
+          // this.postById(item["id"]);
         };
+
         div.appendChild(span);
         div.appendChild(btn);
         wrapper.appendChild(div);
@@ -196,7 +136,7 @@ return obj
     } else if (type == "auth") {
       register = "";
       login = "";
-      logout = `<a href="/logout" id='logout' class="nav__link logout" data-link>Logout</a>`;
+      logout = `<a href="/logout"  id='logout' class="nav__link logout" data-link>Logout</a>`;
       profile = `<a href="/profile" class="nav__link" data-link>Profile</a>`;
     }
 
@@ -205,7 +145,6 @@ return obj
         <a href="/all" class="nav__link" data-link>Main</a>
         ${login}
         ${register}
-        
         <div class="dropdown">
           <button class="dropbtn">Categories</button>
           <div class="dropdown-content">
@@ -215,7 +154,6 @@ return obj
         </div>
         </div>
        ${profile}
-
         ${logout}
     </nav>
     <span class='notify' > </span> 

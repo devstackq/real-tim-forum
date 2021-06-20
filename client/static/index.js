@@ -3,7 +3,8 @@ import Profile from "./views/Profile.js";
 import Signup from './views/Signup.js';
 import Signin from './views/Signin.js';
 import Logout from './views/Logout.js';
-import Post from './views/Post.js';
+import CreatePost from './views/CreatePost.js';
+import ViewPost from './views/Post.js';
 
 const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
 
@@ -31,8 +32,8 @@ const router = async() => {
         { path: "/signup", view: Signup },
         { path: "/signin", view: Signin  },
         { path: "/logout", view: Logout },
-        { path: "/post/create", view: Post },
-        // { path: "/post/:id", view: PostView },
+        { path: "/postcreate", view: CreatePost },
+        { path: "/postget", view: ViewPost },
     ];
 
     // Test each route for potential match
@@ -55,8 +56,8 @@ const router = async() => {
     const view = new match.route.view(getParams(match));
     view.setTitle(match.result[0])
     document.querySelector("#app").innerHTML = await view.getHtml();
-    let date = new Date(Date.now() + 86400);
 
+    let date = new Date(Date.now() + 86400);
     document.cookie = `category=${match.result[0]}; path=/; expires=${date.toUTCString()}`
     view.init()
 };
