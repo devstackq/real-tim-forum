@@ -14,7 +14,6 @@ func NewVoteService(repo repository.Vote) *VoteService {
 }
 
 func (vs *VoteService) VotePost(vote *models.Vote) error {
-
+	return nil
 	//check if type == dislike -> VoteDislikePost()
-
 }

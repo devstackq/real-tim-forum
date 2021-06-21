@@ -1,7 +1,7 @@
 package models
 
 type Vote struct {
-	PostID   string `json:"postid"`
-	UserID   string `json:"userid"`
-	VoteType string `json:"type"`
+	ID        string `json:"id"`
+	VoteType  string `json:"type"`
+	CreatorID string `json:"creatorid"`
 }

@@ -19,5 +19,4 @@ func (h *Handler) IndexParse(w http.ResponseWriter, r *http.Request) {
 		count++
 	}
 	// fmt.Println("/ index route", r.URL.Path)
-	// category := r.URL.Path[1:]
 }

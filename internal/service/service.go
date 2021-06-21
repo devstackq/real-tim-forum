@@ -31,6 +31,6 @@ func NewService(r *repository.Repository) *Service {
 	return &Service{
 		User: NewUserService(r.User),
 		Post: NewPostService(r.Post),
-		Vote: NewVoteService(r.Vote)
+		Vote: NewVoteService(r.Vote),
 	}
 }

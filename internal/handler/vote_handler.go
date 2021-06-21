@@ -23,16 +23,16 @@ func (h *Handler) VotePostById(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		err = json.Unmarshal(resBody, vote)
+		fmt.Println(string(resBody), "vote post")
 		if err != nil {
 			JsonResponse(w, r, http.StatusBadRequest, err)
 			return
 		}
-		// fmt.Println(vote, 11)
-		err := h.Services.Vote.VotePost(vote)
+		fmt.Println(vote, "vote data handler")
+		err = h.Services.Vote.VotePost(vote)
 		if err != nil {
 			JsonResponse(w, r, http.StatusInternalServerError, err)
 			return
 		}
-
 	}
 }

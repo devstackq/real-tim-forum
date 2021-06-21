@@ -83,8 +83,10 @@ func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 			JsonResponse(w, r, http.StatusBadRequest, err)
 			return
 		}
+		//postHaveById(id) valid ?, if Post.ID > 0 && post.ID < lastInsertedPost or getCountPosts
+
 		result, err := h.Services.GetPostById(post.ID)
-		fmt.Println(result)
+		fmt.Println(result, err, 2)
 		if err != nil {
 			fmt.Println(err)
 			JsonResponse(w, r, http.StatusBadRequest, err)

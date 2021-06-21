@@ -21,15 +21,20 @@ type Post interface {
 	GetPostsByCategory(string) (*[]models.Post, error)
 	GetPostById(string) (*models.Post, error)
 }
+type Vote interface {
+	VotePost(*models.Vote) error
+}
 
 type Repository struct {
 	User
 	Post
+	Vote
 }
 
 func NewRepository(db *sql.DB) *Repository {
 	return &Repository{
 		User: NewUserRepository(db),
 		Post: NewPostRepository(db),
+		Vote: NewVoteRepository(db),
 	}
 }

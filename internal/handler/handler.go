@@ -75,9 +75,9 @@ func (h *Handler) createRoutes() []Route {
 			IsAuth:  false,
 		},
 		{
-			Path:    "/api/vote",
+			Path:    "/api/post/vote",
 			Handler: h.VotePostById,
-			IsAuth:  false,
+			IsAuth:  true,
 		},
 	}
 }
