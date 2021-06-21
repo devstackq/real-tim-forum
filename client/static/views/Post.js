@@ -9,6 +9,7 @@ export default class ViewPost extends Parent {
             id: window.location.href.split("=")[1],
             creatorid: super.getUserId(),
             type: "",
+            group: "post"
         }
     }
     setTitle(title) {
@@ -85,20 +86,6 @@ export default class ViewPost extends Parent {
         } else {
             super.showNotify("not found post", "error");
         }
-        // {parent : document.getElementById('commentField')},
-        // super.createElement([
-        //     { type: "textarea" },
-        //     { id: "commentField" },
-        //     { parent: parent },
-        // ]);
-        // super.createElement([
-        //     { type: "button" },
-        //     { id: "btncomment" },
-        //     { text: "lost comment" },
-        //     { parent: parent },
-        //     { func: this.lostComment },
-        // ]);
-
         super.createElement([
             { type: "button" },
             { id: "btnlike" },

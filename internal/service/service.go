@@ -20,6 +20,7 @@ type Post interface {
 }
 type Vote interface {
 	VotePost(*models.Vote) error
+	// VoteComment(*models.Vote) error
 }
 type Service struct {
 	User

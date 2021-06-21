@@ -23,16 +23,26 @@ func (h *Handler) VotePostById(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		err = json.Unmarshal(resBody, vote)
-		fmt.Println(string(resBody), "vote post")
 		if err != nil {
 			JsonResponse(w, r, http.StatusBadRequest, err)
 			return
 		}
-		fmt.Println(vote, "vote data handler")
-		err = h.Services.Vote.VotePost(vote)
-		if err != nil {
-			JsonResponse(w, r, http.StatusInternalServerError, err)
-			return
+		if vote.VoteGroup == "post" {
+			err = h.Services.Vote.VotePost(vote)
+			if err != nil {
+				JsonResponse(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			JsonResponse(w, r, http.StatusOK, "post voted!")
 		}
+		if vote.VoteGroup == "comment" {
+			// err = h.Services.Vote.VoteComment(vote)
+			if err != nil {
+				JsonResponse(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			JsonResponse(w, r, http.StatusOK, "comment voted~")
+		}
+
 	}
 }
