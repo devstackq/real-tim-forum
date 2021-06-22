@@ -19,7 +19,7 @@ type Post interface {
 	GetPostById(string) (*models.Post, error)
 }
 type Vote interface {
-	VoteItem(*models.Vote) error
+	VoteTerminator(*models.Vote) error
 }
 type Service struct {
 	User

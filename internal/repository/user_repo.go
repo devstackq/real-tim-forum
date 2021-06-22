@@ -56,7 +56,7 @@ func (ur *UserRepository) Logout(session *models.Session) error {
 	if err != nil {
 		return err
 	}
-	sqlStatement := `DELETE FROM session WHERE uuid=?;`
+	sqlStatement := `DELETE FROM sessions WHERE uuid=?;`
 	_, err = ur.db.Exec(sqlStatement, session.UUID)
 	if err != nil {
 		return err
@@ -71,7 +71,7 @@ func (ur *UserRepository) UpdateSession(session *models.Session) error {
 	_, err := ur.GetUuidInDb(uid)
 	if err == nil {
 		// return error.New("insert new uuid")
-		query, err := ur.db.Prepare(`UPDATE session SET uuid=?, cookie_time=? WHERE user_id=?`)
+		query, err := ur.db.Prepare(`UPDATE sessions SET uuid=?, cookie_time=? WHERE user_id=?`)
 		if err != nil {
 			log.Println(err)
 			return err
@@ -82,7 +82,7 @@ func (ur *UserRepository) UpdateSession(session *models.Session) error {
 			return err
 		}
 	} else {
-		query, err := ur.db.Prepare(`INSERT INTO session(uuid, user_id, cookie_time) VALUES(?,?,?)`)
+		query, err := ur.db.Prepare(`INSERT INTO sessions(uuid, user_id, cookie_time) VALUES(?,?,?)`)
 		if err != nil {
 			log.Println(err)
 			return err
@@ -118,7 +118,7 @@ func (ur *UserRepository) GetUserPosts(uid string) (*[]models.Post, error) {
 func (ur *UserRepository) GetUuidInDb(uid string) (string, error) {
 
 	var uuid string
-	query := `SELECT uuid FROM session WHERE user_id=?`
+	query := `SELECT uuid FROM sessions WHERE user_id=?`
 	row := ur.db.QueryRow(query, uid)
 	err := row.Scan(&uuid)
 	if err != nil {

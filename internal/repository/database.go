@@ -26,7 +26,7 @@ func createTables(db *sql.DB) error {
 	db.Exec("PRAGMA foreign_keys=ON")
 
 	postCategoryBridge, err := db.Prepare(`
-	CREATE TABLE IF NOT EXISTS post_category_bridge(
+	CREATE TABLE IF NOT EXISTS post_category_bridges(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		post_id INTEGER,
 		category_id INTEGER,
@@ -79,7 +79,7 @@ func createTables(db *sql.DB) error {
 	}
 	post.Exec()
 
-	session, err := db.Prepare(`CREATE TABLE IF NOT EXISTS session(
+	session, err := db.Prepare(`CREATE TABLE IF NOT EXISTS sessions(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		uuid	TEXT, user_id 
 		INTEGER UNIQUE, 
@@ -109,7 +109,7 @@ func createTables(db *sql.DB) error {
 	}
 	user.Exec()
 
-	voteState, err := db.Prepare(`CREATE TABLE IF NOT EXISTS voteState(
+	voteState, err := db.Prepare(`CREATE TABLE IF NOT EXISTS votes(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		user_id INTEGER, post_id INTEGER, 
 		comment_id INTEGER, 
@@ -124,7 +124,7 @@ func createTables(db *sql.DB) error {
 	}
 	voteState.Exec()
 
-	notify, err := db.Prepare(`CREATE TABLE IF NOT EXISTS notify(
+	notify, err := db.Prepare(`CREATE TABLE IF NOT EXISTS notifies(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		post_id INTEGER,  
 		current_user_id INTEGER, 
@@ -137,7 +137,7 @@ func createTables(db *sql.DB) error {
 	}
 	notify.Exec()
 
-	category, err := db.Prepare(`CREATE TABLE IF NOT EXISTS category(
+	category, err := db.Prepare(`CREATE TABLE IF NOT EXISTS categories(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		name TEXT UNIQUE)`,
 	)
@@ -154,7 +154,7 @@ func putCategoriesInDb(db *sql.DB) {
 
 	count := 0
 
-	err := db.QueryRow("SELECT count(*) FROM category").Scan(&count)
+	err := db.QueryRow("SELECT count(*) FROM categories").Scan(&count)
 	if err != nil {
 		log.Println(err)
 	}
@@ -162,7 +162,7 @@ func putCategoriesInDb(db *sql.DB) {
 	if count == 0 {
 		categories := []string{"science", "love", "nature"}
 		for i := 0; i < 3; i++ {
-			categoryPrepare, err := db.Prepare(`INSERT INTO category(name) VALUES(?)`)
+			categoryPrepare, err := db.Prepare(`INSERT INTO categories(name) VALUES(?)`)
 			if err != nil {
 				log.Println(err)
 			}

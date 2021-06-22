@@ -2,7 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 )
@@ -17,22 +17,32 @@ func NewVoteRepository(db *sql.DB) *VoteRepository {
 }
 
 //good practice ? or service switch type -> 2 differnet repo ?
-func (vr *VoteRepository) getCountLike(vote *models.Vote) (int, error) {
-	query := `SELECT count_like FROM ` + vote.VoteGroup + `s WHERE id=?`
+func (vr *VoteRepository) GetCountVote(vote *models.Vote) (int, error) {
+	query := `SELECT  count_` + vote.VoteType + ` FROM ` + vote.VoteGroup + `s WHERE id=?`
 	row := vr.db.QueryRow(query, vote.ID)
-	err := row.Scan(&vote.CountLike)
-	fmt.Println(err, "query getCountVote")
+	err := row.Scan(&vote.Count)
 	if err != nil {
 		return -1, err
 	}
-	return vote.CountLike, nil
+	return vote.Count, nil
 }
 
-func (vr *VoteRepository) getVoteState(vote *models.Vote) (*models.Vote, error) {
+func (vr *VoteRepository) UpdateCountVote(vote *models.Vote) error {
 
-	// where := vote.VoteGroup[:len(vote.VoteGroup)-1]
-	// fmt.Println(where)
-	query := `SELECT like_state, dislike_state FROM voteState WHERE ` + vote.VoteGroup + `_id=?`
+	query, err := vr.db.Prepare(`UPDATE ` + vote.VoteGroup + `s SET , ` + vote.VoteType + `s=? WHERE id=?`)
+	if err != nil {
+		return err
+	}
+	_, err = query.Exec(vote.Count, vote.ID)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (vr *VoteRepository) GetVoteState(vote *models.Vote) (*models.Vote, error) {
+	query := `SELECT like_state, dislike_state FROM votes WHERE ` + vote.VoteGroup + `_id=?`
 	row := vr.db.QueryRow(query, vote.ID)
 	err := row.Scan(&vote.LikeState, &vote.DislikeState)
 	if err != nil {
@@ -43,9 +53,10 @@ func (vr *VoteRepository) getVoteState(vote *models.Vote) (*models.Vote, error) 
 	// voteState == 1 && type==dislike, countLike-=1, countDislike +=1, likeState = 0, dislikeState = 1
 	return vote, nil
 }
-func (vr *VoteRepository) setVoteState(vote *models.Vote) error {
 
-	query, err := vr.db.Prepare(`INSERT INTO voteState(likeState, post_id, user_id) VALUES(?,?,?)`)
+func (vr *VoteRepository) SetVoteState(vote *models.Vote) error {
+
+	query, err := vr.db.Prepare(`INSERT INTO votes(` + vote.VoteType + `State, post_id, user_id) VALUES(?,?,?)`)
 	if err != nil {
 		return err
 	}
@@ -55,45 +66,18 @@ func (vr *VoteRepository) setVoteState(vote *models.Vote) error {
 	}
 	return nil
 }
-func (vr *VoteRepository) VoteLike(vote *models.Vote) error {
 
-	//postId, userId
-	//get Bypostid ->   count like
-	//update post -> countLike value
-
-	//isVote, err := vr.getVoteState(vote)
-	//setVoteState
-	//setCountLike
-	//isVote { update by postId - voteState} else insert -> like, dislike
-
-	//if voteState, 1 post - 1 user, vs -
-	// getVote state -> table by uid, & postid
-
-	//good practice ?
-	// getState, write logic, change countLike, chageVoteState
-	//3 state, !Like & !Dis -> Like, count+=1, Like & !Dis-> !Like, like-=1, !Like && Dis -> Like, !Dis, count+1
-
-	states, err := vr.getVoteState(vote)
-	//if no rows -> set likeState = true, count+=1
+func (vr *VoteRepository) UpdateVoteState(vote *models.Vote) error {
+	// case  !L, D, L, !D,
+	query, err := vr.db.Prepare(`UPDATE votes SET like_state, dislike_state? WHERE post_id=? AND user_id=?`)
 	if err != nil {
-		//first row uid, pid
-		err = vr.setVoteState(vote)
-		if err != nil {
-			return err
-		}
-	}
-
-	fmt.Println(err, "err", "state", states)
-	//if count == nil
-	count, err := vr.getCountLike(vote)
-	if err != nil {
+		log.Println(err)
 		return err
 	}
-	fmt.Println(count, "count")
-	//update queryb
-	return nil
-}
-
-func (vr *VoteRepository) VoteDislike(vote *models.Vote) error {
+	_, err = query.Exec(vote.LikeState, vote.DislikeState, vote.ID, vote.CreatorID)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 	return nil
 }

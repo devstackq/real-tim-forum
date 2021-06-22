@@ -70,7 +70,7 @@ func (pr *PostRepository) CreatePost(post *models.Post) (int, error) {
 
 func (pr *PostRepository) JoinCategoryPost(pid int64, category string) error {
 
-	query, err := pr.db.Prepare(`INSERT INTO post_category_bridge(post_id, category_id) VALUES(?,?)`)
+	query, err := pr.db.Prepare(`INSERT INTO post_category_bridges(post_id, category_id) VALUES(?,?)`)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -92,13 +92,12 @@ func (pr *PostRepository) GetPostsByCategory(category string) (*[]models.Post, e
 	var err error
 
 	if category == "love" {
-		rows, err = pr.db.Query("SELECT posts.id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts LEFT JOIN post_category_bridge  ON post_category_bridge.post_id = posts.id   WHERE category_id=?  ORDER  BY create_time  DESC", 2)
+		rows, err = pr.db.Query("SELECT posts.id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts LEFT JOIN post_category_bridge  ON post_category_bridges.post_id = posts.id   WHERE category_id=?  ORDER  BY create_time  DESC", 2)
 	} else if category == "science" {
-		rows, err = pr.db.Query("SELECT  posts.id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts LEFT JOIN post_category_bridge  ON post_category_bridge.post_id = posts.id   WHERE category_id=?  ORDER  BY create_time  DESC", 1)
+		rows, err = pr.db.Query("SELECT  posts.id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts LEFT JOIN post_category_bridge  ON post_category_bridges.post_id = posts.id   WHERE category_id=?  ORDER  BY create_time  DESC", 1)
 	} else if category == "nature" {
-		rows, err = pr.db.Query("SELECT posts.id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts LEFT JOIN post_category_bridge  ON post_category_bridge.post_id = posts.id   WHERE category_id=?  ORDER  BY create_time  DESC", 3)
+		rows, err = pr.db.Query("SELECT posts.id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts LEFT JOIN post_category_bridge  ON post_category_bridges.post_id = posts.id   WHERE category_id=?  ORDER  BY create_time  DESC", 3)
 	} else if category == "all" {
-		fmt.Println("all2")
 		rows, err = pr.db.Query("SELECT id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts ORDER  BY create_time  DESC")
 	}
 
