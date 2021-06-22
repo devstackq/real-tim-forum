@@ -5,4 +5,6 @@ type Vote struct {
 	VoteType  string `json:"type"`
 	CreatorID string `json:"creatorid"`
 	VoteGroup string `json:"group"`
+	CountLike int    `json:"countlike"`
+	VoteState bool   `json:"likestate"`
 }

@@ -23,8 +23,9 @@ type Post interface {
 }
 type Vote interface {
 	VotePost(*models.Vote) error
+	VotePostLike(*models.Vote) error
+	VotePostDislike(*models.Vote) error
 }
-
 type Repository struct {
 	User
 	Post

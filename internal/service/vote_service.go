@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
 )
@@ -15,13 +17,16 @@ func NewVoteService(repo repository.Vote) *VoteService {
 
 func (vs *VoteService) VotePost(vote *models.Vote) error {
 	if vote.VoteType == "like" {
-		err := ps.repository.VotePostLike(vote)
+		err := vs.repository.VotePostLike(vote)
 		if err != nil {
 			return err
 		}
+
+		fmt.Println("dislike type post")
 	}
 	if vote.VoteType == "dislike" {
-		err := ps.repository.VotePostDislike(vote)
+		fmt.Println("dislike type post")
+		err := vs.repository.VotePostDislike(vote)
 		if err != nil {
 			return err
 		}
