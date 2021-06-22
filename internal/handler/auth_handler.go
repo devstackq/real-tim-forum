@@ -55,8 +55,8 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		uid := strconv.Itoa(session.UserID)
-		sessionCookie := &http.Cookie{Name: "session", Value: session.UUID, Path: "/", HttpOnly: false, Expires: time.Now().Add(20 * time.Minute)}
-		uidCookie := &http.Cookie{Name: "user_id", Value: uid, Path: "/", HttpOnly: false, Expires: time.Now().Add(20 * time.Minute)}
+		sessionCookie := &http.Cookie{Name: "session", Value: session.UUID, Path: "/", HttpOnly: false, Expires: time.Now().Add(24 * time.Hour)}
+		uidCookie := &http.Cookie{Name: "user_id", Value: uid, Path: "/", HttpOnly: false, Expires: time.Now().Add(24 * time.Hour)}
 
 		http.SetCookie(w, sessionCookie)
 		http.SetCookie(w, uidCookie)

@@ -15,23 +15,23 @@ func NewVoteService(repo repository.Vote) *VoteService {
 	return &VoteService{repo}
 }
 
-func (vs *VoteService) VotePost(vote *models.Vote) error {
+func (vs *VoteService) VoteItem(vote *models.Vote) error {
+	//good practice
 	if vote.VoteType == "like" {
-		err := vs.repository.VotePostLike(vote)
+		err := vs.repository.VoteLike(vote)
 		if err != nil {
 			return err
 		}
-
-		fmt.Println("dislike type post")
+		fmt.Println("like type post")
 	}
+
 	if vote.VoteType == "dislike" {
-		fmt.Println("dislike type post")
-		err := vs.repository.VotePostDislike(vote)
+		//good practice, here -> getVoteState-> repos -> setVoteState(), updateVoteValue()
+		err := vs.repository.VoteDislike(vote)
 		if err != nil {
 			return err
 		}
+		fmt.Println("dislike type post")
 	}
-
 	return nil
-	//check if type == dislike -> VoteDislikePost()
 }

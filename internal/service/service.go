@@ -19,8 +19,7 @@ type Post interface {
 	GetPostById(string) (*models.Post, error)
 }
 type Vote interface {
-	VotePost(*models.Vote) error
-	// VoteComment(*models.Vote) error
+	VoteItem(*models.Vote) error
 }
 type Service struct {
 	User

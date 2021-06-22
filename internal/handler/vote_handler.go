@@ -9,7 +9,7 @@ import (
 	"github.com/devstackq/real-time-forum/internal/models"
 )
 
-func (h *Handler) VotePostById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) VoteItemById(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 
@@ -27,22 +27,14 @@ func (h *Handler) VotePostById(w http.ResponseWriter, r *http.Request) {
 			JsonResponse(w, r, http.StatusBadRequest, err)
 			return
 		}
-		if vote.VoteGroup == "post" {
-			err = h.Services.Vote.VotePost(vote)
-			if err != nil {
-				JsonResponse(w, r, http.StatusInternalServerError, err)
-				return
-			}
-			JsonResponse(w, r, http.StatusOK, "post voted!")
+		// if vote.VoteGroup == "post" {
+		err = h.Services.Vote.VoteItem(vote)
+		if err != nil {
+			JsonResponse(w, r, http.StatusInternalServerError, err)
+			return
 		}
-		if vote.VoteGroup == "comment" {
-			// err = h.Services.Vote.VoteComment(vote)
-			if err != nil {
-				JsonResponse(w, r, http.StatusInternalServerError, err)
-				return
-			}
-			JsonResponse(w, r, http.StatusOK, "comment voted~")
-		}
+		JsonResponse(w, r, http.StatusOK, "post voted!")
+		// }
 
 	}
 }

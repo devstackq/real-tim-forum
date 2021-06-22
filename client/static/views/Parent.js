@@ -76,6 +76,7 @@ export default class Parent {
         //create func - render - for uniq type, where etc super() Parent
         //post/comment - 1 constructor funcs -> ? type other
         //vote -> check session expires -> redirect
+        //out -> Parent -> use Comment & Post component
 
     fillObject(obj) {
         for (let [k, v] of Object.entries(obj)) {

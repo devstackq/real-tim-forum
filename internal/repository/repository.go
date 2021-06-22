@@ -22,9 +22,8 @@ type Post interface {
 	GetPostById(string) (*models.Post, error)
 }
 type Vote interface {
-	VotePost(*models.Vote) error
-	VotePostLike(*models.Vote) error
-	VotePostDislike(*models.Vote) error
+	VoteLike(*models.Vote) error
+	VoteDislike(*models.Vote) error
 }
 type Repository struct {
 	User

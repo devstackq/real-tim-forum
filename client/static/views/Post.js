@@ -4,14 +4,15 @@ export default class ViewPost extends Parent {
     constructor(params) {
         super();
         this.params = params;
-        this.postId = window.location.href.split("=")[1];
+        // this.postId = window.location.href.split("=")[1];
         this.vote = {
             id: window.location.href.split("=")[1],
-            creatorid: super.getUserId(),
+            creatorid: "",
             type: "",
             group: "post"
         }
     }
+
     setTitle(title) {
         document.title = title;
     }
@@ -38,14 +39,16 @@ export default class ViewPost extends Parent {
         }
     }
 
+    //out -> Parent -> use Comment & Post component
     async postVote() {
-            console.log(this.vote, "param vote")
-            let object = await super.fetch("post/vote", this.vote);
+            this.vote.creatorid = super.getUserId()
+            console.log(this.vote)
+            let object = await super.fetch("vote", this.vote);
             if (object != null) {
                 //like postById, update page ?
                 window.location.reload
             } else {
-                window.location.replace('/signin')
+                // window.location.replace('/signin')
             }
         }
         //preload, then wait event
