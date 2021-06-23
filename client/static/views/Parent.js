@@ -3,12 +3,23 @@ export default class Parent {
         this.text = text;
         this.type = type;
         this.item = [];
-        this.userId = 0
+        this.userId = 0;
+        this.vote = {
+            id: 0,
+            creatorid: 0,
+            type: "",
+            group: ""
+        }
+    }
+    setPostParams(group, id) {
+        this.vote.group = group
+        this.vote.id = id
     }
 
     getUserId() {
         return this.userId.toString()
     }
+
     getLocalStorageState(type) {
         return localStorage.getItem(type);
     }
@@ -70,47 +81,40 @@ export default class Parent {
     }
 
     fillObject(obj) {
-        for (let [k, v] of Object.entries(obj)) {
-            if (document.getElementById(k) != null) {
-                obj[k] = document.getElementById(k).value;
+            for (let [k, v] of Object.entries(obj)) {
+                if (document.getElementById(k) != null) {
+                    obj[k] = document.getElementById(k).value;
+                }
             }
+            if (obj['creatorid'] != null) {
+                obj['creatorid'] = this.userId
+            }
+            return obj;
         }
-        return obj;
+        // create render uniq func DRY
+
+    async postVote() {
+        this.vote.creatorid = this.getUserId()
+        console.log(this.vote, "send vote object")
+
+        let object = await this.fetch("vote", this.vote);
+        if (object != null) {
+            window.location.reload()
+        } else {
+            window.location.replace('/signin')
+        }
     }
 
-    //render -> send component inside  Posts
-
-    render(item, idx, where, type) {
-        let wrapper = document.querySelector(where);
-        let btn = document.createElement("button");
-        let div = document.createElement("div");
-        // let className=''
-        // let f = null
-        //     if(type =='post') {
-        //         className = 'postWrapper'
-        //         f = this.postById
-        //     }else if (type=='profile'){
-        //         className = 'profileWrapper'
-        //         f = this.editProfile
-        div.className = "postWrapper";
-
-        for (let [k, v] of Object.entries(item)) {
-            if (v != null) {
-                let span = document.createElement("span");
-                span.id = k;
-                span.textContent = ` ${k} : ${v} `;
-                btn.value = idx;
-                btn.textContent = `see post`;
-
-                btn.onclick = () => {
-                    window.location.replace(`/postget?id=${item["id"]}`)
-                        // this.postById(item["id"]);
-                };
-
-                div.appendChild(span);
-                div.appendChild(btn);
-                wrapper.appendChild(div);
-            }
+    voteDislike() {
+        document.getElementById("btndislike").onclick = async() => {
+            this.vote.type = "dislike";
+            this.postVote()
+        };
+    }
+    voteLike() {
+        document.getElementById("btnlike").onclick = async() => {
+            this.vote.type = "like";
+            this.postVote()
         }
     }
 

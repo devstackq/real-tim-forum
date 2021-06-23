@@ -68,10 +68,9 @@ func (vs *VoteService) VoteTerminator(vote *models.Vote) error {
 		}
 		if !state.LikeState && !state.DislikeState {
 			if vote.VoteType == "like" {
-				vote.LikeState = true
 				counts.CountLike += 1
 			} else if vote.VoteType == "dislike" {
-				vote.DislikeState = false
+				vote.DislikeState = true
 				counts.CountDislike += 1
 			}
 			break
@@ -83,7 +82,6 @@ func (vs *VoteService) VoteTerminator(vote *models.Vote) error {
 		return err
 	}
 	err = vs.repository.UpdateCountVote(vote)
-
 	if err != nil {
 		return err
 	}

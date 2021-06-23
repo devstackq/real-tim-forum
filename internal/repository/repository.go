@@ -20,6 +20,7 @@ type Post interface {
 	CreatePost(*models.Post) (int, error)
 	GetPostsByCategory(string) (*[]models.Post, error)
 	GetPostById(string) (*models.Post, error)
+	JoinCategoryPost(string, string) error
 }
 type Vote interface {
 	GetCountVote(*models.Vote) (*models.Vote, error)

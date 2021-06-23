@@ -17,15 +17,25 @@ export default class CreatePost extends Parent {
             let post = {
                 thread: "",
                 content: "",
-                category: 0,
+                creatorid: 0,
             };
-            //DRY
             post = super.fillObject(post);
+            post.categories = []
+
+            var inputs = document.querySelectorAll('.category');
+
+            for (var i = 0; i < inputs.length; i++) {
+                if (inputs[i].checked) {
+                    post.categories.push(inputs[i].value)
+                }
+            }
+
             if (post == null) {
                 super.showNotify("post fill error", "error");
                 return;
             }
-            post.creatorid = document.cookie.split(`; user_id=`).pop().split(';').shift()
+            console.log(post)
+
             let status = await super.fetch("post/create", post);
             // console.log(status, 'create post')
             if (status == 200) {
@@ -43,14 +53,17 @@ export default class CreatePost extends Parent {
         <div>
         <input id="thread" required placeholder='thread post'/>
         <textarea id="content" required placeholder='content'> </textarea>
-      
-    
-        <label> category:
-        <select id='category' required>
-        <option></option>
-        <option value='2'>love</option>
-        <option value='1'>science</option>
-        <option value='3'>nature</option>
+       
+        <label> love:
+        <input class="category" id="loveId" required  type='checkbox' value="love"/>
+        </label>
+        <label> science:
+        <input class="category" id="scienceId" required  type='checkbox' value="science"/>
+        </label>
+        <label> nature:
+        <input class="category" id="natureId" required  type='checkbox' value="nature"/>
+        </label>
+  
       </select>
       </label>
 

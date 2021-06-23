@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
@@ -21,12 +20,22 @@ func NewPostService(repo repository.Post) *PostService {
 func (ps *PostService) Create(post *models.Post) (int, error) {
 	// if !ps.isValid(post) {
 	//check if more than 1 category -> add postcatbridge
-	fmt.Println(post.Category, "cats count")
-	status, err := ps.repository.CreatePost(post)
+
+	lastID, status, err := ps.repository.CreatePost(post)
 	if err != nil {
 		return http.StatusBadRequest, err
 	}
-	post.CreatedTime = time.Now()
+
+	//todo  more than 1 category create
+	for _, v := range post.Categories {
+		if v == "love" {
+			ps.repository.JoinCategoryPost(lastID, "2")
+		} else if v == "nature" {
+			ps.repository.JoinCategoryPost(lastID, "3")
+		} else if v == "science" {
+			ps.repository.JoinCategoryPost(lastID, "1")
+		}
+	}
 
 	log.Println(post, status, "Created post")
 	return http.StatusOK, nil

@@ -26,7 +26,6 @@ func (pr *PostRepository) CreatePost(post *models.Post) (int, error) {
 		INSERT INTO posts(
 			thread, content, creator_id, category, create_time, update_time, image
 		) VALUES(?,?,?,?,?,?,?)`)
-
 	if err != nil {
 		log.Println(err)
 		return -1, err
@@ -54,26 +53,20 @@ func (pr *PostRepository) CreatePost(post *models.Post) (int, error) {
 		return -1, err
 	}
 
-	err = pr.JoinCategoryPost(postid, post.Category)
-	if err != nil {
-		return http.StatusInternalServerError, err
-	}
 	// or redirect -> by pid ?
 	log.Printf("Created a new post with id %d\n", postid)
 
 	return http.StatusOK, nil
 }
 
-func (pr *PostRepository) JoinCategoryPost(pid int64, category string) error {
+func (pr *PostRepository) JoinCategoryPost(pid string, category string) error {
 
 	query, err := pr.db.Prepare(`INSERT INTO post_category_bridges(post_id, category_id) VALUES(?,?)`)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 	_, err = query.Exec(pid, category)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 	return nil

@@ -3,22 +3,15 @@
 //start posts
 start chat
 
-
+//fix vote
 // git leran branches -> dsicord
 //test mcok or unit
 //create - multiple thread post
-    <label> love:
-        <input id="category" required  type='checkbox' value="love"/>
-        </label>
-        <label> science:
-        <input id="category" required  type='checkbox' value="science"/>
-        </label>
-        <label> nature:
-        <input id="category" required  type='checkbox' value="nature"/>
-        </label>
+
 
 //vote component - create JS
 use -> begintransat - concurrent query
+runtime error: invalid memory address or nil pointer dereference
 
           // isAuth - middleware - > showHeader - change
         // validParams - > postId > 0, userId > 0, middleware
@@ -29,3 +22,5 @@ use -> begintransat - concurrent query
         //post/comment - 1 constructor funcs -> ? type other
         //vote -> check session expires -> redirect
         //out -> Parent -> use Comment & Post component
+
+        // create render uniq func DRY
