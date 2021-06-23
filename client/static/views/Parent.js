@@ -31,52 +31,43 @@ export default class Parent {
     }
 
     createElement(...params) {
-            console.log(params[0]);
-            let x = null;
-            for (let [k, v] of Object.entries(params[0])) {
-                if (v["type"] != undefined) {
-                    x = document.createElement(v["type"]);
-                }
-                if (v["id"] != undefined) {
-                    x.id = v["id"];
-                }
-                if (v["text"] != undefined) {
-                    x.textContent = v["text"];
-                }
-                if (v["value"] != undefined) {
-                    x.value = v["value"];
-                }
+        console.log(params[0]);
+        let x = null;
+        for (let [k, v] of Object.entries(params[0])) {
+            if (v["type"] != undefined) {
+                x = document.createElement(v["type"]);
+            }
+            if (v["id"] != undefined) {
+                x.id = v["id"];
+            }
+            if (v["text"] != undefined) {
+                x.textContent = v["text"];
+            }
+            if (v["value"] != undefined) {
+                x.value = v["value"];
+            }
 
-                if (v["class"] != undefined) {
-                    x.className = v["class"];
-                }
-                if (v["attr"] != undefined) {
-                    x.setAttribute('id', v['id'])
-                }
-                if (v["child"] != undefined) {
-                    x.appendChild(v.child);
-                }
-                if (v["parent"] != undefined) {
-                    v["parent"].append(x);
-                }
-                //check funcType == 'vote', comment
-                if (v["func"] != undefined) {
-                    console.log(v["text"]);
-                    x.onclick = () => {
-                        v.func("like");
-                    };
-                }
+            if (v["class"] != undefined) {
+                x.className = v["class"];
+            }
+            if (v["attr"] != undefined) {
+                x.setAttribute('id', v['id'])
+            }
+            if (v["child"] != undefined) {
+                x.appendChild(v.child);
+            }
+            if (v["parent"] != undefined) {
+                v["parent"].append(x);
+            }
+            //check funcType == 'vote', comment
+            if (v["func"] != undefined) {
+                console.log(v["text"]);
+                x.onclick = () => {
+                    v.func("like");
+                };
             }
         }
-        // isAuth - middleware - > showHeader - change
-        // validParams - > postId > 0, userId > 0, middleware
-        // another url path - > server error fix backend
-        // getPostNyID - header - auth check
-        // backend - musbe handler valid ?
-        //create func - render - for uniq type, where etc super() Parent
-        //post/comment - 1 constructor funcs -> ? type other
-        //vote -> check session expires -> redirect
-        //out -> Parent -> use Comment & Post component
+    }
 
     fillObject(obj) {
         for (let [k, v] of Object.entries(obj)) {
@@ -104,10 +95,10 @@ export default class Parent {
         div.className = "postWrapper";
 
         for (let [k, v] of Object.entries(item)) {
-            if (v != "" && v != null) {
+            if (v != null) {
                 let span = document.createElement("span");
                 span.id = k;
-                span.textContent = ` ${k} : ${v}`;
+                span.textContent = ` ${k} : ${v} `;
                 btn.value = idx;
                 btn.textContent = `see post`;
 

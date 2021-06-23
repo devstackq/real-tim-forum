@@ -20,6 +20,8 @@ func NewPostService(repo repository.Post) *PostService {
 }
 func (ps *PostService) Create(post *models.Post) (int, error) {
 	// if !ps.isValid(post) {
+	//check if more than 1 category -> add postcatbridge
+	fmt.Println(post.Category, "cats count")
 	status, err := ps.repository.CreatePost(post)
 	if err != nil {
 		return http.StatusBadRequest, err

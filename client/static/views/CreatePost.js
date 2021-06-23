@@ -43,6 +43,8 @@ export default class CreatePost extends Parent {
         <div>
         <input id="thread" required placeholder='thread post'/>
         <textarea id="content" required placeholder='content'> </textarea>
+      
+    
         <label> category:
         <select id='category' required>
         <option></option>
@@ -51,6 +53,7 @@ export default class CreatePost extends Parent {
         <option value='3'>nature</option>
       </select>
       </label>
+
         <button id='createPost'> create </button>
         </div>
         `;

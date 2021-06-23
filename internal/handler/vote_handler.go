@@ -29,6 +29,7 @@ func (h *Handler) VoteItemById(w http.ResponseWriter, r *http.Request) {
 		}
 		// if vote.VoteGroup == "post" {
 		err = h.Services.Vote.VoteTerminator(vote)
+		fmt.Println(err, "vote err")
 		if err != nil {
 			JsonResponse(w, r, http.StatusInternalServerError, err)
 			return

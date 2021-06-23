@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
 )
@@ -16,7 +18,7 @@ func NewVoteService(repo repository.Vote) *VoteService {
 func (vs *VoteService) VoteTerminator(vote *models.Vote) error {
 	//good practice?
 
-	count, err := vs.repository.GetCountVote(vote)
+	counts, err := vs.repository.GetCountVote(vote)
 
 	if err != nil {
 		return err
@@ -30,45 +32,59 @@ func (vs *VoteService) VoteTerminator(vote *models.Vote) error {
 		if err != nil {
 			return err
 		}
-		count += 1
+
+		if vote.VoteType == "like" {
+			counts.CountLike += 1
+		} else if vote.VoteType == "dislike" {
+			counts.CountDislike += 1
+		}
+
 	} else if !state.LikeState && state.DislikeState {
 
 		if vote.VoteType == "like" {
 			vote.LikeState = true
 			vote.DislikeState = false
+			counts.CountLike += 1
+			counts.CountDislike -= 1
+
 		} else if vote.VoteType == "dislike" {
 			vote.DislikeState = false
+			counts.CountDislike -= 1
 		}
-		err = vs.repository.UpdateVoteState(vote)
-		if err != nil {
-			return err
-		}
-		count += 1
-		//like = true, dislkie= fasle, count+1
+
 	} else if state.LikeState && !state.DislikeState {
 
 		if vote.VoteType == "like" {
 			vote.LikeState = false
+			counts.CountLike -= 1
 		} else if vote.VoteType == "dislike" {
 			vote.DislikeState = true
 			vote.LikeState = false
+			counts.CountLike -= 1
+			counts.CountDislike += 1
 		}
 
-		err = vs.repository.UpdateVoteState(vote)
-		if err != nil {
-			return err
+	} else if !state.LikeState && !state.DislikeState {
+		if vote.VoteType == "like" {
+			vote.LikeState = true
+			counts.CountLike += 1
+		} else if vote.VoteType == "dislike" {
+			vote.DislikeState = false
+			counts.CountDislike += 1
 		}
-		count -= 1
 
 	}
 
-	vote.Count = count
-
-	err = vs.respository.UpdateCountVote(vote)
+	err = vs.repository.UpdateVoteState(vote)
+	if err != nil {
+		return err
+	}
+	err = vs.repository.UpdateCountVote(vote)
+	fmt.Println(vote, "vote value")
 
 	if err != nil {
 		return err
 	}
-	return nil
 
+	return nil
 }

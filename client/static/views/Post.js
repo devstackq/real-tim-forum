@@ -4,10 +4,9 @@ export default class ViewPost extends Parent {
     constructor(params) {
         super();
         this.params = params;
-        // this.postId = window.location.href.split("=")[1];
         this.vote = {
             id: window.location.href.split("=")[1],
-            creatorid: "",
+            creatorid: super.getUserId(),
             type: "",
             group: "post"
         }
@@ -17,19 +16,20 @@ export default class ViewPost extends Parent {
         document.title = title;
     }
 
-    async postById(id) {
+    async postById() {
 
         let object = await super.fetch("post/id", this.vote);
-        let parent = document.querySelector("#postParent");
-        if (object != null) {
 
+        let parent = document.querySelector("#postParent");
+
+        if (object != null) {
             let btnTextarea = document.createElement("button");
             btnTextarea.textContent = "lost comment";
 
             for (let [k, v] of Object.entries(object)) {
                 let span = document.createElement("span");
-                if (v != null && v != "") {
-                    span.textContent = `${k} : ${v}`;
+                if (v != null) {
+                    span.textContent = ` ${k} : ${v} \n`;
                 }
                 parent.append(span);
             }
@@ -42,11 +42,11 @@ export default class ViewPost extends Parent {
     //out -> Parent -> use Comment & Post component
     async postVote() {
             this.vote.creatorid = super.getUserId()
-            console.log(this.vote)
+                // console.log(this.vote)
             let object = await super.fetch("vote", this.vote);
             if (object != null) {
                 //like postById, update page ?
-                window.location.reload
+                window.location.reload()
             } else {
                 // window.location.replace('/signin')
             }

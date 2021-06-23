@@ -71,27 +71,22 @@ func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		post := &models.Post{}
 		resBody, err := ioutil.ReadAll(r.Body)
-		fmt.Println(string(resBody))
 		if err != nil {
-			fmt.Println(err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		err = json.Unmarshal(resBody, post)
 		if err != nil {
-			fmt.Println(err)
 			JsonResponse(w, r, http.StatusBadRequest, err)
 			return
 		}
 		//postHaveById(id) valid ?, if Post.ID > 0 && post.ID < lastInsertedPost or getCountPosts
-
 		result, err := h.Services.GetPostById(post.ID)
-		// fmt.Println(result, err, 2)
 		if err != nil {
-			fmt.Println(err)
 			JsonResponse(w, r, http.StatusBadRequest, err)
 			return
 		}
+		// fmt.Println(result, "send post id")
 		JsonResponse(w, r, http.StatusOK, result)
 	}
 }

@@ -30,7 +30,7 @@ func createTables(db *sql.DB) error {
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		post_id INTEGER,
 		category_id INTEGER,
-		FOREIGN KEY(category_id) REFERENCES category(id), 
+		FOREIGN KEY(category_id) REFERENCES categories(id), 
 		FOREIGN KEY(post_id) REFERENCES posts(id) 
 		ON DELETE CASCADE )`,
 	)

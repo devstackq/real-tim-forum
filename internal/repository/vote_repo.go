@@ -17,23 +17,23 @@ func NewVoteRepository(db *sql.DB) *VoteRepository {
 }
 
 //good practice ? or service switch type -> 2 differnet repo ?
-func (vr *VoteRepository) GetCountVote(vote *models.Vote) (int, error) {
-	query := `SELECT  count_` + vote.VoteType + ` FROM ` + vote.VoteGroup + `s WHERE id=?`
+func (vr *VoteRepository) GetCountVote(vote *models.Vote) (*models.Vote, error) {
+	query := `SELECT  count_like, count_dislike FROM ` + vote.VoteGroup + `s WHERE id=?`
 	row := vr.db.QueryRow(query, vote.ID)
-	err := row.Scan(&vote.Count)
+	err := row.Scan(&vote.CountLike, &vote.CountDislike)
 	if err != nil {
-		return -1, err
+		return nil, err
 	}
-	return vote.Count, nil
+	return vote, nil
 }
 
 func (vr *VoteRepository) UpdateCountVote(vote *models.Vote) error {
 
-	query, err := vr.db.Prepare(`UPDATE ` + vote.VoteGroup + `s SET , ` + vote.VoteType + `s=? WHERE id=?`)
+	query, err := vr.db.Prepare(`UPDATE ` + vote.VoteGroup + `s SET  count_like=?, count_dislike=? WHERE id=?`)
 	if err != nil {
 		return err
 	}
-	_, err = query.Exec(vote.Count, vote.ID)
+	_, err = query.Exec(vote.CountLike, vote.CountDislike, vote.ID)
 
 	if err != nil {
 		return err
@@ -56,7 +56,7 @@ func (vr *VoteRepository) GetVoteState(vote *models.Vote) (*models.Vote, error) 
 
 func (vr *VoteRepository) SetVoteState(vote *models.Vote) error {
 
-	query, err := vr.db.Prepare(`INSERT INTO votes(` + vote.VoteType + `State, post_id, user_id) VALUES(?,?,?)`)
+	query, err := vr.db.Prepare(`INSERT INTO votes(` + vote.VoteType + `_state, post_id, user_id) VALUES(?,?,?)`)
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func (vr *VoteRepository) SetVoteState(vote *models.Vote) error {
 
 func (vr *VoteRepository) UpdateVoteState(vote *models.Vote) error {
 	// case  !L, D, L, !D,
-	query, err := vr.db.Prepare(`UPDATE votes SET like_state, dislike_state? WHERE post_id=? AND user_id=?`)
+	query, err := vr.db.Prepare(`UPDATE votes SET like_state=?, dislike_state=? WHERE post_id=? AND user_id=?`)
 	if err != nil {
 		log.Println(err)
 		return err

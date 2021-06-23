@@ -22,7 +22,7 @@ type Post interface {
 	GetPostById(string) (*models.Post, error)
 }
 type Vote interface {
-	GetCountVote(*models.Vote) (int, error)
+	GetCountVote(*models.Vote) (*models.Vote, error)
 	UpdateCountVote(*models.Vote) error
 	GetVoteState(*models.Vote) (*models.Vote, error)
 	SetVoteState(*models.Vote) error
