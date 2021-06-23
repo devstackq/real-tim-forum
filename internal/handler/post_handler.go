@@ -1,64 +1,54 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-
-	"github.com/devstackq/real-time-forum/internal/models"
 )
 
 //route -> handler -> service -> repos -> dbFunc
 func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
+
 	switch r.Method {
+
 	case "GET":
 		fmt.Println("get create post")
 	case "POST":
-		post := &models.Post{}
-		resBody, err := ioutil.ReadAll(r.Body)
+		// uid, err := r.Cookie("user_id")
+		post, _, err := GetJsonData(w, r, "post")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err = json.Unmarshal(resBody, post)
-		if err != nil {
-			fmt.Println(err, "error")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		uid, _ := r.Cookie("user_id")
-		post.CreatorID = uid.Value
 		status, err := h.Services.Post.Create(post)
 
 		if err != nil {
-			fmt.Println(err, "error")
-			JsonResponse(w, r, http.StatusInternalServerError, err.Error())
+			JsonResponse(w, r, http.StatusInternalServerError, err)
 			return
 		}
-		JsonResponse(w, r, http.StatusOK, status)
-		//redirect postByID?
-		// http.Redirect(w, r, "/", http.StatusFound)
+		JsonResponse(w, r, status, "success")
 	default:
-		// writeResponse(w, http.StatusBadRequest, "Bad Request")
+		JsonResponse(w, r, http.StatusBadRequest, "Bad Request")
 	}
 }
+
 func (h *Handler) GetPosts(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 
 	case "GET":
-		c, err := r.Cookie("category")
+		category, err := r.Cookie("category")
 		if err != nil {
 			JsonResponse(w, r, http.StatusBadRequest, "cookie incorrect")
+			return
 		}
-		posts, err := h.Services.GetPostsByCategory(c.Value[1:])
-		// fmt.Println(err, 22)
+		posts, err := h.Services.GetPostsByCategory(category.Value[1:])
 		if err != nil {
-			JsonResponse(w, r, http.StatusBadRequest, err)
+			JsonResponse(w, r, http.StatusInternalServerError, err)
 			return
 		}
 		JsonResponse(w, r, http.StatusOK, posts)
+	default:
+		JsonResponse(w, r, http.StatusBadRequest, "Bad Request")
 	}
 }
 
@@ -69,33 +59,19 @@ func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("get post by id")
 	case "POST":
-		post := &models.Post{}
-		resBody, err := ioutil.ReadAll(r.Body)
+		post, _, err := GetJsonData(w, r, "post")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		err = json.Unmarshal(resBody, post)
-		if err != nil {
-			JsonResponse(w, r, http.StatusBadRequest, err)
 			return
 		}
 		//postHaveById(id) valid ?, if Post.ID > 0 && post.ID < lastInsertedPost or getCountPosts
 		result, err := h.Services.GetPostById(post.ID)
 		if err != nil {
-			JsonResponse(w, r, http.StatusBadRequest, err)
+			JsonResponse(w, r, http.StatusInternalServerError, err)
 			return
 		}
-		// fmt.Println(result, "send post id")
 		JsonResponse(w, r, http.StatusOK, result)
+	default:
+		JsonResponse(w, r, http.StatusBadRequest, "Bad Request")
 	}
-}
-
-func isEmpty(text string) bool {
-	for _, v := range text {
-		if !(v <= 32) {
-			return false
-		}
-	}
-	return true
 }

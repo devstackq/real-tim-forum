@@ -17,7 +17,7 @@ type User interface {
 }
 
 type Post interface {
-	CreatePost(*models.Post) (int, error)
+	CreatePost(*models.Post) (string, int, error)
 	GetPostsByCategory(string) (*[]models.Post, error)
 	GetPostById(string) (*models.Post, error)
 	JoinCategoryPost(string, string) error

@@ -10,8 +10,8 @@ type Comment struct {
 	Content      string    `json:"content"`
 	PostID       int       `json:"postid"`
 	CreatorID    string    `json:"creatorid"`
-	To           int       `json:towho`   //integer??
-	From         int       `json:fromwho` //integer??
+	ToWho        int       `json:towho`
+	FromWho      int       `json:fromwho`
 	CreatedTime  time.Time `json:"createdtime"`
 	UpdatedTime  time.Time `json:"updatedtime"`
 	Image        []byte    `json:"image"`

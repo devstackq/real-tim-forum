@@ -13,35 +13,38 @@ type PostService struct {
 	repository repository.Post
 }
 
-//repoPost wrapper struct - PostService
 func NewPostService(repo repository.Post) *PostService {
 	return &PostService{repo}
 }
 func (ps *PostService) Create(post *models.Post) (int, error) {
 	// if !ps.isValid(post) {
-	//check if more than 1 category -> add postcatbridge
-
 	lastID, status, err := ps.repository.CreatePost(post)
 	if err != nil {
 		return http.StatusBadRequest, err
 	}
 
-	//todo  more than 1 category create
 	for _, v := range post.Categories {
 		if v == "love" {
-			ps.repository.JoinCategoryPost(lastID, "2")
+			err = ps.repository.JoinCategoryPost(lastID, "2")
+			if err != nil {
+				return -1, err
+			}
 		} else if v == "nature" {
-			ps.repository.JoinCategoryPost(lastID, "3")
+			err = ps.repository.JoinCategoryPost(lastID, "3")
+			if err != nil {
+				return -1, err
+			}
 		} else if v == "science" {
-			ps.repository.JoinCategoryPost(lastID, "1")
+			err = ps.repository.JoinCategoryPost(lastID, "1")
+			if err != nil {
+				return -1, err
+			}
 		}
 	}
 
 	log.Println(post, status, "Created post")
 	return http.StatusOK, nil
-	// } else {
-	// 	return http.StatusBadRequest, errors.New("content is empty")
-	// }
+
 }
 
 // func (ps *PostService) isImageValid(post *models.Post) bool {

@@ -3,24 +3,18 @@
 //start posts
 start chat
 
-//fix vote
-// git leran branches -> dsicord
 //test mcok or unit
-//create - multiple thread post
 
-
-//vote component - create JS
 use -> begintransat - concurrent query
-runtime error: invalid memory address or nil pointer dereference
-
           // isAuth - middleware - > showHeader - change
         // validParams - > postId > 0, userId > 0, middleware
         // another url path - > server error fix backend
-        // getPostNyID - header - auth check
-        // backend - musbe handler valid ?
+        // getPostNyID - header - auth check  
         //create func - render - for uniq type, where etc super() Parent
         //post/comment - 1 constructor funcs -> ? type other
-        //vote -> check session expires -> redirect
-        //out -> Parent -> use Comment & Post component
-
         // create render uniq func DRY
+
+        //authomato funcs with generics and, all files - optimize, like post_handler
+        //profile page - show created post/comment etc
+
+        post created -> redirect all page

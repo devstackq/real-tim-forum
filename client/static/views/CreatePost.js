@@ -38,7 +38,7 @@ export default class CreatePost extends Parent {
 
             let status = await super.fetch("post/create", post);
             // console.log(status, 'create post')
-            if (status == 200) {
+            if (status == "success" ){
                 window.location.replace('/all')
                     //redirect -> created post, /post/id
             } else {

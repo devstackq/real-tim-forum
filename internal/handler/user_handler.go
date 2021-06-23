@@ -17,13 +17,14 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("call signup handle Get")
 	case "POST":
-		user := &models.User{}
-		resBody, err := ioutil.ReadAll(r.Body)
-		err = json.Unmarshal(resBody, user)
+
+		_, user, err := GetJsonData(w, r, "user")
+
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+
 		status, id, err := h.Services.User.Create(user)
 		if err != nil {
 			JsonResponse(w, r, status, err.Error())
@@ -37,13 +38,21 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
+
 	switch r.Method {
 	case "GET":
 		fmt.Println("call signin handle Get")
 	case "POST":
-		fmt.Println("signin Post")
+
+		_, user, err := GetJsonData(w, r, "user")
+
 		user := &models.User{}
 		resBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
 		err = json.Unmarshal(resBody, user)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -100,8 +109,9 @@ func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
 			JsonResponse(w, r, http.StatusNotFound, err.Error())
 			return
 		}
-		// posts, err := h.Services.User.GetUserPosts(uid.Value)
-
+		//posts, err := h.Services.User.GetUserPosts(uid.Value)
+		//commentCreated
+		//votedPost
 		if err != nil {
 			JsonResponse(w, r, http.StatusNotFound, err.Error())
 			return

@@ -26,3 +26,8 @@ type User struct {
 	LastSeen    string    `json:"lastseen"`
 	Session     *Session  `json:"session"`
 }
+
+var Any struct {
+	Posts Post
+	Users User
+}

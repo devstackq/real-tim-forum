@@ -20,7 +20,7 @@ func NewPostRepository(db *sql.DB) *PostRepository {
 }
 
 //implement method, by interface Post
-func (pr *PostRepository) CreatePost(post *models.Post) (int, error) {
+func (pr *PostRepository) CreatePost(post *models.Post) (string, int, error) {
 	// log.Printf("Creating new post for userid %d...\n", post.CreatorID)
 	query, err := pr.db.Prepare(`
 		INSERT INTO posts(
@@ -28,7 +28,7 @@ func (pr *PostRepository) CreatePost(post *models.Post) (int, error) {
 		) VALUES(?,?,?,?,?,?,?)`)
 	if err != nil {
 		log.Println(err)
-		return -1, err
+		return "", -1, err
 	}
 	// fmt.Println(post)
 	result, err := query.Exec(
@@ -42,24 +42,25 @@ func (pr *PostRepository) CreatePost(post *models.Post) (int, error) {
 	)
 	if err != nil {
 		log.Println(err)
-		return -1, err
+		return "", -1, err
 	}
 
 	defer query.Close()
 
 	postid, err := result.LastInsertId()
-	post.ID = string(postid)
+	post.ID = fmt.Sprint(postid)
 	if err != nil {
-		return -1, err
+		return "", -1, err
 	}
 
 	// or redirect -> by pid ?
 	log.Printf("Created a new post with id %d\n", postid)
 
-	return http.StatusOK, nil
+	return fmt.Sprint(postid), http.StatusOK, nil
 }
 
 func (pr *PostRepository) JoinCategoryPost(pid string, category string) error {
+	fmt.Println(pid, category)
 
 	query, err := pr.db.Prepare(`INSERT INTO post_category_bridges(post_id, category_id) VALUES(?,?)`)
 	if err != nil {
