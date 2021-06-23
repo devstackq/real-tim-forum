@@ -64,7 +64,7 @@ func (vs *VoteService) VoteTerminator(vote *models.Vote) error {
 
 	vote.Count = count
 
-	err = vs.respository.UpdateCountVote(vote)
+	err = vs.repository.UpdateCountVote(vote)
 
 	if err != nil {
 		return err

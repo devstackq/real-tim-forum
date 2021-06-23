@@ -28,10 +28,14 @@ type Vote interface {
 	SetVoteState(*models.Vote) error
 	UpdateVoteState(*models.Vote) error
 }
+type Comment interface {
+	CreateComment(*models.Comment) (int, error)
+}
 type Repository struct {
 	User
 	Post
 	Vote
+	Comment
 }
 
 func NewRepository(db *sql.DB) *Repository {
