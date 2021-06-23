@@ -4,7 +4,8 @@
 start chat
 
 
-//fix dislike 
+// git leran branches -> dsicord
+//test mcok or unit
 //create - multiple thread post
     <label> love:
         <input id="category" required  type='checkbox' value="love"/>

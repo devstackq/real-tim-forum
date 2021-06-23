@@ -109,7 +109,7 @@ func createTables(db *sql.DB) error {
 	}
 	user.Exec()
 
-	voteState, err := db.Prepare(`CREATE TABLE IF NOT EXISTS votes(
+	votes, err := db.Prepare(`CREATE TABLE IF NOT EXISTS votes(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		user_id INTEGER, post_id INTEGER, 
 		comment_id INTEGER, 
@@ -122,7 +122,7 @@ func createTables(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	voteState.Exec()
+	votes.Exec()
 
 	notify, err := db.Prepare(`CREATE TABLE IF NOT EXISTS notifies(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 

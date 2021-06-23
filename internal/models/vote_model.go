@@ -9,5 +9,4 @@ type Vote struct {
 	CountDislike int    `json:"countdislike"`
 	LikeState    bool   `json:"likestate"`
 	DislikeState bool   `json:"dislikestate"`
-	Count        int
 }
