@@ -33,6 +33,7 @@ export default class ViewPost extends Parent {
                     }
                 
                     if (v != null) {
+                        span.value = v
                         span.textContent = ` ${k} : ${v} \n`;
                     }
                     parent.append(span);

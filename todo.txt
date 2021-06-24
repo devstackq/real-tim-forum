@@ -3,13 +3,13 @@
 //start posts
 start chat
 
-//test mcok or unit
 //vote fix - another user - voted fix
 //like fix -> incerement non stop ?
 
-erros -> goroutine ? 
-
+//test mcok or unit
+erros -> goroutine ?  
 use -> begintransat - concurrent query
+
           // isAuth - middleware - > showHeader - change
         // validParams - > postId > 0, userId > 0, middleware
         // another url path - > server error fix backend
@@ -20,5 +20,3 @@ use -> begintransat - concurrent query
 
         //authomato funcs with generics and, all files - optimize, like post_handler
         //profile page - show created post/comment etc
-
-        post created -> redirect all page

@@ -48,9 +48,6 @@ func (vr *VoteRepository) GetVoteState(vote *models.Vote) (*models.Vote, error) 
 	if err != nil {
 		return nil, err
 	}
-	//if voteState, like, dislike - 0,1,2 -> if type == like, & voteState == 1, -> voteState -> 0, countLike-1
-	// voteState == 0 && type==like -> countLike+=1, voteState -> 1
-	// voteState == 1 && type==dislike, countLike-=1, countDislike +=1, likeState = 0, dislikeState = 1
 	return vote, nil
 }
 

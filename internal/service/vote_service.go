@@ -17,15 +17,12 @@ func NewVoteService(repo repository.Vote) *VoteService {
 
 func (vs *VoteService) VoteTerminator(vote *models.Vote) (*models.Vote, error) {
 	//good practice?
-	counts, err := vs.repository.GetVoteCount(vote)
-
-	if err != nil {
-		return nil, err
-	}
-
+	fmt.Println(vote, "json")
+	// counts, err := vs.repository.GetVoteCount(vote)
 	for {
 		state, err := vs.repository.GetVoteState(vote)
 		//if no rows -> set likeState = true, count+=1
+		fmt.Println(state, "get votestate")
 		if err != nil {
 			//first row uid, pid
 			err = vs.repository.SetVoteState(vote)
@@ -33,10 +30,10 @@ func (vs *VoteService) VoteTerminator(vote *models.Vote) (*models.Vote, error) {
 				return nil, err
 			}
 			if vote.VoteType == "like" {
-				counts.CountLike += 1
+				vote.CountLike += 1
 				vote.LikeState = true
 			} else if vote.VoteType == "dislike" {
-				counts.CountDislike += 1
+				vote.CountDislike += 1
 				vote.DislikeState = true
 			}
 			fmt.Println("first vote")
@@ -46,38 +43,38 @@ func (vs *VoteService) VoteTerminator(vote *models.Vote) (*models.Vote, error) {
 			if vote.VoteType == "like" {
 				vote.LikeState = true
 				vote.DislikeState = false
-				counts.CountLike += 1
-				counts.CountDislike -= 1
+				vote.CountLike += 1
+				vote.CountDislike -= 1
 			} else if vote.VoteType == "dislike" {
 				vote.DislikeState = false
-				counts.CountDislike -= 1
+				vote.CountDislike -= 1
 			}
 			break
 		}
 		if state.LikeState && !state.DislikeState {
 			if vote.VoteType == "like" {
 				vote.LikeState = false
-				counts.CountLike -= 1
+				vote.CountLike -= 1
 			} else if vote.VoteType == "dislike" {
 				vote.DislikeState = true
 				vote.LikeState = false
-				counts.CountLike -= 1
-				counts.CountDislike += 1
+				vote.CountLike -= 1
+				vote.CountDislike += 1
 			}
 			break
 		}
 		if !state.LikeState && !state.DislikeState {
 			if vote.VoteType == "like" {
-				counts.CountLike += 1
+				vote.CountLike += 1
+				vote.LikeState = true
 			} else if vote.VoteType == "dislike" {
 				vote.DislikeState = true
-				counts.CountDislike += 1
+				vote.CountDislike += 1
 			}
 			break
 		}
 	}
-
-	err = vs.repository.UpdateVoteState(vote)
+	err := vs.repository.UpdateVoteState(vote)
 	if err != nil {
 		return nil, err
 	}
@@ -85,5 +82,8 @@ func (vs *VoteService) VoteTerminator(vote *models.Vote) (*models.Vote, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(vote, "after")
 	return vote, nil
 }
+check uniq userId, postId - sql
+debug like/dislike post -> refactor logic

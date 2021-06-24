@@ -8,6 +8,8 @@ export default class Parent {
       id: 0,
       creatorid: 0,
       type: "",
+      countlike:0,
+      countdislike:0,
       group: "",
     };
   }
@@ -93,37 +95,10 @@ export default class Parent {
   }
   // create render uniq func DRY
 
-  //   async postById(post) {
-
-  //     let object = await fetch("post/id", post);
-
-  //     let parent = document.querySelector("#postParent");
-  //     if (object != null) {
-  //       let btnTextarea = document.createElement("button");
-  //       btnTextarea.textContent = "lost comment";
-  //       console.log(post, 1)
-
-  //       for (let [k, v] of Object.entries(object)) {
-  //         let span = document.createElement("span");
-  //     if(k =='countlike') {
-  //         span.id = 'countlike'
-  //     }
-  //     if(k =='countdislike') {
-  //         span.id = 'countdislike'
-  //     }
-  //         if (v != null) {
-  //             span.textContent = ` ${k} : ${v} \n`;
-  //         }
-  //             parent.append(span);
-  //       }
-  //     } else {
-  //       showNotify("bad request", "error");
-  //       // parent.innerHTML = ""
-  //     }
-  //   }
-
   async voteItem() {
     this.vote.creatorid = this.getUserId();
+    this.vote.countdislike = document.querySelector("#countdislike").value
+    this.vote.countlike = document.querySelector("#countlike").value
 
     let object = await this.fetch("vote", this.vote);
     if (object != null) {
