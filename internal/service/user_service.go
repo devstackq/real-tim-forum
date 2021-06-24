@@ -36,7 +36,6 @@ func (us *UserService) Signin(user *models.User) (int, *models.Session, error) {
 	if err != nil {
 		return http.StatusBadRequest, nil, err
 	}
-	// fmt.Println("pwd and login corect", id, user)
 
 	uuid := uuid.Must(uuid.NewV4(), err).String()
 	if err != nil {
@@ -53,7 +52,6 @@ func (us *UserService) Signin(user *models.User) (int, *models.Session, error) {
 		return http.StatusBadRequest, nil, err
 	}
 	log.Println("session update -> signin in system")
-
 	return http.StatusOK, &session, nil
 }
 
@@ -69,22 +67,18 @@ func (us *UserService) Create(user *models.User) (int, int, error) {
 			return http.StatusInternalServerError, -1, err
 		}
 		user.Password = string(hashPwd)
-		user.CreatedTime = time.Now()
 		//go to repo, interface -> method call
 		lastId, err := us.repository.CreateUser(user)
 		//check  is already user
 		if err != nil {
 			if sqliteErr, ok := err.(sqlite.Error); ok {
 				if sqliteErr.ExtendedCode == sqlite.ErrConstraintUnique {
-					return http.StatusBadRequest, -1, errors.New("Nickname or email exist")
+					return http.StatusBadRequest, -1, errors.New("nickname or email exist")
 				}
 			}
 			return http.StatusInternalServerError, -1, err
 		}
-		fmt.Println(user, "Create user service done")
-
 		return http.StatusOK, int(lastId), nil
-
 	} else if !validEmail {
 		return http.StatusBadRequest, 0, errors.New("email incorrect, example@mail.com")
 	} else {
@@ -92,23 +86,17 @@ func (us *UserService) Create(user *models.User) (int, int, error) {
 	}
 }
 
-func (us *UserService) Logout(session *models.Session) error {
+func (us *UserService) Logout(session string) error {
 
-	if session.UUID != "" {
-		err := us.repository.Logout(session)
-		if err != nil {
-			return err
-		}
-	} else {
-		log.Println("uuid empty")
-		// return error.new("error uuid")
+	err := us.repository.Logout(session)
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
 func (us *UserService) GetUserById(userId string) (*models.User, error) {
-
-	// if userId != "" {
+	// if userId != "" { check if have user by id ?
 	user, err := us.repository.GetUserById(userId)
 	if err != nil {
 		return nil, err
@@ -136,12 +124,13 @@ func (us *UserService) GetDataInDb(str string, what string) (string, error) {
 			return "", err
 		}
 	} else if what == "email" {
+		fmt.Println(("get email"))
 		// data, err = us.repository.GetEmailInDb(str)
 	}
 	return data, nil
 }
 
-// take out utils ?
+// take out utils ? user_utils.
 func (us *UserService) isEmailValid(user *models.User) bool {
 	Re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,6}$`)
 	return Re.MatchString(user.Email)

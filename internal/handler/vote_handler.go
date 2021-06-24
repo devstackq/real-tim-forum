@@ -1,41 +1,29 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-
-	"github.com/devstackq/real-time-forum/internal/models"
 )
 
 func (h *Handler) VoteItemById(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
-
 	case "GET":
-		fmt.Println("get post by id")
+		fmt.Println("vote post by id")
 	case "POST":
-		vote := &models.Vote{}
-		resBody, err := ioutil.ReadAll(r.Body)
+		vote, _, _, err := GetJsonData(w, r, "vote")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err = json.Unmarshal(resBody, vote)
-		if err != nil {
-			JsonResponse(w, r, http.StatusBadRequest, err)
-			return
-		}
 		// if vote.VoteGroup == "post" {
-		err = h.Services.Vote.VoteTerminator(vote)
-		fmt.Println(err, "vote err")
+		updatedVote, err := h.Services.Vote.VoteTerminator(vote)
 		if err != nil {
 			JsonResponse(w, r, http.StatusInternalServerError, err)
 			return
 		}
-		JsonResponse(w, r, http.StatusOK, "post voted!")
-		// }
-
+		JsonResponse(w, r, http.StatusOK, updatedVote)
+	default:
+		JsonResponse(w, r, http.StatusBadRequest, "Bad Request")
 	}
 }

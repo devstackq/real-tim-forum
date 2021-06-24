@@ -8,7 +8,7 @@ import (
 type User interface {
 	Create(*models.User) (int, int, error)
 	Signin(*models.User) (int, *models.Session, error)
-	Logout(*models.Session) error
+	Logout(string) error
 	GetDataInDb(string, string) (string, error)
 	GetUserById(string) (*models.User, error)
 	GetUserPosts(string) (*[]models.Post, error)
@@ -22,7 +22,7 @@ type Comment interface {
 	Create(*models.Post) (int, error)
 }
 type Vote interface {
-	VoteTerminator(*models.Vote) error
+	VoteTerminator(*models.Vote) (*models.Vote, error)
 }
 
 type Service struct {

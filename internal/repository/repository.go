@@ -9,8 +9,8 @@ import (
 type User interface {
 	CreateUser(*models.User) (int64, error)
 	SigninUser(*models.User) (int, string, error)
+	Logout(string) error
 	UpdateSession(*models.Session) error
-	Logout(*models.Session) error
 	GetUuidInDb(string) (string, error)
 	GetUserById(string) (*models.User, error)
 	GetUserPosts(string) (*[]models.Post, error)
@@ -23,8 +23,8 @@ type Post interface {
 	JoinCategoryPost(string, string) error
 }
 type Vote interface {
-	GetCountVote(*models.Vote) (*models.Vote, error)
-	UpdateCountVote(*models.Vote) error
+	GetVoteCount(*models.Vote) (*models.Vote, error)
+	UpdateVoteCount(*models.Vote) (*models.Vote, error)
 	GetVoteState(*models.Vote) (*models.Vote, error)
 	SetVoteState(*models.Vote) error
 	UpdateVoteState(*models.Vote) error

@@ -4,6 +4,10 @@
 start chat
 
 //test mcok or unit
+//vote fix - another user - voted fix
+//like fix -> incerement non stop ?
+
+erros -> goroutine ? 
 
 use -> begintransat - concurrent query
           // isAuth - middleware - > showHeader - change

@@ -20,7 +20,8 @@ func NewServer(conf *Config) *Server {
 	if err != nil {
 		log.Println(err)
 	}
-
+	//prepare config, dependency , then run custom  server
+	//chain interface relation between layer -> repos->services->handlers
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
 	handler := handler.NewHandler(services)

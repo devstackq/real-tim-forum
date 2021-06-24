@@ -2,8 +2,10 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 )
@@ -24,7 +26,7 @@ func (ur *UserRepository) CreateUser(user *models.User) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	result, err := query.Exec(user.FullName, user.Email, user.Username, user.Password, user.Age, user.Sex, user.CreatedTime, user.City, user.Image)
+	result, err := query.Exec(user.FullName, user.Email, user.Username, user.Password, user.Age, user.Sex, time.Now(), user.City, user.Image)
 	if err != nil {
 		return -1, err
 	}
@@ -50,17 +52,14 @@ func (ur *UserRepository) SigninUser(user *models.User) (int, string, error) {
 	}
 	return id, hashPassword, nil
 }
-func (ur *UserRepository) Logout(session *models.Session) error {
+func (ur *UserRepository) Logout(session string) error {
 
-	_, err := ur.GetUuidInDb(session.UUID)
-	if err != nil {
-		return err
-	}
 	sqlStatement := `DELETE FROM sessions WHERE uuid=?;`
-	_, err = ur.db.Exec(sqlStatement, session.UUID)
+	_, err := ur.db.Exec(sqlStatement, session)
 	if err != nil {
 		return err
 	}
+	fmt.Println("delete session in db")
 	return nil
 }
 func (ur *UserRepository) UpdateSession(session *models.Session) error {

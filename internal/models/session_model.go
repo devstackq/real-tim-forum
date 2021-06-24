@@ -14,9 +14,3 @@ type Session struct {
 	StartTimeCookie time.Time `json:"cookieTime"`
 	Time            string    `json:"time"`
 }
-
-//general global variable
-var API struct {
-	Authenticated bool   `json:"authenticated"`
-	Message       string `json:"message"`
-}

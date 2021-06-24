@@ -79,5 +79,10 @@ func (h *Handler) createRoutes() []Route {
 			Handler: h.VoteItemById,
 			IsAuth:  true,
 		},
+		{
+			Path:    "/api/logout",
+			Handler: h.Logout,
+			IsAuth:  true,
+		},
 	}
 }

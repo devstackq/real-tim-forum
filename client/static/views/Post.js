@@ -25,6 +25,13 @@ export default class ViewPost extends Parent {
 
                 for (let [k, v] of Object.entries(object)) {
                     let span = document.createElement("span");
+                    if(k =='countlike') {
+                        span.id = 'countlike'
+                    }
+                    if(k =='countdislike') {
+                        span.id = 'countdislike'
+                    }
+                
                     if (v != null) {
                         span.textContent = ` ${k} : ${v} \n`;
                     }

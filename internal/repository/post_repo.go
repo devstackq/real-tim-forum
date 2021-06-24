@@ -19,18 +19,14 @@ func NewPostRepository(db *sql.DB) *PostRepository {
 	return &PostRepository{db}
 }
 
-//implement method, by interface Post
 func (pr *PostRepository) CreatePost(post *models.Post) (string, int, error) {
-	// log.Printf("Creating new post for userid %d...\n", post.CreatorID)
 	query, err := pr.db.Prepare(`
 		INSERT INTO posts(
 			thread, content, creator_id, category, create_time, update_time, image
 		) VALUES(?,?,?,?,?,?,?)`)
 	if err != nil {
-		log.Println(err)
 		return "", -1, err
 	}
-	// fmt.Println(post)
 	result, err := query.Exec(
 		post.Thread,
 		post.Content,
@@ -52,7 +48,6 @@ func (pr *PostRepository) CreatePost(post *models.Post) (string, int, error) {
 	if err != nil {
 		return "", -1, err
 	}
-
 	// or redirect -> by pid ?
 	log.Printf("Created a new post with id %d\n", postid)
 
@@ -92,7 +87,6 @@ func (pr *PostRepository) GetPostsByCategory(category string) (*[]models.Post, e
 	}
 
 	if err != nil {
-		fmt.Println(err, 9)
 		return nil, err
 	}
 
@@ -109,14 +103,11 @@ func (pr *PostRepository) GetPostsByCategory(category string) (*[]models.Post, e
 func (pr *PostRepository) GetPostById(postId string) (*models.Post, error) {
 
 	post := models.Post{}
-	// fmt.Println(postId)
 	query := `SELECT * FROM posts WHERE id=?`
 	row := pr.db.QueryRow(query, postId)
 	err := row.Scan(&post.ID, &post.Thread, &post.Content, &post.CreatorID, &post.Category, &post.CreatedTime, &post.UpdatedTime, &post.Image, &post.CountLike, &post.CountDislike)
 	if err != nil {
 		return nil, err
 	}
-
 	return &post, nil
-
 }

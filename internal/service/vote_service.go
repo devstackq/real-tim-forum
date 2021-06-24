@@ -15,12 +15,12 @@ func NewVoteService(repo repository.Vote) *VoteService {
 	return &VoteService{repo}
 }
 
-func (vs *VoteService) VoteTerminator(vote *models.Vote) error {
+func (vs *VoteService) VoteTerminator(vote *models.Vote) (*models.Vote, error) {
 	//good practice?
-	counts, err := vs.repository.GetCountVote(vote)
+	counts, err := vs.repository.GetVoteCount(vote)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for {
@@ -30,7 +30,7 @@ func (vs *VoteService) VoteTerminator(vote *models.Vote) error {
 			//first row uid, pid
 			err = vs.repository.SetVoteState(vote)
 			if err != nil {
-				return err
+				return nil, err
 			}
 			if vote.VoteType == "like" {
 				counts.CountLike += 1
@@ -79,11 +79,11 @@ func (vs *VoteService) VoteTerminator(vote *models.Vote) error {
 
 	err = vs.repository.UpdateVoteState(vote)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = vs.repository.UpdateCountVote(vote)
+	vote, err = vs.repository.UpdateVoteCount(vote)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return vote, nil
 }

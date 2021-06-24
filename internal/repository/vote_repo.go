@@ -17,7 +17,7 @@ func NewVoteRepository(db *sql.DB) *VoteRepository {
 }
 
 //good practice ? or service switch type -> 2 differnet repo ?
-func (vr *VoteRepository) GetCountVote(vote *models.Vote) (*models.Vote, error) {
+func (vr *VoteRepository) GetVoteCount(vote *models.Vote) (*models.Vote, error) {
 	query := `SELECT  count_like, count_dislike FROM ` + vote.VoteGroup + `s WHERE id=?`
 	row := vr.db.QueryRow(query, vote.ID)
 	err := row.Scan(&vote.CountLike, &vote.CountDislike)
@@ -27,18 +27,18 @@ func (vr *VoteRepository) GetCountVote(vote *models.Vote) (*models.Vote, error) 
 	return vote, nil
 }
 
-func (vr *VoteRepository) UpdateCountVote(vote *models.Vote) error {
+func (vr *VoteRepository) UpdateVoteCount(vote *models.Vote) (*models.Vote, error) {
 
 	query, err := vr.db.Prepare(`UPDATE ` + vote.VoteGroup + `s SET  count_like=?, count_dislike=? WHERE id=?`)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	_, err = query.Exec(vote.CountLike, vote.CountDislike, vote.ID)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return vote, nil
 }
 
 func (vr *VoteRepository) GetVoteState(vote *models.Vote) (*models.Vote, error) {

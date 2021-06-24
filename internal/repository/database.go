@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 )
 
@@ -115,7 +114,7 @@ func createTables(db *sql.DB) error {
 		comment_id INTEGER, 
 		like_state BOOLEAN DEFAULT FALSE,
 		dislike_state BOOLEAN DEFAULT FALSE, 
-		unique(post_id, user_id), 
+		UNIQUE(post_id, user_id), 
 		FOREIGN KEY(comment_id) REFERENCES comments(id), 
 		FOREIGN KEY(post_id) REFERENCES posts(id))`,
 	)
@@ -157,6 +156,7 @@ func putCategoriesInDb(db *sql.DB) {
 	err := db.QueryRow("SELECT count(*) FROM categories").Scan(&count)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	if count == 0 {
@@ -166,8 +166,6 @@ func putCategoriesInDb(db *sql.DB) {
 			if err != nil {
 				log.Println(err)
 			}
-			fmt.Println("cat create2", categories[i])
-
 			_, err = categoryPrepare.Exec(categories[i])
 			if err != nil {
 				log.Println(err)
