@@ -51,9 +51,7 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 			JsonResponse(w, r, status, "login or password incorrect")
 			return
 		}
-		//set Authorized variable - when user signin
-		Authorized.UUID = session.UUID
-		Authorized.UserID = session.UserID
+
 		//set in browser
 		sessionCookie := &http.Cookie{Name: "session", Value: session.UUID, Path: "/", HttpOnly: false, Expires: time.Now().Add(24 * time.Hour)}
 		uidCookie := &http.Cookie{Name: "user_id", Value: strconv.Itoa(session.UserID), Path: "/", HttpOnly: false, Expires: time.Now().Add(24 * time.Hour)}
@@ -87,12 +85,11 @@ func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		//userExist() ?
 		user, err := h.Services.User.GetUserById(strconv.Itoa(Authorized.UserID))
-
 		if err != nil {
 			JsonResponse(w, r, http.StatusNotFound, err.Error())
 			return
 		}
-		//posts, err := h.Services.User.GetUserPosts(uid.Value)
+		posts, err := h.Services.User.GetCreatedUserPosts(uid.Value)
 		//getCreatedComment() comment /array comment
 		//getVotedPost() vote / array post
 		JsonResponse(w, r, http.StatusOK, user)

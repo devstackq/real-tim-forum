@@ -3,6 +3,7 @@ package handler
 import (
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
@@ -29,6 +30,10 @@ func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		if uuid == session.Value {
+			//set Authorized variable - when user signin
+			uid, _ := strconv.Atoi(userId.Value)
+			Authorized.UUID = uuid
+			Authorized.UserID = uid
 			f.ServeHTTP(w, r)
 		} else {
 			log.Println("session is not equal in Db")
