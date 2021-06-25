@@ -11,7 +11,7 @@ type User interface {
 	Logout(string) error
 	GetDataInDb(string, string) (string, error)
 	GetUserById(string) (*models.User, error)
-	GetUserPosts(string) (*[]models.Post, error)
+	GetCreatedUserPosts(int) (*[]models.Post, error)
 }
 type Post interface {
 	Create(*models.Post) (int, error)

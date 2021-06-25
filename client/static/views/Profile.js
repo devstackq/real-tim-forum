@@ -26,6 +26,7 @@ export default class Profile extends Parent {
         console.log(response, 'porifle')
         if (response.status === 200) {
             let result = await response.json();
+            console.log(result)
             this.showBio(result);
         } else {
             super.showNotify(response.statusText, "error");

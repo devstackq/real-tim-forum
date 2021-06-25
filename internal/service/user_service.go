@@ -104,15 +104,6 @@ func (us *UserService) GetUserById(userId string) (*models.User, error) {
 	return user, nil
 }
 
-func (us *UserService) GetUserPosts(userId string) (*[]models.Post, error) {
-
-	posts, err := us.repository.GetUserPosts(userId)
-	if err != nil {
-		return nil, err
-	}
-	return posts, nil
-}
-
 func (us *UserService) GetDataInDb(str string, what string) (string, error) {
 
 	var data string
@@ -128,6 +119,14 @@ func (us *UserService) GetDataInDb(str string, what string) (string, error) {
 		// data, err = us.repository.GetEmailInDb(str)
 	}
 	return data, nil
+}
+
+func (us *UserService) GetCreatedUserPosts(userId int) (*[]models.Post, error) {
+	posts, err := us.repository.GetCreatedUserPosts(userId)
+	if err != nil {
+		return nil, err
+	}
+	return posts, nil
 }
 
 // take out utils ? user_utils.

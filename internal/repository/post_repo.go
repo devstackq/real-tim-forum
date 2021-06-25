@@ -82,7 +82,7 @@ func (pr *PostRepository) GetPostsByCategory(category string) (*[]models.Post, e
 		rows, err = pr.db.Query("SELECT  posts.id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts LEFT JOIN post_category_bridges  ON post_category_bridges.post_id = posts.id   WHERE category_id=?  ORDER  BY create_time  DESC", 1)
 	} else if category == "nature" {
 		rows, err = pr.db.Query("SELECT posts.id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts LEFT JOIN post_category_bridges  ON post_category_bridges.post_id = posts.id   WHERE category_id=?  ORDER  BY create_time  DESC", 3)
-	} else if category == "all" {
+	} else if category == "all" || category == "" {
 		rows, err = pr.db.Query("SELECT id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts ORDER  BY create_time  DESC")
 	}
 

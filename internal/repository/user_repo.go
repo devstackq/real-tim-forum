@@ -106,13 +106,6 @@ func (ur *UserRepository) GetUserById(uid string) (*models.User, error) {
 	}
 	return &user, nil
 }
-func (ur *UserRepository) GetUserPosts(uid string) (*[]models.Post, error) {
-	posts := []models.Post{}
-	//for loop []posts, where user_id =?, query db append each post
-	// post_category_bridge
-
-	return &posts, nil
-}
 
 func (ur *UserRepository) GetUuidInDb(uid string) (string, error) {
 
@@ -124,4 +117,23 @@ func (ur *UserRepository) GetUuidInDb(uid string) (string, error) {
 		return "", err
 	}
 	return uuid, nil
+}
+
+func (ur *UserRepository) GetCreatedUserPosts(userId int) (*[]models.Post, error) {
+
+	arrPosts := []models.Post{}
+	post := models.Post{}
+	var rows *sql.Rows
+	var err error
+	rows, err = ur.db.Query("SELECT id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts WHERE creator_id=?  ORDER  BY create_time  DESC ", userId)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		if err := rows.Scan(&post.ID, &post.Thread, &post.Content, &post.CreatorID, &post.CreatedTime, &post.UpdatedTime, &post.Image, &post.CountLike, &post.CountDislike); err != nil {
+			return nil, err
+		}
+		arrPosts = append(arrPosts, post)
+	}
+	return &arrPosts, nil
 }
