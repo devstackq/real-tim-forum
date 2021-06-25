@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -13,6 +12,12 @@ import (
 var Authorized struct {
 	UUID   string
 	UserID int
+}
+
+var Profile struct {
+	Posts *[]models.Post
+	User  *models.User
+	// Comment *models.Comment{}
 }
 
 //route -> handler -> service -> repos -> dbFunc
@@ -82,46 +87,26 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type any struct {
-	p *[]models.Post
-	u *models.User
-}
-
-// type json struct {
-// 	s1 []byte
-// 	s2 []byte
-// }
-
 //handlers DRY ?
 func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		//userExist() ?
-		user, err := h.Services.User.GetUserById(strconv.Itoa(Authorized.UserID))
+		var err error
+		Profile.User, err = h.Services.User.GetUserById(strconv.Itoa(Authorized.UserID))
 		if err != nil {
 			JsonResponse(w, r, http.StatusNotFound, err.Error())
 			return
 		}
-		posts, err := h.Services.User.GetCreatedUserPosts(Authorized.UserID)
+		Profile.Posts, err = h.Services.User.GetCreatedUserPosts(Authorized.UserID)
 		if err != nil {
 			JsonResponse(w, r, http.StatusNotFound, err.Error())
 			return
 		}
 		//getCreatedComment() comment /array comment
 		//getVotedPost() vote / array post
+		JsonResponse(w, r, http.StatusOK, Profile)
 
-		a := any{}
-		a.p = posts
-		a.u = user
-
-		w.WriteHeader(200)
-
-		js1, err := json.Marshal(a)
-
-		fmt.Println(js1)
-		w.Header().Set("Content-Type", "application/json")
-
-		w.Write(js1)
 	case "POST":
 		//update name, age, etc, delete user, update, delete request
 	default:
