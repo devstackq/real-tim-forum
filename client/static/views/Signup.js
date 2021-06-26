@@ -18,8 +18,8 @@ export default class Signup extends Parent {
       username: "",
       fullname: "",
       age: 0,
-      city: "Almaty",
-      gender: "male"
+      city: "",
+      gender: ""
     };
 
     user = super.fillObject(user)
@@ -33,7 +33,6 @@ export default class Signup extends Parent {
   }
 
   let uid = await super.fetch("signup", user);
-
     if (uid > 0 ) {
       window.location.replace("http://localhost:6969/signin");
     } else {
@@ -41,7 +40,6 @@ export default class Signup extends Parent {
       super.showNotify(response.statusText, "error");
     }
   }
-
   init() {
     document.getElementById("signup").onclick = this.signup;
   }
@@ -65,7 +63,7 @@ export default class Signup extends Parent {
         <input type='submit' id='signup' value="register"/>
         </div>
         `;
-    let header = super.showHeader("free");
+    let header = super.showHeader();
     return header + body
   }
 }

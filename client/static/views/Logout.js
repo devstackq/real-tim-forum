@@ -23,6 +23,6 @@ export default class extends Parent {
     }
   }
   async getHtml() {
-    return super.showHeader("auth");
+    return super.showHeader();
   }
 }

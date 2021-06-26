@@ -18,6 +18,7 @@ func (h *Handler) VoteItemById(w http.ResponseWriter, r *http.Request) {
 		}
 		// if vote.VoteGroup == "post" {
 		updatedVote, err := h.Services.Vote.VoteTerminator(vote)
+		fmt.Println(err)
 		if err != nil {
 			JsonResponse(w, r, http.StatusInternalServerError, err)
 			return

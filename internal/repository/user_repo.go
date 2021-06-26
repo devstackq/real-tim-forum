@@ -119,6 +119,7 @@ func (ur *UserRepository) GetUuidInDb(uid string) (string, error) {
 	return uuid, nil
 }
 
+//DRY func ?
 func (ur *UserRepository) GetCreatedUserPosts(userId int) (*[]models.Post, error) {
 
 	arrPosts := []models.Post{}
@@ -136,4 +137,27 @@ func (ur *UserRepository) GetCreatedUserPosts(userId int) (*[]models.Post, error
 		arrPosts = append(arrPosts, post)
 	}
 	return &arrPosts, nil
+}
+
+func (ur *UserRepository) GetUserVotedItems(userId int) (*[]models.Vote, error) {
+
+	seqVote := []models.Vote{}
+	voteObj := models.Vote{}
+	var rows *sql.Rows
+	var err error
+
+	rows, err = ur.db.Query("SELECT post_id, like_state, dislike_state FROM votes WHERE user_id=?", userId)
+
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		if err = rows.Scan(&voteObj.ID, &voteObj.LikeState, &voteObj.DislikeState); err != nil {
+			return nil, err
+		}
+		if voteObj.LikeState || voteObj.DislikeState {
+			seqVote = append(seqVote, voteObj)
+		}
+	}
+	return &seqVote, nil
 }

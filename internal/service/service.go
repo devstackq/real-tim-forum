@@ -12,6 +12,7 @@ type User interface {
 	GetDataInDb(string, string) (string, error)
 	GetUserById(string) (*models.User, error)
 	GetCreatedUserPosts(int) (*[]models.Post, error)
+	GetUserVotedItems(int) (*[]models.Vote, error)
 }
 type Post interface {
 	Create(*models.Post) (int, error)

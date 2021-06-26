@@ -7,6 +7,7 @@ export default class ViewPost extends Parent {
         this.post = {
             id: window.location.href.split("=")[1],
         }
+        this.isAuth = localStorage.getItem("isAuth")
     }
 
     setTitle(title) {
@@ -14,15 +15,13 @@ export default class ViewPost extends Parent {
     }
 
     async postById() {
-
+        let parent = document.querySelector("#postParent");
+    
             let object = await super.fetch("post/id", this.post);
-
-            let parent = document.querySelector("#postParent");
 
             if (object != null) {
                 let btnTextarea = document.createElement("button");
                 btnTextarea.textContent = "lost comment";
-
                 for (let [k, v] of Object.entries(object)) {
                     let span = document.createElement("span");
                     if(k =='countlike') {
@@ -31,17 +30,19 @@ export default class ViewPost extends Parent {
                     if(k =='countdislike') {
                         span.id = 'countdislike'
                     }
-                
                     if (v != null) {
-                        span.value = v
+                          span.value = v
                         span.textContent = ` ${k} : ${v} \n`;
                     }
                     parent.append(span);
                 }
+                
             } else {
                 super.showNotify('bad request', 'error')
                     // parent.innerHTML = ""
             }
+   
+
         }
         //out -> Parent -> use Comment & Post component
         // async lostComment() {
@@ -56,18 +57,16 @@ export default class ViewPost extends Parent {
         // }
 
     async init() {
-
         let parent = document.querySelector("#postParent");
         // let id  = url.searchParams.get("id")
         this.postById(this.post.id);
-
+      
         super.createElement([
             { type: "button" },
             { id: "btnlike" },
             { text: "like" },
             { parent: parent },
             { value: 'like' },
-            { func: this.postLike },
         ]);
 
         super.createElement([
@@ -75,8 +74,9 @@ export default class ViewPost extends Parent {
             { id: "btndislike" },
             { text: "dislike" },
             { parent: parent },
-            { func: this.postDislike },
+            // { func: this.postDislike },
         ]);
+
         //init event onclick
         super.setPostParams("post", this.post.id)
         super.voteLike()
@@ -84,13 +84,10 @@ export default class ViewPost extends Parent {
     }
 
     async getHtml() {
+// /?DRY
+        // let authState = localStorage.getItem("isAuth");
         let body = `<div id='postParent'>  </div>`;
         let comment = `<textarea id="commentField"> </textarea>  <button id="btncomment">lost comment </button>`
-        let authState = localStorage.getItem("isAuth");
-        if (authState == "true") {
-            return super.showHeader("auth") + body + comment
-        } else {
-            return super.showHeader("free") + body
-        }
+        return super.showHeader("auth") +  body + comment
     }
 }

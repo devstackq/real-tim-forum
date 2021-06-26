@@ -87,7 +87,6 @@ func (us *UserService) Create(user *models.User) (int, int, error) {
 }
 
 func (us *UserService) Logout(session string) error {
-
 	err := us.repository.Logout(session)
 	if err != nil {
 		return err
@@ -127,6 +126,14 @@ func (us *UserService) GetCreatedUserPosts(userId int) (*[]models.Post, error) {
 		return nil, err
 	}
 	return posts, nil
+}
+
+func (us *UserService) GetUserVotedItems(userId int) (*[]models.Vote, error) {
+	voted, err := us.repository.GetUserVotedItems(userId)
+	if err != nil {
+		return nil, err
+	}
+	return voted, nil
 }
 
 // take out utils ? user_utils.

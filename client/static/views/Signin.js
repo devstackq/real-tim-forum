@@ -42,7 +42,7 @@ export default class Signin extends Parent {
         <input type='submit' id='signin' value="signin"/>
         </div>
         `
-        let header = super.showHeader('free');
+        let header = super.showHeader();
         return header + body
     }
 };

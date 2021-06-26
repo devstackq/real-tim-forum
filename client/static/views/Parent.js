@@ -4,6 +4,8 @@ export default class Parent {
     this.type = type;
     this.item = [];
     this.userId = 0;
+    this.isAuth = "";
+    // this.category =  document.cookie.split(";")[2].slice(11)
     this.vote = {
       id: 0,
       creatorid: 0,
@@ -13,14 +15,22 @@ export default class Parent {
       group: "",
     };
   }
+
   setPostParams(group, id) {
     this.vote.group = group;
     this.vote.id = id;
   }
 
   getUserId() {
-    return this.userId.toString();
+    if (document.cookie.split(";").length > 1) {
+    return this.userId = document.cookie.split(";")[1].slice(9).toString()
+    }
   }
+  getAuthState() {
+    if (document.cookie.split(";").length > 1) {
+    return this.isAuth = localStorage.getItem("isAuth");
+  }
+}
 
   getLocalStorageState(type) {
     return localStorage.getItem(type);
@@ -43,8 +53,57 @@ export default class Parent {
     }
   }
 
+  renderSequence(object, ...type) {
+    if(object.User != null) {
+      this.render([object.User], '.bioUser', 'User data ')
+    }
+    if(object.Posts != null) {
+        this.render(object.Posts, '.postsUser', 'Created posts')
+    }
+
+    if(object.VotedItems != null) {
+        this.render(object.VotedItems, '.votedPost', 'Voted posts')
+      }
+      if(object != null && type == 'posts') {
+
+        let category =""
+      if(this.isAuth  =="true") {
+        category=    document.cookie.split(";")[2].slice(11)
+      }else if(this.isAuth  =="false") {
+        category=  document.cookie.split(";")[0].slice(10)
+      }
+          this.render(object, '.postContainer', `${category} posts`)
+      }
+    }
+
+      render(seq, where, text) {
+        // console.log(seq)
+        let parent = document.querySelector(where);
+
+        let title = document.createElement('p')
+        parent.append(title)
+        
+        seq.forEach(item => {
+        title.textContent = text
+          let div = document.createElement('div')
+          for(let [i , v ] of Object.entries(item)) {
+        let span = document.createElement('span')
+        if(v != null && v != '' ) {
+          span.textContent =` ${i} : ${v} `
+        }
+        div.append(span)
+        }
+        //createElement use ?
+        if (!item['email']) {
+        div.value=item['id']
+        div.onclick = () =>  window.location.replace(`/postget?id=${item["id"]}`)
+      }
+      parent.append(div)
+      })
+      }
+
   createElement(...params) {
-    console.log(params[0]);
+    // console.log(params[0]);
     let x = null;
     for (let [k, v] of Object.entries(params[0])) {
       if (v["type"] != undefined) {
@@ -72,13 +131,7 @@ export default class Parent {
       if (v["parent"] != undefined) {
         v["parent"].append(x);
       }
-      //check funcType == 'vote', comment
-      if (v["func"] != undefined) {
-        console.log(v["text"]);
-        x.onclick = () => {
-          v.func("like");
-        };
-      }
+
     }
   }
 
@@ -96,14 +149,13 @@ export default class Parent {
   // create render uniq func DRY
 
   async voteItem() {
+
     this.vote.creatorid = this.getUserId();
     this.vote.countdislike = document.querySelector("#countdislike").value
     this.vote.countlike = document.querySelector("#countlike").value
 
     let object = await this.fetch("vote", this.vote);
     if (object != null) {
-      console.log(object, "vote data", object['id']);
-      //DRY update value by key or new show postById
       document.querySelector("#countlike").textContent = ` countlike: ${object["countlike"]} `
       document.querySelector("#countdislike").textContent = `countdislike: ${object["countdislike"]} `
     } else {
@@ -124,26 +176,29 @@ export default class Parent {
     };
   }
 
-  showHeader(type) {
-    if (document.cookie.split(";").length > 1) {
-      this.userId = document.cookie.split(";")[1].slice(9);
-    }
+  showHeader() {
+    
+    this.getUserId()
+  
+    this.isAuth =  localStorage.getItem("isAuth");
+    // this.getAuthState()
 
     let login = "";
     let register = "";
     let logout = "";
     let profile = "";
 
-    if (type == "free") {
+    if ( this.isAuth  == "false" || this.isAuth == null) {
       profile = "";
       logout = "";
       register = `<a href="/signup"  class="nav__link signup" data-link>Signup</a>`;
       login = `<a href="/signin"  class="nav__link signin" data-link>Signin</a>`;
-    } else if (type == "auth") {
+    } else if ( this.isAuth  == "true") {
       register = "";
       login = "";
       logout = `<a href="/logout"  id='logout' class="nav__link logout" data-link>Logout</a>`;
       profile = `<a href="/profile" class="nav__link" data-link>Profile</a>`;
+  
     }
 
     return `
@@ -168,7 +223,6 @@ export default class Parent {
 
   showNotify(text, type) {
     let notify = document.getElementsByClassName("notify")[0];
-
     if (type == "error") {
       notify.style.display = "block";
       notify.textContent = text;

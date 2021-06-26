@@ -9,7 +9,6 @@ import (
 type Handler struct {
 	Services *service.Service
 }
-
 type Route struct {
 	Path    string
 	Handler http.HandlerFunc

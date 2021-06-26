@@ -57,12 +57,13 @@ const router = async() => {
     view.setTitle(match.result[0])
     document.querySelector("#app").innerHTML = await view.getHtml();
 
-    let date = new Date(Date.now() + 86400);
-    document.cookie = `category=${match.result[0]}; path=/; expires=${date.toUTCString()}`
+    // let date = new Date(Date.now() + 86400);expires=${date.toUTCString()
+    document.cookie = `category=${match.result[0]}; path=/; }`
     view.init()
 };
 
-// window.addEventListener("popstate", router);
+window.addEventListener("popstate", router);
+
 document.addEventListener("DOMContentLoaded", () => {
     document.body.addEventListener("click", e => {
         if (e.target.matches("[data-link]")) {

@@ -15,8 +15,9 @@ var Authorized struct {
 }
 
 var Profile struct {
-	Posts *[]models.Post
-	User  *models.User
+	Posts      *[]models.Post
+	User       *models.User
+	VotedItems *[]models.Vote
 	// Comment *models.Comment{}
 }
 
@@ -103,10 +104,14 @@ func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
 			JsonResponse(w, r, http.StatusNotFound, err.Error())
 			return
 		}
-		//getCreatedComment() comment /array comment
-		//getVotedPost() vote / array post
+		Profile.VotedItems, err = h.Services.User.GetUserVotedItems(Authorized.UserID)
+		if err != nil {
+			JsonResponse(w, r, http.StatusNotFound, err.Error())
+			return
+		}
 		JsonResponse(w, r, http.StatusOK, Profile)
 
+		//getCreatedComment() comment /array comment
 	case "POST":
 		//update name, age, etc, delete user, update, delete request
 	default:

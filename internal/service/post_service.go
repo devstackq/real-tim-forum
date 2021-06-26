@@ -41,10 +41,8 @@ func (ps *PostService) Create(post *models.Post) (int, error) {
 			}
 		}
 	}
-
 	log.Println(post, status, "Created post")
 	return http.StatusOK, nil
-
 }
 
 // func (ps *PostService) isImageValid(post *models.Post) bool {
@@ -65,14 +63,12 @@ func (ps *PostService) isValid(post *models.Post) bool {
 		// invalidFile = false
 	)
 	// regex := regexp.MustCompile(`^.*\.(jpg|JPG|jpeg|JPEG|gif|GIF|png|PNG|svg|SVG)$`)
-
 	if ps.isEmpty(post.Content) {
 		isEmptyContent = true
 	} else if ps.isEmpty(post.Thread) {
 		isEmptyThread = true
 		// return
 	}
-
 	return !isEmptyContent && !isEmptyThread
 }
 

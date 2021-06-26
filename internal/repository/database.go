@@ -111,7 +111,7 @@ func createTables(db *sql.DB) error {
 	votes, err := db.Prepare(`CREATE TABLE IF NOT EXISTS votes(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		user_id INTEGER, post_id INTEGER, 
-		comment_id INTEGER, 
+		comment_id INTEGER,
 		like_state BOOLEAN DEFAULT FALSE,
 		dislike_state BOOLEAN DEFAULT FALSE, 
 		UNIQUE(post_id, user_id), 

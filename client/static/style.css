@@ -7,9 +7,8 @@
     cursor: pointer;
 }
 
-.profileBio {
+.bioUser {
     width: 340px;
-    height: 340px;
     padding: 10px;
     background: #f5f5f5;
     opacity: 1;
@@ -23,12 +22,13 @@
 .postContainer span {
     margin-bottom: 5px;
 }
+
 .postWrapper {
     display: flex;
     flex-direction: column;
     padding: 10px;
 }
-.profileBio:hover {
+.bioUser:hover {
     opacity: .9;
 }
 
@@ -68,4 +68,35 @@
 
 .dropdown:hover .dropbtn {
     background-color: #3e8e41;
+}
+.postsUser {
+    display: flex;
+    flex-direction: column; 
+}
+.bioUser div {
+    display: flex;
+    flex-direction: column;
+}
+#postParent {
+    flex-direction: column-reverse  !important;
+}
+.postsUser div, .votedPost div, .postContainer div, #postParent  {
+    width:50%;
+    margin-bottom: 10px;
+    padding:  10px;
+    opacity: 1;
+    background: #efefef;
+    display: flex;
+    flex-direction: column;
+}
+
+.postsUser div:hover, .votedPost div:hover, .postContainer div:hover {
+transition: 1s;
+cursor: pointer;
+box-shadow: 2px 4px 3px #f5f5f5;
+transform: scale(0.95)
+
+}
+.postsUser button {
+    width: 40%;
 }
