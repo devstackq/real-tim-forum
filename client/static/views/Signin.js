@@ -40,7 +40,10 @@ export default class Signin extends Parent {
         <input type='email' id='email' placeholder='email' required>
         <input type="password" id="password" placeholder='password' required>
         <input type='submit' id='signin' value="signin"/>
-        </div>
+        <div> <span>if not register go to: </span> 
+         <a href='signup' > signup </a>
+       </div>
+         </div>
         `
         let header = super.showHeader();
         return header + body

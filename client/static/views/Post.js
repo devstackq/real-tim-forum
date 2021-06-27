@@ -15,34 +15,13 @@ export default class ViewPost extends Parent {
     }
 
     async postById() {
-        let parent = document.querySelector("#postParent");
-    
             let object = await super.fetch("post/id", this.post);
-
             if (object != null) {
-                let btnTextarea = document.createElement("button");
-                btnTextarea.textContent = "lost comment";
-                for (let [k, v] of Object.entries(object)) {
-                    let span = document.createElement("span");
-                    if(k =='countlike') {
-                        span.id = 'countlike'
-                    }
-                    if(k =='countdislike') {
-                        span.id = 'countdislike'
-                    }
-                    if (v != null) {
-                          span.value = v
-                        span.textContent = ` ${k} : ${v} \n`;
-                    }
-                    parent.append(span);
-                }
-                
+                super.renderSequence(object, '#postById')
             } else {
                 super.showNotify('bad request', 'error')
                     // parent.innerHTML = ""
             }
-   
-
         }
         //out -> Parent -> use Comment & Post component
         // async lostComment() {
@@ -57,10 +36,9 @@ export default class ViewPost extends Parent {
         // }
 
     async init() {
-        let parent = document.querySelector("#postParent");
+        let parent = document.querySelector("#postById");
         // let id  = url.searchParams.get("id")
         this.postById(this.post.id);
-      
         super.createElement([
             { type: "button" },
             { id: "btnlike" },
@@ -76,17 +54,17 @@ export default class ViewPost extends Parent {
             { parent: parent },
             // { func: this.postDislike },
         ]);
-
         //init event onclick
         super.setPostParams("post", this.post.id)
         super.voteLike()
         super.voteDislike()
+        
     }
 
     async getHtml() {
 // /?DRY
         // let authState = localStorage.getItem("isAuth");
-        let body = `<div id='postParent'>  </div>`;
+        let body = `<div id='postById'>  </div>`;
         let comment = `<textarea id="commentField"> </textarea>  <button id="btncomment">lost comment </button>`
         return super.showHeader("auth") +  body + comment
     }

@@ -5,24 +5,11 @@ start chat
 
 //test mcok or unit
 erros -> goroutine ?  
-use -> begintransat - concurrent query
+use -> begintransact - concurrent query
 
-//fix - voted post -> show/hide - profile page
-//not signin - user - eror, show posts - cookie
-
-//fix -vote/ || profile page -> isAuth state - false ?
-// isAuth - middleware - > showHeader - change
 //notify start -> 
 
-/if pAGE -RESTART SERVER -> SHOW CORRECT HEADER - FIX, and show profile page
-
         // validParams - > postId > 0, userId > 0, middleware
-        // another url path - > server error fix backend
-        // getPostNyID - header - auth check  
-        //create func - render - for uniq type, where etc super() Parent
-        //post/comment - 1 constructor funcs -> ? type other
-
-//time - correct show - backend profile
-//if no post -> show notify
-//isAuth - localStorage -> fix  showHeaders, no loalSotrage field
 //valid data signup, create post - backend
+        // another url path - > server error fix backend
+//time - correct show - backend profile

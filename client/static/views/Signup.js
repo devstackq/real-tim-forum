@@ -46,12 +46,13 @@ export default class Signup extends Parent {
 
   async getHtml() {
     let body = `
-        <div>
+        <div class="signup_container">
+        <h3> Signup with us! </h3>
         <input type="text" id='fullname' required="true" placeholder='full name'>
         <input type='email' id='email' required placeholder='email'>
         <input type="text" id='username' required placeholder='nick'>
         <input type="password" id="password" required placeholder='password'>
-        <input type="number" id='age' required placeholder='age'>
+        <input type="number" min="14" max="99" id='age' required placeholder='age'>
         <label> gender
         <select id='gender' placeholder='gender'>
         <option></option>
@@ -60,7 +61,11 @@ export default class Signup extends Parent {
       </select>
       </label>
         <input type="text" id='city' required placeholder='city'>
-        <input type='submit' id='signup' value="register"/>
+        <input type='submit' id='signup' value="Register"/>
+        
+        <div class='is_register'> <span>if registered go to: </span> 
+        <a href='signin' > signin </a>
+      </div>
         </div>
         `;
     let header = super.showHeader();

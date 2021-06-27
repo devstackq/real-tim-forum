@@ -54,6 +54,10 @@ export default class Parent {
   }
 
   renderSequence(object, ...type) {
+    
+    if(type == "#postById") {
+      this.render([object], `${type}`, "")
+    }
     if(object.User != null) {
       this.render([object.User], '.bioUser', 'User data ')
     }
@@ -79,25 +83,30 @@ export default class Parent {
       render(seq, where, text) {
         // console.log(seq)
         let parent = document.querySelector(where);
-
+console.log(where)
         let title = document.createElement('p')
         parent.append(title)
-        
+      
         seq.forEach(item => {
-        title.textContent = text
+      
+          title.textContent = text
           let div = document.createElement('div')
           for(let [i , v ] of Object.entries(item)) {
         let span = document.createElement('span')
-        if(v != null && v != '' ) {
-          span.textContent =` ${i} : ${v} `
-        }
+//case post by id
+        // if(v != null  ) {
+          i =='countlike' ?   span.id = 'countlike' : ''
+           i =='countdislike' ? span.id = 'countdislike' : ''
+              span.textContent =` ${i} : ${v} `
         div.append(span)
         }
         //createElement use ?
-        if (!item['email']) {
+        //case User data & postById - not onlclick
+        if (!item['email'] && where != '#postById')  {
         div.value=item['id']
         div.onclick = () =>  window.location.replace(`/postget?id=${item["id"]}`)
       }
+
       parent.append(div)
       })
       }

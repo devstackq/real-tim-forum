@@ -14,6 +14,9 @@ export default class Posts extends Parent {
         let response = await fetch(`http://localhost:6969/api/post/`);
         if (response.status == 200) {
             let result = await response.json();
+            if(result.length ==0) {
+                super.showNotify('No has post now, zorry...', "error")
+            }
             //show all post
            super.renderSequence(result, 'posts')
             result.forEach((element, idx) => {
