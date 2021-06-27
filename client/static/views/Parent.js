@@ -91,13 +91,11 @@ export default class Parent {
       for (let [i, v] of Object.entries(item)) {
         let span = document.createElement("span");
         //case post by id
-        // if(v != null  ) {
         i == "countlike" ? (span.id = "countlike") : "";
         i == "countdislike" ? (span.id = "countdislike") : "";
         span.textContent = ` ${i} : ${v} `;
         div.append(span);
       }
-      //createElement use ?
       //case User data & postById - not onlclick
       if (!item["email"] && where != "#postById") {
         div.value = item["id"];
@@ -124,7 +122,6 @@ export default class Parent {
       if (v["value"] != undefined) {
         x.value = v["value"];
       }
-
       if (v["class"] != undefined) {
         x.className = v["class"];
       }
@@ -151,7 +148,6 @@ export default class Parent {
     }
     return obj;
   }
-  // create render uniq func DRY
 
   async voteItem() {
     this.vote.creatorid = this.getUserId();
@@ -189,15 +185,16 @@ export default class Parent {
 
     this.isAuth = localStorage.getItem("isAuth");
     // this.getAuthState()
-
     let login = "";
     let register = "";
     let logout = "";
     let profile = "";
+    let chat = "";
 
     if (this.isAuth == "false" || this.isAuth == null) {
       profile = "";
       logout = "";
+      chat = "";
       register = `<a href="/signup"  class="nav__link signup" data-link>Signup</a>`;
       login = `<a href="/signin"  class="nav__link signin" data-link>Signin</a>`;
     } else if (this.isAuth == "true") {
@@ -205,6 +202,7 @@ export default class Parent {
       login = "";
       logout = `<a href="/logout"  id='logout' class="nav__link logout" data-link>Logout</a>`;
       profile = `<a href="/profile" class="nav__link" data-link>Profile</a>`;
+      chat = `<a href="/chat" class="nav__link" data-link>Chat</a>`;
     }
 
     return `
@@ -220,6 +218,7 @@ export default class Parent {
           <a href="/nature" data-link>nature</a>
         </div>
         </div>
+        ${chat}
        ${profile}
         ${logout}
     </nav>

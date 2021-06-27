@@ -1,11 +1,15 @@
-// curl --header "Content-Type: application/json"   --request POST   --data '{"username":"xyz","password":"xyz", "email":"meow"}'   http://localhost:6969/signup
-
-//start posts
-start chat
+1 create chat table
+2 r&d ws gorilla & js
+3 plaining logic - chat client - server 
+4 write project
+5 spa - render chat page
+6 js logic
+7 back end logic
 
 //test mcok or unit
 erros -> goroutine ?  
 use -> begintransact - concurrent query
+//fix warning and erros - js browser
 
 //comment start
 //notify start ->  for message, when mes send user1 -> & chatPage user2, notify - no show else show(websocket)

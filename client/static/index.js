@@ -5,6 +5,7 @@ import Signin from "./views/Signin.js";
 import Logout from "./views/Logout.js";
 import CreatePost from "./views/CreatePost.js";
 import ViewPost from "./views/Post.js";
+import Chat from "./views/Chat.js";
 
 const pathToRegex = (path) =>
   new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
@@ -39,6 +40,7 @@ const router = async () => {
     { path: "/logout", view: Logout },
     { path: "/postcreate", view: CreatePost },
     { path: "/postget", view: ViewPost },
+    { path: "/chat", view: Chat },
   ];
 
   // Test each route for potential match

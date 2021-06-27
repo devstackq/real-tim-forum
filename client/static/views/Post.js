@@ -25,14 +25,15 @@ export default class ViewPost extends Parent {
   }
   //out -> Parent -> use Comment & Post component
   // async lostComment() {
-  //     let content = document.getElementById("commentField").value;
-  //     let comment = { content: "", userid: 0, postid: 0 };
-  //     comment.content = content;
-  //     let object = await super.fetch("comment", comment);
-  //     if (object != null) {
-  //         //like postById
-  //         console.log("lost comment in post, who ?", object);
-  //     }
+  //   console.log("cooment call");
+  //   let content = document.getElementById("commentField").value;
+  //   let comment = { content: "", userid: 0, postid: 0 };
+  //   comment.content = content;
+  //   let object = await super.fetch("comment", comment);
+  //   if (object != null) {
+  //     //like postById
+  //     console.log("lost comment in post, who ?", object);
+  //   }
   // }
 
   async init() {
@@ -62,9 +63,8 @@ export default class ViewPost extends Parent {
 
   async getHtml() {
     // /?DRY
-    // let authState = localStorage.getItem("isAuth");
     let body = `<div id='postById'>  </div>`;
-    let comment = `<textarea id="commentField"> </textarea>  <button id="btncomment">lost comment </button>`;
-    return super.showHeader("auth") + body + comment;
+    let comment = `<textarea id="commentField"> </textarea>  <button onclick={this.lostComment} id="btncomment">lost comment </button>`;
+    return super.showHeader() + body + comment;
   }
 }

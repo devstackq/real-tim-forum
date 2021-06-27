@@ -145,6 +145,15 @@ func createTables(db *sql.DB) error {
 	}
 	category.Exec()
 
+	chat, err := db.Prepare(`CREATE TABLE IF NOT EXISTS chats(
+		id INTEGER PRIMARY KEY AUTOINCREMENT, 
+		name TEXT UNIQUE)`,
+	)
+	if err != nil {
+		return err
+	}
+	chat.Exec()
+
 	putCategoriesInDb(db)
 	return nil
 }
