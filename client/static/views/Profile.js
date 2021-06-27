@@ -9,13 +9,12 @@ export default class Profile extends Parent {
     document.title = title;
   }
 
-
   async init() {
     let response = await fetch("http://localhost:6969/api/profile");
     // console.log(response, "porifle");
     if (response.status === 200) {
       let result = await response.json();
-      super.renderSequence(result)
+      super.renderSequence(result);
     } else {
       super.showNotify(response.statusText, "error");
       // window.location.replace("/signin");

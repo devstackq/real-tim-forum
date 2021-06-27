@@ -11,7 +11,6 @@ export default class Signup extends Parent {
   }
 
   async signup() {
-
     let user = {
       email: "",
       password: "",
@@ -19,21 +18,21 @@ export default class Signup extends Parent {
       fullname: "",
       age: 0,
       city: "",
-      gender: ""
+      gender: "",
     };
 
-    user = super.fillObject(user)
-  // console.log(user,0)
-  if(user.city=="") {
-    user.city = "Almaty"
-  }else if(user.gender == "") {
-    user.gender = "man"
-  }else if (user.age == 0) {
-    user.age = 21
-  }
+    user = super.fillObject(user);
+    // console.log(user,0)
+    if (user.city == "") {
+      user.city = "Almaty";
+    } else if (user.gender == "") {
+      user.gender = "man";
+    } else if (user.age == 0) {
+      user.age = 21;
+    }
 
-  let uid = await super.fetch("signup", user);
-    if (uid > 0 ) {
+    let uid = await super.fetch("signup", user);
+    if (uid > 0) {
       window.location.replace("http://localhost:6969/signin");
     } else {
       //validParams() todo
@@ -69,6 +68,6 @@ export default class Signup extends Parent {
         </div>
         `;
     let header = super.showHeader();
-    return header + body
+    return header + body;
   }
 }

@@ -1,51 +1,50 @@
 import Parent from "./Parent.js";
 
 export default class CreatePost extends Parent {
-    constructor(params) {
-        super();
-        this.params = params;
-    }
+  constructor(params) {
+    super();
+    this.params = params;
+  }
 
-    setTitle(title) {
-        document.title = title;
-    }
+  setTitle(title) {
+    document.title = title;
+  }
 
-    async init() {
+  async init() {
+    document.querySelector("#createPost").onclick = async () => {
+      let post = {
+        thread: "",
+        content: "",
+        creatorid: 0,
+      };
+      post = super.fillObject(post);
+      post.categories = [];
 
-        document.querySelector("#createPost").onclick = async() => {
-            let post = {
-                thread: "",
-                content: "",
-                creatorid: 0,
-            };
-            post = super.fillObject(post);
-            post.categories = []
+      var inputs = document.querySelectorAll(".category");
 
-            var inputs = document.querySelectorAll('.category');
+      for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].checked) {
+          post.categories.push(inputs[i].value);
+        }
+      }
+      if (post == null) {
+        super.showNotify("post fill error", "error");
+        return;
+      }
 
-            for (var i = 0; i < inputs.length; i++) {
-                if (inputs[i].checked) {
-                    post.categories.push(inputs[i].value)
-                }
-            }
-            if (post == null) {
-                super.showNotify("post fill error", "error");
-                return;
-            }
+      let status = await super.fetch("post/create", post);
+      if (status == "success") {
+        window.location.replace("/all");
+        //redirect -> created post, /post/id
+      } else {
+        console.log(status);
+        super.showNotify("session expires or bad request", "error");
+      }
+    };
+  }
 
-            let status = await super.fetch("post/create", post);
-            if (status == "success" ){
-                window.location.replace('/all')
-                    //redirect -> created post, /post/id
-            } else {
-                console.log(status)
-                super.showNotify("session expires or bad request", "error");
-            }
-        };
-    }
-
-    async getHtml() {
-        let body = `
+  async getHtml() {
+    let body = `
         <div>
         <input id="thread" required placeholder='thread post'/>
         <textarea id="content" required placeholder='content'> </textarea>
@@ -62,7 +61,7 @@ export default class CreatePost extends Parent {
       </label>
         <button id='createPost'> create </button>
         </div>`;
-        let header = super.showHeader();
-        return header + body;
-    }
+    let header = super.showHeader();
+    return header + body;
+  }
 }

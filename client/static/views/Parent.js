@@ -10,8 +10,8 @@ export default class Parent {
       id: 0,
       creatorid: 0,
       type: "",
-      countlike:0,
-      countdislike:0,
+      countlike: 0,
+      countdislike: 0,
       group: "",
     };
   }
@@ -23,14 +23,14 @@ export default class Parent {
 
   getUserId() {
     if (document.cookie.split(";").length > 1) {
-    return this.userId = document.cookie.split(";")[1].slice(9).toString()
+      return (this.userId = document.cookie.split(";")[1].slice(9).toString());
     }
   }
   getAuthState() {
     if (document.cookie.split(";").length > 1) {
-    return this.isAuth = localStorage.getItem("isAuth");
+      return (this.isAuth = localStorage.getItem("isAuth"));
+    }
   }
-}
 
   getLocalStorageState(type) {
     return localStorage.getItem(type);
@@ -54,62 +54,59 @@ export default class Parent {
   }
 
   renderSequence(object, ...type) {
-    
-    if(type == "#postById") {
-      this.render([object], `${type}`, "")
+    if (type == "#postById") {
+      this.render([object], `${type}`, "");
     }
-    if(object.User != null) {
-      this.render([object.User], '.bioUser', 'User data ')
+    if (object.User != null) {
+      this.render([object.User], ".bioUser", "User data ");
     }
-    if(object.Posts != null) {
-        this.render(object.Posts, '.postsUser', 'Created posts')
-    }
-
-    if(object.VotedItems != null) {
-        this.render(object.VotedItems, '.votedPost', 'Voted posts')
-      }
-      if(object != null && type == 'posts') {
-
-        let category =""
-      if(this.isAuth  =="true") {
-        category=    document.cookie.split(";")[2].slice(11)
-      }else if(this.isAuth  =="false") {
-        category=  document.cookie.split(";")[0].slice(10)
-      }
-          this.render(object, '.postContainer', `${category} posts`)
-      }
+    if (object.Posts != null) {
+      this.render(object.Posts, ".postsUser", "Created posts");
     }
 
-      render(seq, where, text) {
-        // console.log(seq)
-        let parent = document.querySelector(where);
-console.log(where)
-        let title = document.createElement('p')
-        parent.append(title)
-      
-        seq.forEach(item => {
-      
-          title.textContent = text
-          let div = document.createElement('div')
-          for(let [i , v ] of Object.entries(item)) {
-        let span = document.createElement('span')
-//case post by id
+    if (object.VotedItems != null) {
+      this.render(object.VotedItems, ".votedPost", "Voted posts");
+    }
+    if (object != null && type == "posts") {
+      let category = "";
+      if (this.isAuth == "true") {
+        category = document.cookie.split(";")[2].slice(11);
+      } else if (this.isAuth == "false") {
+        category = document.cookie.split(";")[0].slice(10);
+      }
+      this.render(object, ".postContainer", `${category} posts`);
+    }
+  }
+
+  render(seq, where, text) {
+    // console.log(seq)
+    let parent = document.querySelector(where);
+    console.log(where);
+    let title = document.createElement("p");
+    parent.append(title);
+
+    seq.forEach((item) => {
+      title.textContent = text;
+      let div = document.createElement("div");
+      for (let [i, v] of Object.entries(item)) {
+        let span = document.createElement("span");
+        //case post by id
         // if(v != null  ) {
-          i =='countlike' ?   span.id = 'countlike' : ''
-           i =='countdislike' ? span.id = 'countdislike' : ''
-              span.textContent =` ${i} : ${v} `
-        div.append(span)
-        }
-        //createElement use ?
-        //case User data & postById - not onlclick
-        if (!item['email'] && where != '#postById')  {
-        div.value=item['id']
-        div.onclick = () =>  window.location.replace(`/postget?id=${item["id"]}`)
+        i == "countlike" ? (span.id = "countlike") : "";
+        i == "countdislike" ? (span.id = "countdislike") : "";
+        span.textContent = ` ${i} : ${v} `;
+        div.append(span);
       }
-
-      parent.append(div)
-      })
+      //createElement use ?
+      //case User data & postById - not onlclick
+      if (!item["email"] && where != "#postById") {
+        div.value = item["id"];
+        div.onclick = () =>
+          window.location.replace(`/postget?id=${item["id"]}`);
       }
+      parent.append(div);
+    });
+  }
 
   createElement(...params) {
     // console.log(params[0]);
@@ -140,7 +137,6 @@ console.log(where)
       if (v["parent"] != undefined) {
         v["parent"].append(x);
       }
-
     }
   }
 
@@ -158,15 +154,18 @@ console.log(where)
   // create render uniq func DRY
 
   async voteItem() {
-
     this.vote.creatorid = this.getUserId();
-    this.vote.countdislike = document.querySelector("#countdislike").value
-    this.vote.countlike = document.querySelector("#countlike").value
+    this.vote.countdislike = document.querySelector("#countdislike").value;
+    this.vote.countlike = document.querySelector("#countlike").value;
 
     let object = await this.fetch("vote", this.vote);
     if (object != null) {
-      document.querySelector("#countlike").textContent = ` countlike: ${object["countlike"]} `
-      document.querySelector("#countdislike").textContent = `countdislike: ${object["countdislike"]} `
+      document.querySelector(
+        "#countlike"
+      ).textContent = ` countlike: ${object["countlike"]} `;
+      document.querySelector(
+        "#countdislike"
+      ).textContent = `countdislike: ${object["countdislike"]} `;
     } else {
       window.location.replace("/signin");
     }
@@ -186,10 +185,9 @@ console.log(where)
   }
 
   showHeader() {
-    
-    this.getUserId()
-  
-    this.isAuth =  localStorage.getItem("isAuth");
+    this.getUserId();
+
+    this.isAuth = localStorage.getItem("isAuth");
     // this.getAuthState()
 
     let login = "";
@@ -197,17 +195,16 @@ console.log(where)
     let logout = "";
     let profile = "";
 
-    if ( this.isAuth  == "false" || this.isAuth == null) {
+    if (this.isAuth == "false" || this.isAuth == null) {
       profile = "";
       logout = "";
       register = `<a href="/signup"  class="nav__link signup" data-link>Signup</a>`;
       login = `<a href="/signin"  class="nav__link signin" data-link>Signin</a>`;
-    } else if ( this.isAuth  == "true") {
+    } else if (this.isAuth == "true") {
       register = "";
       login = "";
       logout = `<a href="/logout"  id='logout' class="nav__link logout" data-link>Logout</a>`;
       profile = `<a href="/profile" class="nav__link" data-link>Profile</a>`;
-  
     }
 
     return `

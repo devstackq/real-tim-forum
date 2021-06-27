@@ -7,9 +7,12 @@ start chat
 erros -> goroutine ?  
 use -> begintransact - concurrent query
 
-//notify start -> 
+//comment start
+//notify start ->  for message, when mes send user1 -> & chatPage user2, notify - no show else show(websocket)
 
         // validParams - > postId > 0, userId > 0, middleware
 //valid data signup, create post - backend
         // another url path - > server error fix backend
 //time - correct show - backend profile
+
+//valid, update, delete, etc
