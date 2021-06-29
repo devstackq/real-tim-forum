@@ -7,16 +7,17 @@
 7 back end logic
 
 //test mcok or unit
-erros -> goroutine ?  
+erros -> goroutine ?
+//add image profile/post
 use -> begintransact - concurrent query
 //fix warning and erros - js browser
-
-//comment start
-//notify start ->  for message, when mes send user1 -> & chatPage user2, notify - no show else show(websocket)
-
         // validParams - > postId > 0, userId > 0, middleware
+
+//notify ->  for message, when mes send user1 -> & chatPage user2, notify - no show else show(websocket)
+
+
 //valid data signup, create post - backend
         // another url path - > server error fix backend
 //time - correct show - backend profile
+// update, delete, etc backend
 
-//valid, update, delete, etc

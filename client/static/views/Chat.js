@@ -22,6 +22,15 @@ export default class Chat extends Parent {
     // /?DRY
     //show online user & sended message - like history users
     //listUser - dynamic, create history window, textarea, and btn -> history dynamic change data
-    return super.showHeader();
+    let body = `
+      <div id="listUser" > list users: </div>
+      <div id="chat" >message users </div>
+      <div id="message_container" >
+      <textarea  id="message"> </textarea> 
+      <button id="sendMessage" > send </button>
+      </div>
+      
+    `
+    return super.showHeader() + body
   }
 }

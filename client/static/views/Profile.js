@@ -17,7 +17,7 @@ export default class Profile extends Parent {
       super.renderSequence(result);
     } else {
       super.showNotify(response.statusText, "error");
-      // window.location.replace("/signin");
+      window.location.replace("/signin");
     }
     document.querySelector("#editBio").onclick = () => {
       console.log("edit");

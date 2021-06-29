@@ -17,43 +17,35 @@ func NewPostService(repo repository.Post) *PostService {
 	return &PostService{repo}
 }
 func (ps *PostService) Create(post *models.Post) (int, error) {
-	// if !ps.isValid(post) {
-	lastID, status, err := ps.repository.CreatePost(post)
-	if err != nil {
-		return http.StatusBadRequest, err
-	}
 
-	for _, v := range post.Categories {
-		if v == "love" {
-			err = ps.repository.JoinCategoryPost(lastID, "2")
-			if err != nil {
-				return -1, err
-			}
-		} else if v == "nature" {
-			err = ps.repository.JoinCategoryPost(lastID, "3")
-			if err != nil {
-				return -1, err
-			}
-		} else if v == "science" {
-			err = ps.repository.JoinCategoryPost(lastID, "1")
-			if err != nil {
-				return -1, err
+	if ps.isValid(post) {
+		lastID, status, err := ps.repository.CreatePost(post)
+		if err != nil {
+			return http.StatusBadRequest, err
+		}
+
+		for _, v := range post.Categories {
+			if v == "love" {
+				err = ps.repository.JoinCategoryPost(lastID, "2")
+				if err != nil {
+					return -1, err
+				}
+			} else if v == "nature" {
+				err = ps.repository.JoinCategoryPost(lastID, "3")
+				if err != nil {
+					return -1, err
+				}
+			} else if v == "science" {
+				err = ps.repository.JoinCategoryPost(lastID, "1")
+				if err != nil {
+					return -1, err
+				}
 			}
 		}
+		log.Println(post, status, "Created post")
 	}
-	log.Println(post, status, "Created post")
 	return http.StatusOK, nil
 }
-
-// func (ps *PostService) isImageValid(post *models.Post) bool {
-// 	regex := regexp.MustCompile(`^.*\.(jpg|JPG|jpeg|JPEG|gif|GIF|png|PNG|svg|SVG)$`)
-// 		// 	mf, fh, _ := r.FormFile("image")
-// 		// if fh != nil{
-// 		// 	defer mf.Close()
-// 		// }
-// 	// return regex.MatchString(post.Image)
-// 	return true
-// }
 
 func (ps *PostService) isValid(post *models.Post) bool {
 	var (
@@ -75,6 +67,8 @@ func (ps *PostService) isValid(post *models.Post) bool {
 func (ps *PostService) isEmpty(text string) bool {
 	fmt.Println(text)
 	for _, v := range text {
+		fmt.Println("ture", v)
+
 		if !(v <= 32) {
 			return false
 		}
@@ -82,55 +76,19 @@ func (ps *PostService) isEmpty(text string) bool {
 	return true
 }
 
+//todo:
 // regex := regexp.MustCompile(`^.*\.(jpg|JPG|jpeg|JPEG|gif|GIF|png|PNG|svg|SVG)$`)
-
-// mf, fh, _ := r.FormFile("image")
-// if fh != nil {
-// 	defer mf.Close()
-// }
-
-// categories := r.Form["categories"]
-// categoryexist := make(map[string]bool)
-// thread := r.FormValue("thread")
-// content := r.FormValue("content")
-
-// for _, category := range data.Categories {
-// 	categoryexist[category] = true
-// }
-
-// for _, category := range categories {
-// 	if !categoryexist[category] {
-// 		data.Data = "Invalid category " + category
-// 		w.WriteHeader(http.StatusUnprocessableEntity)
-// 		// InternalError(w, r, tpl.ExecuteTemplate(w, "createpost.html", data))
-// 		return
-// 	}
-// }
-
 // if len(categories) == 0 {
 // 	data.Data = "Categories must not be empty"
-// 	w.WriteHeader(http.StatusUnprocessableEntity)
-// 	// InternalError(w, r, tpl.ExecuteTemplate(w, "createpost.html", data))
-// 	return
 // } else if isEmpty(thread) {
 // 	data.Data = "Title must not be empty"
-// 	w.WriteHeader(http.StatusUnprocessableEntity)
-// 	// InternalError(w, r, tpl.ExecuteTemplate(w, "createpost.html", data))
-// 	return
 // } else if isEmpty(content) {
 // 	data.Data = "Content must not be empty"
-// 	w.WriteHeader(http.StatusUnprocessableEntity)
-// 	// InternalError(w, r, tpl.ExecuteTemplate(w, "createpost.html", data))
-// 	return
 // } else if fh != nil && fh.Size > 20000000 {
 // 	data.Data = "File too large, please limit size to 20MB"
 // 	w.WriteHeader(http.StatusUnprocessableEntity)
-// 	// InternalError(w, r, tpl.ExecuteTemplate(w, "createpost.html", data))
-// 	return
 // 	data.Data = "Invalid file type, please upload jpg, jpeg, png, gif, svg"
 // 	w.WriteHeader(http.StatusUnprocessableEntity)
-// 	// InternalError(w, r, tpl.ExecuteTemplate(w, "createpost.html", data))
-// 	return
 // }
 
 func (ps *PostService) GetPostsByCategory(category string) (*[]models.Post, error) {
