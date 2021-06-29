@@ -20,8 +20,10 @@ func NewServer(conf *Config) *Server {
 	if err != nil {
 		log.Println(err)
 	}
-	//prepare config, dependency , then run custom  server
+	//prepare config, dependency , then run custom  server, DI
 	//chain interface relation between layer -> repos->services->handlers
+	//outer layer connect -> inner - with interfaces, then realize interfaces
+
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
 	handler := handler.NewHandler(services)
@@ -44,6 +46,6 @@ func NewServer(conf *Config) *Server {
 }
 
 func (s *Server) Run() error {
-	log.Println("start server")
+	log.Println("start server in port: ", s.http.Addr)
 	return s.http.ListenAndServe()
 }

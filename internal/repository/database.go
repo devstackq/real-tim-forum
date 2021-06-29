@@ -155,6 +155,7 @@ func createTables(db *sql.DB) error {
 	chat.Exec()
 
 	putCategoriesInDb(db)
+	log.Println(" db created")
 	return nil
 }
 

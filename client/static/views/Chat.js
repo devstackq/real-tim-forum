@@ -30,7 +30,7 @@ export default class Chat extends Parent {
       <button id="sendMessage" > send </button>
       </div>
       
-    `
-    return super.showHeader() + body
+    `;
+    return super.showHeader() + body;
   }
 }

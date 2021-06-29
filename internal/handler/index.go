@@ -8,8 +8,7 @@ import (
 func (h *Handler) IndexParse(w http.ResponseWriter, r *http.Request) {
 	//1 time, execute template - like bridge back to front
 	var count int
-	// if count == 0 {
-		// fmt.Println(count)
+	if count == 0 {
 		t, err := template.ParseFiles("../client/index.html")
 		t.Execute(w, nil)
 		if err != nil {
@@ -17,5 +16,5 @@ func (h *Handler) IndexParse(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		count++
-	// }
+	}
 }

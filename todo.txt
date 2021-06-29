@@ -15,9 +15,7 @@ use -> begintransact - concurrent query
 
 //notify ->  for message, when mes send user1 -> & chatPage user2, notify - no show else show(websocket)
 
-
 //valid data signup, create post - backend
         // another url path - > server error fix backend
 //time - correct show - backend profile
 // update, delete, etc backend
-

@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/devstackq/real-time-forum/internal/service"
@@ -16,12 +18,15 @@ type Route struct {
 }
 
 func NewHandler(s *service.Service) *Handler {
+	fmt.Println("created handler ")
 	return &Handler{s}
 }
 
+//valid params  handler or service ?
 func (h *Handler) InitRouter() *http.ServeMux {
 
 	routes := h.createRoutes()
+	log.Println("created routers")
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir("../client/static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))

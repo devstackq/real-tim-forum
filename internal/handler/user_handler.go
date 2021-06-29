@@ -60,7 +60,6 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 			JsonResponse(w, r, status, "login or password incorrect")
 			return
 		}
-
 		//set in browser
 		sessionCookie := &http.Cookie{Name: "session", Value: session.UUID, Path: "/", HttpOnly: false, Expires: time.Now().Add(24 * time.Hour)}
 		uidCookie := &http.Cookie{Name: "user_id", Value: strconv.Itoa(session.UserID), Path: "/", HttpOnly: false, Expires: time.Now().Add(24 * time.Hour)}

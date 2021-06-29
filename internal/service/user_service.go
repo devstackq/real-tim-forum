@@ -22,6 +22,7 @@ type UserService struct {
 
 //repoUser wrapper struct - userService
 func NewUserService(repo repository.User) *UserService {
+	fmt.Println("create user service ")
 	return &UserService{repo}
 }
 
@@ -51,13 +52,13 @@ func (us *UserService) Signin(user *models.User) (int, *models.Session, error) {
 	if err != nil {
 		return http.StatusBadRequest, nil, err
 	}
-	log.Println("session update -> signin in system")
+	log.Println("session update -> signin in system", session.UUID)
 	return http.StatusOK, &session, nil
 }
 
 func (us *UserService) Create(user *models.User) (int, int, error) {
-
-	validEmail := us.isEmailValid(user)
+	//good practice ?
+	validEmail := IsEmailValid(user)
 	validPassword := us.isPasswordValid(user)
 
 	if validEmail && validPassword {
@@ -137,7 +138,7 @@ func (us *UserService) GetUserVotedItems(userId int) (*[]models.Vote, error) {
 }
 
 // take out utils ? user_utils.
-func (us *UserService) isEmailValid(user *models.User) bool {
+func IsEmailValid(user *models.User) bool {
 	Re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,6}$`)
 	return Re.MatchString(user.Email)
 }

@@ -16,6 +16,7 @@ type UserRepository struct {
 }
 
 func NewUserRepository(db *sql.DB) *UserRepository {
+	fmt.Println("create user repo ")
 	return &UserRepository{db}
 }
 
