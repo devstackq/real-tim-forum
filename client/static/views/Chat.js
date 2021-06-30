@@ -12,7 +12,13 @@ export default class Chat extends Parent {
   //get senderId, receiverId, msg
   async init() {
     console.log("chat ");
-    let response = await super.fetch("chat", null);
+    let ws = new WebSocket('ws://localhost:6969/api/chat')
+   ws.addEventListener("message", (e) => {
+    console.log(e)
+   })
+   //input name, message current user
+ws.send( JSON.stringify( {name: "Albert", msg: "hello dream team !" }))
+
     //getLisrUser() & online and offline
     //click -> userId -> getHistoryByChatId()
     //click -> send msg -> websocket -> save msg, notify another user

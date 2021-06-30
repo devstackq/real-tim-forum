@@ -70,6 +70,7 @@ export default class Parent {
     if (object != null && type == "posts") {
       let category = "";
       if (this.isAuth == "true") {
+//use regex?
         category = document.cookie.split(";")[2].slice(11);
       } else if (this.isAuth == "false") {
         category = document.cookie.split(";")[0].slice(10);

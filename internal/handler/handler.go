@@ -22,6 +22,11 @@ func NewHandler(s *service.Service) *Handler {
 	return &Handler{s}
 }
 
+func (h *Handler) IndexParse(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "../client/index.html")
+	fmt.Println("serve file")
+}
+
 //valid params  handler or service ?
 func (h *Handler) InitRouter() *http.ServeMux {
 
@@ -30,6 +35,11 @@ func (h *Handler) InitRouter() *http.ServeMux {
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir("../client/static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))
+
+	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	// 	http.ServeFile(w, r, "../client/index.html")
+	// })
+
 	//add middleware each auth route
 	for _, route := range routes {
 		if route.IsAuth {
