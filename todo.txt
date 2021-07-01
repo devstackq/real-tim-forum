@@ -5,6 +5,20 @@
 5 spa - render chat page
 6 js logic
 7 back end logic
+//addNewUser chan -> plain - todo
+
+// use Observer - for notiffy
+// ws1 -> send ws2 data 
+
+signin -> user_id -> add map[uid : wsconn]
+uid -> sendMessage -> getUid(sender) in backend -> send message -> sender(getSenderId) -> getListUser()
+ Например ws1.send(msg, receiverUuid) -> server handleWS() -> getConnByUuid([]mapClients[receiveUUid]),
+broadcast -> findConn(receiverConn) -> wirete.Message
+
+
+//show ListUsers, show Histroy users
+//join user -> if click by user || send frist message ??
+
 
 //test mcok or unit
 erros -> goroutine ?

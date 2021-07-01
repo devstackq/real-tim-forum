@@ -17,16 +17,15 @@ type User struct {
 	CreatedTime time.Time       `json:"createdtime"`
 	City        string          `json:"city"`
 	Image       []byte          `json:"image"`
-	ImageHTML   string          `json:"imagehtml"`
-	SVG         bool            `json:"svg"`
 	Username    string          `json:"username"`
 	LastSeen    string          `json:"lastseen"`
 	Session     *Session        `json:"session"`
 	Conn        *websocket.Conn `json:"conn"`
 	Global      *Chat
+	UUID        string
 }
 
-var Any struct {
-	Posts Post
-	Users User
-}
+// var Any struct {
+// 	Posts Post
+// 	Users User
+// }

@@ -70,7 +70,7 @@ export default class Parent {
     if (object != null && type == "posts") {
       let category = "";
       if (this.isAuth == "true") {
-//use regex?
+        //use regex?
         category = document.cookie.split(";")[2].slice(11);
       } else if (this.isAuth == "false") {
         category = document.cookie.split(";")[0].slice(10);
@@ -81,8 +81,9 @@ export default class Parent {
 
   render(seq, where, text) {
     // console.log(seq)
+    console.log(where, "render parent");
+
     let parent = document.querySelector(where);
-    console.log(where);
     let title = document.createElement("p");
     parent.append(title);
 

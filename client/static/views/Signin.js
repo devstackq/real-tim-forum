@@ -20,6 +20,8 @@ export default class Signin extends Parent {
     let result = await super.fetch("signin", user);
     if (result !== null) {
       localStorage.setItem("isAuth", true);
+      //only send userid in server add new client online
+      //input name, message current user
       window.location.replace("http://localhost:6969/profile");
     } else {
       localStorage.setItem("isAuth", false);

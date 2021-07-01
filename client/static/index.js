@@ -67,7 +67,7 @@ const router = async () => {
   document.querySelector("#app").innerHTML = await view.getHtml();
 
   // let date = new Date(Date.now() + 86400);expires=${date.toUTCString()
-  document.cookie = `category=${match.result[0]}; path=/; }`;
+  document.cookie = `category=${match.result[0]}; path=/; sameSite: "Lax";`;
   view.init();
 };
 

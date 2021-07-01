@@ -1,6 +1,8 @@
 package service
 
 import (
+	"net/http"
+
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
 )
@@ -25,12 +27,17 @@ type Comment interface {
 type Vote interface {
 	VoteTerminator(*models.Vote) (*models.Vote, error)
 }
+type Chat interface {
+	ChatBerserker(http.ResponseWriter, *http.Request, *models.Chat, string) error
+	Run(*models.Chat)
+}
 
 type Service struct {
 	User
 	Post
 	Vote
 	Comment
+	Chat
 }
 
 func NewService(r *repository.Repository) *Service {
@@ -39,5 +46,6 @@ func NewService(r *repository.Repository) *Service {
 		Post: NewPostService(r.Post),
 		Vote: NewVoteService(r.Vote),
 		// Comment: NewCommentService(r.Comment),
+		Chat: NewChatService(r.Chat),
 	}
 }

@@ -17,11 +17,8 @@ export default class Posts extends Parent {
       if (result.length == 0) {
         super.showNotify("No has post now, zorry...", "error");
       }
-      //show all post
+      //show all post, by cats
       super.renderSequence(result, "posts");
-      result.forEach((element, idx) => {
-        this.render(element, idx, ".postContainer");
-      });
     }
   }
 

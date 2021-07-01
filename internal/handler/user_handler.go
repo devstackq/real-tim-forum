@@ -37,6 +37,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 			JsonResponse(w, r, status, err.Error())
 			return
 		}
+		//add global mapClients
 		//user.ID = id
 		JsonResponse(w, r, status, id)
 	default:

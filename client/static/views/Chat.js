@@ -12,16 +12,42 @@ export default class Chat extends Parent {
   //get senderId, receiverId, msg
   async init() {
     console.log("chat ");
-    let ws = new WebSocket('ws://localhost:6969/api/chat')
-   ws.addEventListener("message", (e) => {
-    console.log(e)
-   })
-   //input name, message current user
-ws.send( JSON.stringify( {name: "Albert", msg: "hello dream team !" }))
+    //DRY
 
+    let ws = new WebSocket("ws://localhost:6969/api/chat");
+    console.log(ws);
+    ws.addEventListener("message", (e) => {
+      console.log(JSON.parse(e.data), "get data from back ws");
+    });
+    //input name, message current user
+    let obj = { receiverId: 0, message: "" };
+    obj.receiverId = 2;
+    obj.message = "hello dream team !";
+
+    //check state -> then send message
+    ws.onopen = () => ws.send(JSON.stringify(obj));
+
+    ws.onclose = function (event) {
+      if (event.wasClean) {
+        console.log("Соединение закрыто чисто");
+      } else {
+        console.log("Обрыв соединения"); // например, "убит" процесс сервера
+      }
+      console.log("Код: " + event.code + " причина: " + event.reason);
+    };
+
+    ws.onmessage = function (event) {
+      console.log("Получены данные " + event.data);
+    };
+
+    ws.onerror = function (error) {
+      console.log("Ошибка " + error.message);
+    };
+
+    console.log("send object ws ");
     //getLisrUser() & online and offline
     //click -> userId -> getHistoryByChatId()
-    //click -> send msg -> websocket -> save msg, notify another user
+    //click -> send msg -> webws -> save msg, notify another user
   }
 
   async getHtml() {
@@ -35,7 +61,6 @@ ws.send( JSON.stringify( {name: "Albert", msg: "hello dream team !" }))
       <textarea  id="message"> </textarea> 
       <button id="sendMessage" > send </button>
       </div>
-      
     `;
     return super.showHeader() + body;
   }

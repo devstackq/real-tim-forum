@@ -33,11 +33,15 @@ type Vote interface {
 type Comment interface {
 	CreateComment(*models.Comment) (int, error)
 }
+type Chat interface {
+	ChatManager(*models.Chat) error
+}
 type Repository struct {
 	User
 	Post
 	Vote
 	Comment
+	Chat
 }
 
 func NewRepository(db *sql.DB) *Repository {
@@ -45,5 +49,6 @@ func NewRepository(db *sql.DB) *Repository {
 		User: NewUserRepository(db),
 		Post: NewPostRepository(db),
 		Vote: NewVoteRepository(db),
+		Chat: NewChatRepository(db),
 	}
 }

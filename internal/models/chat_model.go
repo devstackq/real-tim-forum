@@ -7,17 +7,24 @@ package models
 //- hello, fine and u ? uid2
 type Message struct {
 	ID       int
-	Content  string
-	ChatID   int //99
+	Content  string `json:"message"`
+	ChatID   int    //99
 	Sender   int
-	Receiver int
+	Receiver string `json:"receiveruuid"`
 }
 
+// func NewMessage(body string, sender int) *Message {
+// 	return &Message{
+// 		Body:   body,
+// 		Sender: sender,
+// 	}
+// }
+
 type Chat struct {
-	Users    map[string]*User
-	Messages chan *Message
-	Join     chan *User
-	Leave    chan *User
+	Users   map[string]*User
+	Message chan *Message
+	Join    chan *User
+	Leave   chan *User
 }
 
 //user19 -> send msg -> user 59, from, who, chatid99

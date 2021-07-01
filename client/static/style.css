@@ -1,131 +1,142 @@
 .dropbtn {
-    background-color: #4CAF50;
-    color: white;
-    padding: 16px;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
+  background-color: #4caf50;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
 }
 
 .bioUser {
-    width: 340px;
-    padding: 10px;
-    background: #f5f5f5;
-    opacity: 1;
+  width: 340px;
+  padding: 10px;
+  background: #f5f5f5;
+  opacity: 1;
 }
+
 .postContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .postContainer span {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 .postWrapper {
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
 }
 .bioUser:hover {
-    opacity: .9;
+  opacity: 0.9;
 }
 
 #editBio {
-    color: red;
+  color: red;
 }
 
 .dropdown {
-    position: relative;
-    display: inline-block;
-    margin-left: 100px;
+  position: relative;
+  display: inline-block;
+  margin-left: 100px;
 }
 
 .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1;
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
 }
 
 .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
 }
 
 .dropdown-content a:hover {
-    background-color: #f1f1f1
+  background-color: #f1f1f1;
 }
 
 .dropdown:hover .dropdown-content {
-    display: block;
+  display: block;
 }
 
 .dropdown:hover .dropbtn {
-    background-color: #3e8e41;
+  background-color: #3e8e41;
 }
 .postsUser {
-    display: flex;
-    flex-direction: column; 
+  display: flex;
+  flex-direction: column;
 }
 .bioUser div {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 #postById {
-    flex-direction: column-reverse  !important;
+  flex-direction: column-reverse !important;
 }
-.postsUser div, .votedPost div, .postContainer div, #postById  {
-    width:50%;
-    margin-bottom: 10px;
-    padding:  10px;
-    opacity: 1;
-    background: #efefef;
-    display: flex;
-    flex-direction: column;
+.postsUser div,
+.votedPost div,
+.postContainer div,
+#postById {
+  width: 50%;
+  margin-bottom: 10px;
+  padding: 10px;
+  opacity: 1;
+  background: #efefef;
+  display: flex;
+  flex-direction: column;
 }
 
-.postsUser div:hover, .votedPost div:hover, .postContainer div:hover {
-transition: 1s;
-cursor: pointer;
-box-shadow: 2px 4px 3px #f5f5f5;
-transform: scale(0.95)
-
+.postsUser div:hover,
+.votedPost div:hover,
+.postContainer div:hover {
+  transition: 1s;
+  cursor: pointer;
+  box-shadow: 2px 4px 3px #f5f5f5;
+  transform: scale(0.95);
 }
 .postsUser button {
-    width: 40%;
+  width: 40%;
 }
 
 .signup_container {
-    display: flex;
-    flex-direction: column;
-width: 100%;
-height:600px;
-max-width: 800px;
-margin: 20% auto;
-background: #fafafa;
-padding: 20px;
-color: #6C6C6C;
-
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 600px;
+  max-width: 800px;
+  margin: 20% auto;
+  background: #fafafa;
+  padding: 20px;
+  color: #6c6c6c;
 }
 .signup_container h3 {
-    margin: 6px auto;
+  margin: 6px auto;
 }
-.signup_container input[type=submit] {
-    background: #4CAF50;
-    opacity: .8;
-    cursor: pointer;
-    outline: none;
-    border: none;
-    padding: 10px 4px;
+.signup_container input[type="submit"] {
+  background: #4caf50;
+  opacity: 0.8;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  padding: 10px 4px;
 }
-.signup_container input, select, label, .is_register {
-width: 100%;
-max-width: 500px;
-margin: 10px auto;
-padding: 10px 4px;
+.signup_container input,
+select,
+label,
+.is_register {
+  width: 100%;
+  max-width: 500px;
+  margin: 10px auto;
+  padding: 10px 4px;
+}
+
+.postContainer div {
+  background: #e0e0e0;
 }

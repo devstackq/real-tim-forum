@@ -52,6 +52,7 @@ func (us *UserService) Signin(user *models.User) (int, *models.Session, error) {
 	if err != nil {
 		return http.StatusBadRequest, nil, err
 	}
+
 	log.Println("session update -> signin in system", session.UUID)
 	return http.StatusOK, &session, nil
 }
