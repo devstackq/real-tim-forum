@@ -27,17 +27,25 @@ var upgrader = websocket.Upgrader{
 
 //open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
 func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
-	fmt.Println(u.UUID, "add user in map")
+	fmt.Println("uid", u.UUID, "add user in map")
 	c.Users[u.UUID] = u
 }
 
 //meow
-func (cs *ChatService) broadcast(c *models.Chat, m *models.Message, sender string) error {
+func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) error {
 
-	if c.Users[sender] != nil {
-		conn := c.Users[sender]
-		conn.Conn.WriteJSON(m.Content)
+	// if c.Users[m.Receiver] == uuidReceiverInDB?
+
+	if c.Users[m.Receiver] != nil {
+		// fmt.Println(c.Users[m.Receiver], "brodcast2")
+
+		rec := c.Users[m.Receiver]
+		//save message & sender, receiver id in DB
+		err := rec.Conn.WriteJSON(m)
+		fmt.Println(err, 3)
 		//notify user, & send message in WriteMessage
+		defer rec.Conn.Close()
+
 	}
 	//else just save in db
 	return nil
@@ -52,10 +60,14 @@ func (cs *ChatService) Run(c *models.Chat) {
 		case user := <-c.Join:
 			cs.addNewUser(user, c)
 		case msg := <-c.Message:
-			cs.broadcast(c, msg, UUID)
+			cs.broadcast(c, msg)
 		}
 		// default :
 	}
+}
+
+type T struct {
+	Name string `json:"name"`
 }
 
 //out handler ?
@@ -70,7 +82,7 @@ func (cs *ChatService) ChatBerserker(w http.ResponseWriter, r *http.Request, c *
 		log.Println(err, 1)
 		return err
 	}
-	defer conn.Close()
+
 	//create object - each new conn
 	json := models.Message{}
 
@@ -88,25 +100,41 @@ func (cs *ChatService) ChatBerserker(w http.ResponseWriter, r *http.Request, c *
 	///client side - /chat, get query (JoinUser get cookie UUID) ws.send(uuid, type join)
 	//client side - click send msg  (sendMsg, )
 
+	// UUID = sender
+	uuid, err := r.Cookie("session")
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	//set data - in cchat struct -> join user data
 	user := &models.User{
+		UUID:   uuid.Value,
 		Conn:   conn, //set conn current user
 		Global: c,    // set  User struct - chat object
 	}
 
-	c.Join <- user
+	c.Join <- use
+	//add user -> /api/chat
+	//broadcase -> when send messgae click
 
-	UUID = sender
+	//list users -> click -> msg -> send -> get receiverId, msg -> ws.send
+	// getUserById(id) -> uuid -> json.Receiver
+	recevier search by uuid in Db -> broadecast user else save Db
 
-	msg := &models.Message{
-		Receiver: json.Receiver,
-		Content:  json.Content,
+	msg := &models.Message{}
+	if json.Receiver != "" {
+		msg.Receiver = json.Receiver
+		msg.Content = json.Content
+		msg.Sender = uuid.Value
+
+		c.Message <- msg
+
 	}
-
-	c.Message <- msgAu
+	// fmt.Println(msg, "come mbsg")
 	//send message
-
 	return nil
+
 }
 
 // signin -> Authorization.UUID -> /api/chat -> ChatHandler->

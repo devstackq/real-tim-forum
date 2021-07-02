@@ -20,8 +20,9 @@ export default class Chat extends Parent {
       console.log(JSON.parse(e.data), "get data from back ws");
     });
     //input name, message current user
-    let obj = { receiverId: 0, message: "" };
-    obj.receiverId = 2;
+    let obj = { receiverId: "", message: "" };
+    console.log(document.cookie.split("session=")[1].split(";")[0], "uuid")
+    obj.receiver= document.cookie.split("session=")[1].split(";")[0]
     obj.message = "hello dream team !";
 
     //check state -> then send message
@@ -37,7 +38,7 @@ export default class Chat extends Parent {
     };
 
     ws.onmessage = function (event) {
-      console.log("Получены данные " + event.data);
+      console.log("Получены данные " + event.data, JSON.parse(event.data));
     };
 
     ws.onerror = function (error) {

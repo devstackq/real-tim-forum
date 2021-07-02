@@ -10,6 +10,8 @@
 // use Observer - for notiffy
 // ws1 -> send ws2 data 
 
+- public/follower - create - 1 logic, page create dynamic, type - other - SN
+
 signin -> user_id -> add map[uid : wsconn]
 uid -> sendMessage -> getUid(sender) in backend -> send message -> sender(getSenderId) -> getListUser()
  Например ws1.send(msg, receiverUuid) -> server handleWS() -> getConnByUuid([]mapClients[receiveUUid]),

@@ -6,11 +6,11 @@ package models
 //hi; how r u? uid1
 //- hello, fine and u ? uid2
 type Message struct {
-	ID       int
+	ID       int    `json:"id"`
 	Content  string `json:"message"`
-	ChatID   int    //99
-	Sender   int
-	Receiver string `json:"receiveruuid"`
+	ChatID   int    `json:"chatid"`
+	Sender   string `json:"sender"`
+	Receiver string `json:"receiver"`
 }
 
 // func NewMessage(body string, sender int) *Message {
