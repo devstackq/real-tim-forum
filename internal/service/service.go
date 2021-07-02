@@ -28,7 +28,7 @@ type Vote interface {
 	VoteTerminator(*models.Vote) (*models.Vote, error)
 }
 type Chat interface {
-	ChatBerserker(http.ResponseWriter, *http.Request, *models.Chat, string) error
+	ChatBerserker(http.ResponseWriter, *http.Request, *models.Chat, string) (map[string]*models.User, error)
 	Run(*models.Chat)
 }
 

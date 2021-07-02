@@ -11,18 +11,27 @@ export default class Chat extends Parent {
 
   //get senderId, receiverId, msg
   async init() {
-    console.log("chat ");
     //DRY
+    //get user name, getUUID in cookie -> send /ws/chat - then split & use data
 
+    // let response = await fetch("http://localhost:6969/api/profile");
+    // console.log(response, "porifle");
+    // if (response.status === 200) {
+    //   let result = await response.json();
+    //   console.log(result.User['fullname'])
+    // }
+    let obj = { receiverId: "", message: "", type: "newuser" };
+
+    
     let ws = new WebSocket("ws://localhost:6969/api/chat");
-    console.log(ws);
+    // console.log(ws);
     ws.addEventListener("message", (e) => {
       console.log(JSON.parse(e.data), "get data from back ws");
     });
     //input name, message current user
-    let obj = { receiverId: "", message: "" };
-    console.log(document.cookie.split("session=")[1].split(";")[0], "uuid")
-    obj.receiver= document.cookie.split("session=")[1].split(";")[0]
+    // console.log(document.cookie.split("session=")[1].split(";")[0], "uuid")
+    // obj.receiver= document.cookie.split("session=")[1].split(";")[0]
+    // obj.receiver= click.value()
     obj.message = "hello dream team !";
 
     //check state -> then send message
@@ -44,9 +53,20 @@ export default class Chat extends Parent {
     ws.onerror = function (error) {
       console.log("Ошибка " + error.message);
     };
+//use setTimeout ?
+    let wsusers = new WebSocket("ws://localhost:6969/api/getusers");
+    let list = {type : "listusers"}
+    wsusers.onopen = () => wsusers.send(JSON.stringify(list));
 
-    console.log("send object ws ");
-    //getLisrUser() & online and offline
+    wsusers.onmessage = function (event) {
+      //data list user -> send  by uuid
+      console.log("Получены данные list users " + event.data);
+    };
+// console.log(obj, list)
+
+
+
+//getLisrUser() & online and offline
     //click -> userId -> getHistoryByChatId()
     //click -> send msg -> webws -> save msg, notify another user
   }

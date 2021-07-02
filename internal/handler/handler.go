@@ -103,5 +103,11 @@ func (h *Handler) createRoutes() []Route {
 			Handler: h.ChatHandler,
 			IsAuth:  true,
 		},
+		//best practice? || create another gandler
+		{
+			Path:    "/api/getusers",
+			Handler: h.ChatHandler,
+			IsAuth:  true,
+		},
 	}
 }

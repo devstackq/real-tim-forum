@@ -15,6 +15,7 @@ export default class Profile extends Parent {
     if (response.status === 200) {
       let result = await response.json();
       super.renderSequence(result);
+      console.log(result.User['fullname'], "prof")
     } else {
       super.showNotify(response.statusText, "error");
       window.location.replace("/signin");

@@ -11,6 +11,7 @@ type Message struct {
 	ChatID   int    `json:"chatid"`
 	Sender   string `json:"sender"`
 	Receiver string `json:"receiver"`
+	Type     string `json:"type"`
 }
 
 // func NewMessage(body string, sender int) *Message {

@@ -9,6 +9,11 @@
 
 // use Observer - for notiffy
 // ws1 -> send ws2 data 
+chat.js -> if !auth -> redirect
+//save global objec.Users -> each new user
+
+//api/chat -> add user in map -connect, send msg user - getuuid -> send server
+//server search in Map.users -> Writemessage else save db
 
 - public/follower - create - 1 logic, page create dynamic, type - other - SN
 

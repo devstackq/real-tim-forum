@@ -28,6 +28,7 @@ var upgrader = websocket.Upgrader{
 //open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
 func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 	fmt.Println("uid", u.UUID, "add user in map")
+	//fill user.Name -> in db, by uuid
 	c.Users[u.UUID] = u
 }
 
@@ -38,11 +39,10 @@ func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) error {
 
 	if c.Users[m.Receiver] != nil {
 		// fmt.Println(c.Users[m.Receiver], "brodcast2")
-
 		rec := c.Users[m.Receiver]
 		//save message & sender, receiver id in DB
 		err := rec.Conn.WriteJSON(m)
-		fmt.Println(err, 3)
+		fmt.Println(err)
 		//notify user, & send message in WriteMessage
 		defer rec.Conn.Close()
 
@@ -66,12 +66,8 @@ func (cs *ChatService) Run(c *models.Chat) {
 	}
 }
 
-type T struct {
-	Name string `json:"name"`
-}
-
 //out handler ?
-func (cs *ChatService) ChatBerserker(w http.ResponseWriter, r *http.Request, c *models.Chat, sender string) error {
+func (cs *ChatService) ChatBerserker(w http.ResponseWriter, r *http.Request, c *models.Chat, sender string) (map[string]*models.User, error) {
 
 	//senderUuid, connWS ->
 	//if receiver online -> send notify else -> saveDb message, return  updated []messages -cleint Chat page
@@ -80,7 +76,7 @@ func (cs *ChatService) ChatBerserker(w http.ResponseWriter, r *http.Request, c *
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err, 1)
-		return err
+		return nil, err
 	}
 
 	//create object - each new conn
@@ -88,7 +84,7 @@ func (cs *ChatService) ChatBerserker(w http.ResponseWriter, r *http.Request, c *
 
 	err = conn.ReadJSON(&json)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// err = conn.PingHandler()
 	// if strings.TrimSpace(username) == "" {
@@ -101,39 +97,48 @@ func (cs *ChatService) ChatBerserker(w http.ResponseWriter, r *http.Request, c *
 	//client side - click send msg  (sendMsg, )
 
 	// UUID = sender
-	uuid, err := r.Cookie("session")
-	if err != nil {
-		log.Println(err)
-		return err
+	// sender, err := r.Cookie("session")
+	fmt.Println(json.Type, "type")
+
+	if json.Type == "listusers" {
+		//call 1 service
+		//return conn:nameUser
+		// _, m, _ := conn.WriteMessage(c.Users)
+		conn.WriteJSON(c.Users)
+		send json data -> then show client side
+		return c.Users, nil
+	}
+	if json.Type == "message" {
+		//list users -> click -> msg -> send -> get receiverId, msg -> ws.send
+		// getUserById(id) -> uuid -> json.Receiver
+		// recevier search by uuid in Db -> broadecast user else save Db
+
+		msg := &models.Message{}
+		if json.Receiver != "" {
+			msg.Receiver = json.Receiver
+			msg.Content = json.Content
+			msg.Sender = sender
+
+			c.Message <- msg
+		}
+	}
+	if json.Type == "newuser" {
+		//set data - in cchat struct -> join user data
+		user := &models.User{
+			UUID:   sender,
+			Conn:   conn, //set conn current user
+			Global: c,    // set  User struct - chat object
+		}
+
+		c.Join <- user
+		//add user -> /api/chat
+		//broadcase -> when send messgae click
+
 	}
 
-	//set data - in cchat struct -> join user data
-	user := &models.User{
-		UUID:   uuid.Value,
-		Conn:   conn, //set conn current user
-		Global: c,    // set  User struct - chat object
-	}
-
-	c.Join <- use
-	//add user -> /api/chat
-	//broadcase -> when send messgae click
-
-	//list users -> click -> msg -> send -> get receiverId, msg -> ws.send
-	// getUserById(id) -> uuid -> json.Receiver
-	recevier search by uuid in Db -> broadecast user else save Db
-
-	msg := &models.Message{}
-	if json.Receiver != "" {
-		msg.Receiver = json.Receiver
-		msg.Content = json.Content
-		msg.Sender = uuid.Value
-
-		c.Message <- msg
-
-	}
 	// fmt.Println(msg, "come mbsg")
 	//send message
-	return nil
+	return nil, nil
 
 }
 
