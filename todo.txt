@@ -7,6 +7,14 @@
 7 back end logic
 //addNewUser chan -> plain - todo
 
+//fix - if server drop -> need auth ? wtf 
+//fix repo - retiurn http status 
+//add graceful shutdown todo server stop
+//GetJsonData - standard use
+ category == "" fleible create - modeartor
+Path:    "/api/getusers", fix 1 ednpoint - 1 func
+//http query refactor ? getListUsers()
+
 // use Observer - for notiffy
 // ws1 -> send ws2 data 
 chat.js -> if !auth -> redirect
@@ -26,11 +34,11 @@ broadcast -> findConn(receiverConn) -> wirete.Message
 //show ListUsers, show Histroy users
 //join user -> if click by user || send frist message ??
 
-
 //test mcok or unit
 erros -> goroutine ?
 //add image profile/post
 use -> begintransact - concurrent query
+
 //fix warning and erros - js browser
         // validParams - > postId > 0, userId > 0, middleware
 

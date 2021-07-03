@@ -111,13 +111,15 @@ func (us *UserService) GetDataInDb(str string, what string) (string, error) {
 	var err error
 
 	if what == "uuid" {
-		data, err = us.repository.GetUuidInDb(str)
+		data, err = us.repository.GetUserUuid(str)
 		if err != nil {
 			return "", err
 		}
-	} else if what == "email" {
-		fmt.Println(("get email"))
-		// data, err = us.repository.GetEmailInDb(str)
+	} else if what == "name" {
+		data, err = us.repository.GetUserName(str)
+		if err != nil {
+			return "", err
+		}
 	}
 	return data, nil
 }

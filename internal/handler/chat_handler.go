@@ -1,51 +1,63 @@
 package handler
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/devstackq/real-time-forum/internal/models"
+	"github.com/gorilla/websocket"
 )
 
 //add users in map
 var chat = &models.Chat{
-	Users:   make(map[string]*models.User), // make for flexible size struct
-	Message: make(chan *models.Message),
-	Join:    make(chan *models.User),
-	Leave:   make(chan *models.User),
+	// Users:   make(map[string]*models.User), // make for flexible size struct
+	Users:      make(map[string]*websocket.Conn),
+	ListsUsers: make(map[string]string),
+	Message:    make(chan *models.Message),
+	Join:       make(chan *models.User),
+	Leave:      make(chan *models.User),
 }
 
-//add username : c.Users[Users.username]
+func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 
-func (h *Handler) ChatHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+
+	case "GET":
+
+	case "POST":
+		message, _, _, _, err := GetJsonData(w, r, "message")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		seqMessages, err := h.Services.Chat.GetMessages(message)
+		if err != nil {
+			JsonResponse(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		JsonResponse(w, r, http.StatusOK, seqMessages)
+	}
+}
+
+func (h *Handler) AddNewUser(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-
-		//1 create new obj chat - for each new user
-
-		//hanler each new conn
-		//get username, conn, user.global : *chat
+		//1 create new obj chat - for each new user(conn)
 		// write by channel new user ->   &chat.Join <- newUser
 		go h.Services.Chat.Run(chat)
-
-		list, err := h.Services.Chat.ChatBerserker(w, r, chat, Authorized.UUID)
+		err := h.Services.Chat.ChatBerserker(w, r, chat, Authorized.UUID, Authorized.Name)
 		if err != nil {
-			// log.Fatal(err)
 			log.Println(err)
 			return
 		}
-		fmt.Println("users handlerb", list)
-
 		// JsonResponse(w, r, 200, list)
-
 	//goroutine Run, action -> with channels(user state, leave, joikn, message) -> call concrete Method
 	//listen event by channel -> select case : Join , Message, Leave
 	// go h.Services.Chat.Run(chat)
 
 	case "POST":
-		fmt.Println("post QUER")
+		log.Println("post QUERy")
 		// 	// chat,_, _, _, err := GetJsonData(w, r, "chat")
 		// 	if err != nil {
 		// 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -71,3 +83,16 @@ func (h *Handler) ChatHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // ednpoint - api/caht/listuser; api/chat/historyuser/; api/chat/message
+
+func (h *Handler) GetListUsers(w http.ResponseWriter, r *http.Request) {
+
+	switch r.Method {
+	case "GET":
+		//not show yourself uuid todo:
+		// fmt.Println(chat.ListsUsers, 2)
+		// users, err := h.Services.Chat.GetListUsers(w, r, chat)
+		JsonResponse(w, r, http.StatusOK, chat.ListsUsers)
+	case "POST":
+
+	}
+}

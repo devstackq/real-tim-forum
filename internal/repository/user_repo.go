@@ -68,7 +68,7 @@ func (ur *UserRepository) UpdateSession(session *models.Session) error {
 	//logout -> remove cookie by userId, cookie delete browser || expires time
 
 	uid := strconv.Itoa(session.UserID)
-	_, err := ur.GetUuidInDb(uid)
+	_, err := ur.GetUserUuid(uid)
 	if err == nil {
 		// return error.New("insert new uuid")
 		query, err := ur.db.Prepare(`UPDATE sessions SET uuid=?, cookie_time=? WHERE user_id=?`)
@@ -108,7 +108,7 @@ func (ur *UserRepository) GetUserById(uid string) (*models.User, error) {
 	return &user, nil
 }
 
-func (ur *UserRepository) GetUuidInDb(uid string) (string, error) {
+func (ur *UserRepository) GetUserUuid(uid string) (string, error) {
 
 	var uuid string
 	query := `SELECT uuid FROM sessions WHERE user_id=?`
@@ -118,6 +118,17 @@ func (ur *UserRepository) GetUuidInDb(uid string) (string, error) {
 		return "", err
 	}
 	return uuid, nil
+}
+func (ur *UserRepository) GetUserName(id string) (string, error) {
+
+	var name string
+	query := `SELECT full_name FROM users WHERE id=?`
+	row := ur.db.QueryRow(query, id)
+	err := row.Scan(&name)
+	if err != nil {
+		return "", err
+	}
+	return name, nil
 }
 
 //DRY func ?

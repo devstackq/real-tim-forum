@@ -29,11 +29,18 @@ func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
 			JsonResponse(w, r, http.StatusUnauthorized, "cant get cookie in db")
 			return
 		}
+		name, err := h.Services.User.GetDataInDb(userId.Value, "name")
+		log.Println(err)
+		if err != nil {
+			JsonResponse(w, r, http.StatusInternalServerError, "cant get name in db")
+			return
+		}
 		if uuid == session.Value {
 			//set Authorized variable - when user signin
 			uid, _ := strconv.Atoi(userId.Value)
 			Authorized.UUID = uuid
 			Authorized.UserID = uid
+			Authorized.Name = name
 			f.ServeHTTP(w, r)
 		} else {
 			log.Println("session is not equal in Db")

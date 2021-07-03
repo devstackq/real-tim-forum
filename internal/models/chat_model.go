@@ -1,5 +1,7 @@
 package models
 
+import "github.com/gorilla/websocket"
+
 //chatID99 -> from, who chatid JOIN
 //query select * from messages where uiser_id1 => and user_id2=?
 //59, 19 ->
@@ -12,6 +14,7 @@ type Message struct {
 	Sender   string `json:"sender"`
 	Receiver string `json:"receiver"`
 	Type     string `json:"type"`
+	UserID   int    `json:"userid"`
 }
 
 // func NewMessage(body string, sender int) *Message {
@@ -22,10 +25,12 @@ type Message struct {
 // }
 
 type Chat struct {
-	Users   map[string]*User
-	Message chan *Message
-	Join    chan *User
-	Leave   chan *User
+	Users map[string]*websocket.Conn `json:"users"`
+	// Users   map[string]*User `json:"users"
+	ListsUsers map[string]string
+	Message    chan *Message `json:"messages"`
+	Join       chan *User
+	Leave      chan *User
 }
 
 //user19 -> send msg -> user 59, from, who, chatid99

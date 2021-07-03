@@ -12,6 +12,7 @@ import (
 var Authorized struct {
 	UUID   string
 	UserID int
+	Name   string
 }
 
 var Profile struct {
@@ -27,7 +28,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("call signup handle Get")
 	case "POST":
-		_, _, user, err := GetJsonData(w, r, "user")
+		_, _, _, user, err := GetJsonData(w, r, "user")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -37,7 +38,6 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 			JsonResponse(w, r, status, err.Error())
 			return
 		}
-		//add global mapClients
 		//user.ID = id
 		JsonResponse(w, r, status, id)
 	default:
@@ -51,7 +51,7 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("call signin handle Get")
 	case "POST":
-		_, _, user, err := GetJsonData(w, r, "user")
+		_, _, _, user, err := GetJsonData(w, r, "user")
 		if err != nil {
 			JsonResponse(w, r, http.StatusBadRequest, err)
 			return
@@ -110,7 +110,6 @@ func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		JsonResponse(w, r, http.StatusOK, Profile)
-
 		//getCreatedComment() comment /array comment
 	case "POST":
 		//update name, age, etc, delete user, update, delete request

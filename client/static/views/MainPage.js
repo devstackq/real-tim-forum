@@ -11,7 +11,7 @@ export default class Posts extends Parent {
   }
   //async - await -> then hell
   async init() {
-    let response = await fetch(`http://localhost:6969/api/post/`);
+    let response = await fetch(`http://localhost:6969/api/post`);
     if (response.status == 200) {
       let result = await response.json();
       if (result.length == 0) {

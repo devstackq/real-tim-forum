@@ -11,7 +11,8 @@ type User interface {
 	SigninUser(*models.User) (int, string, error)
 	Logout(string) error
 	UpdateSession(*models.Session) error
-	GetUuidInDb(string) (string, error)
+	GetUserUuid(string) (string, error)
+	GetUserName(string) (string, error)
 	GetUserById(string) (*models.User, error)
 	GetCreatedUserPosts(int) (*[]models.Post, error)
 	GetUserVotedItems(int) (*[]models.Vote, error)
@@ -35,6 +36,7 @@ type Comment interface {
 }
 type Chat interface {
 	ChatManager(*models.Chat) error
+	GetMessages(m *models.Message) ([]models.Message, error)
 }
 type Repository struct {
 	User

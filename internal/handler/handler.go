@@ -84,7 +84,7 @@ func (h *Handler) createRoutes() []Route {
 			IsAuth:  true,
 		},
 		{
-			Path:    "/api/post/",
+			Path:    "/api/post",
 			Handler: h.GetPosts,
 			IsAuth:  false,
 		},
@@ -99,14 +99,18 @@ func (h *Handler) createRoutes() []Route {
 			IsAuth:  true,
 		},
 		{
-			Path:    "/api/chat",
-			Handler: h.ChatHandler,
+			Path:    "/api/chat/newuser",
+			Handler: h.AddNewUser,
 			IsAuth:  true,
 		},
-		//best practice? || create another gandler
 		{
-			Path:    "/api/getusers",
-			Handler: h.ChatHandler,
+			Path:    "/api/chat/users",
+			Handler: h.GetListUsers,
+			IsAuth:  true,
+		},
+		{
+			Path:    "/api/chat/history",
+			Handler: h.GetMessages,
 			IsAuth:  true,
 		},
 	}

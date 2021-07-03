@@ -16,7 +16,7 @@ func main() {
 	s := server.NewServer(conf)
 	err := s.Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 }

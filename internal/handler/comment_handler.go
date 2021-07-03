@@ -13,7 +13,7 @@ func (h *Handler) LostsComment(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("get create comment")
 	case "POST":
 		// uid, err := r.Cookie("user_id")
-		_, post, _, err := GetJsonData(w, r, "comment")
+		_, _, post, _, err := GetJsonData(w, r, "comment")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

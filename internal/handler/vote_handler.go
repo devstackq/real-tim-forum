@@ -11,7 +11,7 @@ func (h *Handler) VoteItemById(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("vote post by id")
 	case "POST":
-		vote, _, _, err := GetJsonData(w, r, "vote")
+		_, vote, _, _, err := GetJsonData(w, r, "vote")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

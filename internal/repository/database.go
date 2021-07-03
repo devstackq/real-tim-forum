@@ -88,7 +88,6 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 	session.Exec()
-
 	user, err := db.Prepare(`CREATE TABLE IF NOT EXISTS users(
 		id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
 		full_name TEXT NOT NULL,
@@ -98,8 +97,8 @@ func createTables(db *sql.DB) error {
 		isAdmin INTEGER DEFAULT 0, 
 		age INTEGER, 
 		sex TEXT,
-		created_time DATETIME CURRENT_TIMESTAMP, 
-		last_seen DATETIME, 
+		created_time DATETIME DEFAULT CURRENT_TIMESTAMP, 
+		last_seen DATETIME DEFAULT CURRENT_TIMESTAMP, 
 		city TEXT, 
 		image BLOB)`,
 	)
@@ -147,12 +146,28 @@ func createTables(db *sql.DB) error {
 
 	chat, err := db.Prepare(`CREATE TABLE IF NOT EXISTS chats(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
-		name TEXT UNIQUE)`,
+		user_id1 INTEGER,
+		user_id2 INTEGER,
+		room TEXT NOT NULL UNIQUE
+		)`,
 	)
 	if err != nil {
 		return err
 	}
 	chat.Exec()
+
+	message, err := db.Prepare(`CREATE TABLE IF NOT EXISTS messages(
+		id INTEGER PRIMARY KEY AUTOINCREMENT, 
+		content TEXT,
+		room TEXT,
+		user_id INTEGER
+		)`,
+	)
+	// FOREIGN KEY(room) REFERENCES chats(room)
+	if err != nil {
+		return err
+	}
+	message.Exec()
 
 	putCategoriesInDb(db)
 	log.Println(" db created")

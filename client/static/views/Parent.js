@@ -4,6 +4,7 @@ export default class Parent {
     this.type = type;
     this.item = [];
     this.userId = 0;
+    this.session = "";
     this.isAuth = "";
     // this.category =  document.cookie.split(";")[2].slice(11)
     this.vote = {
@@ -26,6 +27,16 @@ export default class Parent {
       return (this.userId = document.cookie.split(";")[1].slice(9).toString());
     }
   }
+
+  getUserSession() {
+    if (document.cookie.split(";").length > 1) {
+      return (this.session = document.cookie
+        .split(";")[0]
+        .slice(11)
+        .toString());
+    }
+  }
+
   getAuthState() {
     if (document.cookie.split(";").length > 1) {
       return (this.isAuth = localStorage.getItem("isAuth"));
@@ -206,7 +217,6 @@ export default class Parent {
       profile = `<a href="/profile" class="nav__link" data-link>Profile</a>`;
       chat = `<a href="/chat" class="nav__link" data-link>Chat</a>`;
     }
-
     return `
         <nav class="nav">
         <a href="/all" class="nav__link" data-link>Main</a>
