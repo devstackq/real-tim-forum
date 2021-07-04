@@ -8,44 +8,87 @@ export default class Chat extends Parent {
   setTitle(title) {
     document.title = title;
   }
+  //onscroll get offset messages
+  render(seq, where) {
+    let parent = document.querySelector(where);
+    seq.forEach((item) => {
+      let div = document.createElement("div");
+      for (let [i, v] of Object.entries(item)) {
+        let span = document.createElement("span");
+        span.textContent = ` ${i} : ${v} `;
+        div.append(span);
+      }
+      parent.append(div);
+    });
+  }
   //uuid receiver & send my uuid
-  //show all user - except yourself
-
+  //show all user - except yourself todo:
   async openChat() {
     let chatWindow = document.getElementById("chat");
+    chatWindow.style.display = "block";
     let currentUserUuid = super.getUserSession();
+    let userid = super.getUserId();
 
     let obj = { receiver: this.value, sender: currentUserUuid };
     let response = await super.fetch("chat/history", obj);
+    // console.log(response);
     if (response != null) {
-      let res = await response.json();
-      console.log.log(res, "mesagegs");
-      chatWindow.textContent = res;
+      // this.render(response, "#chat");
+      response.forEach((item) => {
+        let div = document.createElement("div");
+        for (let [k, v] of Object.entries(item)) {
+          let span = document.createElement("span");
+          span.textContent = ` ${k} : ${v} `;
+          if (k == "userid") {
+            if (v == userid) {
+              div.classList.add("chat_sender");
+            }
+          }
+          div.append(span);
+        }
+        chatWindow.append(div);
+      });
+      // chatWindow.textContent = res;
+    } else {
+      super.showNotify("no have message", "error");
     }
   }
 
   showOnlineUsers(users) {
     let list = document.getElementById("listUser");
+    list.innerHTML = "";
     for (let [k, v] of Object.entries(users)) {
-      let p = document.createElement("p");
-      p.value = k;
-      p.onclick = this.openChat;
-      p.textContent = v;
-      list.append(p);
+      if (Object.entries(users).length == 1) {
+        super.showNotify("Now, no has online users", "error");
+        return;
+      }
+      if (k != super.getUserSession() && Object.entries(users).length > 1) {
+        let p = document.createElement("p");
+
+        p.value = k;
+        p.onclick = this.openChat;
+        p.textContent = v;
+        list.append(p);
+      }
     }
   }
   //get senderId, receiverId, msg
   async init() {
     //DRY
-    //get list users http
-    // let wsusers = new WebSocket("ws://localhost:6969/api/chat/users");
-    let r = await fetch("http://localhost:6969/api/chat/users");
-    if (r != null) {
-      let res = await r.json();
-      //show after other user add in chat not now is it correct ?
-      //show only other user, !own uuid sort
-      this.showOnlineUsers(res);
-    }
+    // if (wsusers.readyState !== 1) {
+
+    //1 websocket - all, type other
+    //if addnewUser -> send client  updated list server
+
+    //best practice?
+    // setInterval(() => {
+    let wsusers = new WebSocket("ws://localhost:6969/api/chat/users");
+    let list = { type: "listusers" };
+    wsusers.onopen = () => wsusers.send(JSON.stringify(list));
+    wsusers.onmessage = (e) => this.showOnlineUsers(JSON.parse(e.data));
+
+    //onerror    // window.location.replace("/signin");
+
     //add newuser
     let ws = new WebSocket("ws://localhost:6969/api/chat/newuser");
     ws.addEventListener("message", (e) => {
@@ -62,19 +105,12 @@ export default class Chat extends Parent {
       }
       console.log("Код: " + event.code + " причина: " + event.reason);
     };
-
     ws.onmessage = function (event) {
       console.log("Получены данные " + event.data, JSON.parse(event.data));
     };
-
     ws.onerror = function (error) {
       console.log("Ошибка " + error.message);
     };
-
-    // let wsusers = new WebSocket("ws://localhost:6969/api/chat/users");
-    // let list = { type: "listusers" };
-    // wsusers.onopen = () => wsusers.send(JSON.stringify(list));
-    // wsusers.onmessage = (e) => this.showOnlineUsers(JSON.parse(e.data));
 
     //data list user -> send  by uuid
     // this.showOnlineUsers(JSON.parse(event.data));
@@ -89,8 +125,8 @@ export default class Chat extends Parent {
     //show online user & sended message - like history users
     //listUser - dynamic, create history window, textarea, and btn -> history dynamic change data
     let body = `
-      <div id="listUser" > list users: </div>
-      <div id="chat" >message users </div>
+    <div id="listUser" > </div>
+      <div id="chat" class="chat_container" >  </div>
       <div id="message_container" >
       <textarea  id="message"> </textarea> 
       <button id="sendMessage" > send </button>

@@ -15,6 +15,7 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 	return &ChatRepository{db}
 }
 
+//add message in db
 func (cr *ChatRepository) AddMessage(m *models.Message) error {
 	return nil
 }
@@ -24,15 +25,29 @@ func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, erro
 	var messages = []models.Message{}
 	var room string
 	msg := models.Message{}
-	//getUserIdByUUID(m.Sender, m.Receiver)
-	client send uuidSender, and receiver -> get byUUid - user_id m.Sender
 
-	row := cr.db.QueryRow("SELECT room FROM chats WHERE user_id1=? AND user_id2=?", m.Sender, m.Receiver)
-	err := row.Scan(&room)
+	senderUserID, err := cr.GetUserID(m.Sender)
 	if err != nil {
 		return nil, err
 	}
-	queryStmt, err := cr.db.Query("SELECT content, user_id FROM messages  WHERE room=?  ", room)
+	receiverUserID, err := cr.GetUserID(m.Receiver)
+	if err != nil {
+		return nil, err
+	}
+	var row *sql.Row
+
+	row = cr.db.QueryRow("SELECT room FROM chats WHERE user_id1=? AND user_id2=?", senderUserID, receiverUserID)
+	err = row.Scan(&room)
+	//2,1 -> swap query ?
+	if err != nil {
+		row = cr.db.QueryRow("SELECT room FROM chats WHERE user_id1=? AND user_id2=?", receiverUserID, senderUserID)
+		err = row.Scan(&room)
+		if err != nil {
+			return nil, err
+		}
+	}
+	queryStmt, err := cr.db.Query("SELECT content, user_id FROM messages  WHERE room=?", room)
+	// queryStmt, err := cr.db.Query("SELECT content, user_id FROM messages  WHERE room=? ORDER BY  message_sent_time DESC", room)
 	if err != nil {
 		return nil, err
 	}
@@ -51,4 +66,19 @@ func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, erro
 func (cr *ChatRepository) ChatManager(m *models.Chat) error {
 	//save db message
 	return nil
+}
+
+//utils repo ? - anotehr service use ? todo:
+func (cr *ChatRepository) GetUserID(uuid string) (int, error) {
+
+	var userid int
+	query := `SELECT user_id FROM sessions WHERE uuid=?`
+	row := cr.db.QueryRow(query, uuid)
+	err := row.Scan(&userid)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return userid, nil
 }

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"time"
 	"unicode"
 
@@ -111,7 +112,8 @@ func (us *UserService) GetDataInDb(str string, what string) (string, error) {
 	var err error
 
 	if what == "uuid" {
-		data, err = us.repository.GetUserUuid(str)
+		uid, _ := strconv.Atoi(str)
+		data, err = us.repository.GetUserUuid(uid)
 		if err != nil {
 			return "", err
 		}

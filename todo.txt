@@ -7,6 +7,8 @@
 7 back end logic
 //addNewUser chan -> plain - todo
 
+    // chrome fix -> chat -> fix own user id client or service bug
+
 //fix - if server drop -> need auth ? wtf 
 //fix repo - retiurn http status 
 //add graceful shutdown todo server stop
@@ -14,6 +16,7 @@
  category == "" fleible create - modeartor
 Path:    "/api/getusers", fix 1 ednpoint - 1 func
 //http query refactor ? getListUsers()
+//add time, name - in chat window
 
 // use Observer - for notiffy
 // ws1 -> send ws2 data 

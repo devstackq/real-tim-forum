@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
@@ -66,9 +65,7 @@ func (ur *UserRepository) Logout(session string) error {
 func (ur *UserRepository) UpdateSession(session *models.Session) error {
 	//userid, uuid, same UserId -> remove Db, then create New-> row -> session table
 	//logout -> remove cookie by userId, cookie delete browser || expires time
-
-	uid := strconv.Itoa(session.UserID)
-	_, err := ur.GetUserUuid(uid)
+	_, err := ur.GetUserUuid(session.UserID)
 	if err == nil {
 		// return error.New("insert new uuid")
 		query, err := ur.db.Prepare(`UPDATE sessions SET uuid=?, cookie_time=? WHERE user_id=?`)
@@ -108,8 +105,7 @@ func (ur *UserRepository) GetUserById(uid string) (*models.User, error) {
 	return &user, nil
 }
 
-func (ur *UserRepository) GetUserUuid(uid string) (string, error) {
-
+func (ur *UserRepository) GetUserUuid(uid int) (string, error) {
 	var uuid string
 	query := `SELECT uuid FROM sessions WHERE user_id=?`
 	row := ur.db.QueryRow(query, uid)
@@ -119,6 +115,7 @@ func (ur *UserRepository) GetUserUuid(uid string) (string, error) {
 	}
 	return uuid, nil
 }
+
 func (ur *UserRepository) GetUserName(id string) (string, error) {
 
 	var name string

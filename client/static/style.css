@@ -140,3 +140,18 @@ label,
 .postContainer div {
   background: #e0e0e0;
 }
+.chat_container div {
+  padding: 8px;
+  margin-bottom: 10px;
+}
+.chat_container {
+  display: none;
+  padding: 20px;
+  background: #c8c8c8;
+  width: 100%;
+  max-width: 800px;
+  position: relative;
+}
+.chat_sender {
+  margin-left: 50%;
+}

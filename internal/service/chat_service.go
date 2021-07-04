@@ -108,14 +108,12 @@ func (cs *ChatService) ChatBerserker(w http.ResponseWriter, r *http.Request, c *
 		//remoce map[user]
 	}
 
-	if json.Type == "listusers" {
-		//call 1 service
-		//return conn:nameUser
-		// err = conn.WriteMessage(c.Users)
-		err = conn.WriteJSON(c.ListsUsers)
-		fmt.Println(err)
-		// send json data -> then show client side
-	}
+	// if json.Type == "listusers" {
+	// 	//return conn:nameUser
+	// 	err = conn.WriteJSON(c.ListsUsers)
+	// 	fmt.Println(err)
+	// 	// send json data -> then show client side
+	// }
 
 	// if json.Type == "message" {
 	// 	//list users -> click -> msg -> send -> get receiverId, msg -> ws.send

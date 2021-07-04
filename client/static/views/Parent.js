@@ -30,10 +30,7 @@ export default class Parent {
 
   getUserSession() {
     if (document.cookie.split(";").length > 1) {
-      return (this.session = document.cookie
-        .split(";")[0]
-        .slice(11)
-        .toString());
+      return (this.session = document.cookie.split(";")[0].slice(8).toString());
     }
   }
 
@@ -91,9 +88,6 @@ export default class Parent {
   }
 
   render(seq, where, text) {
-    // console.log(seq)
-    console.log(where, "render parent");
-
     let parent = document.querySelector(where);
     let title = document.createElement("p");
     parent.append(title);

@@ -80,7 +80,7 @@ func createTables(db *sql.DB) error {
 
 	session, err := db.Prepare(`CREATE TABLE IF NOT EXISTS sessions(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
-		uuid	TEXT, user_id 
+		uuid TEXT, user_id 
 		INTEGER UNIQUE, 
 		cookie_time DATETIME)`,
 	)
@@ -160,7 +160,9 @@ func createTables(db *sql.DB) error {
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		content TEXT,
 		room TEXT,
-		user_id INTEGER
+		user_id INTEGER,
+		name TEXT,
+		message_sent_time DATETIME
 		)`,
 	)
 	// FOREIGN KEY(room) REFERENCES chats(room)

@@ -11,7 +11,7 @@ type User interface {
 	SigninUser(*models.User) (int, string, error)
 	Logout(string) error
 	UpdateSession(*models.Session) error
-	GetUserUuid(string) (string, error)
+	GetUserUuid(int) (string, error)
 	GetUserName(string) (string, error)
 	GetUserById(string) (*models.User, error)
 	GetCreatedUserPosts(int) (*[]models.Post, error)
