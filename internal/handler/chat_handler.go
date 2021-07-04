@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -23,6 +24,49 @@ var chat = &models.Chat{
 	Leave:      make(chan *models.User),
 }
 
+func (h *Handler) ChatHandler(w http.ResponseWriter, r *http.Request) {
+
+	switch r.Method {
+	case "GET":
+		//1 create new obj chat - for each new user(conn)
+		// write by channel new user ->   &chat.Join <- newUser
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		go h.Services.Chat.Run(chat)
+		err = h.Services.Chat.ChatBerserker(conn, chat, Authorized.UUID, Authorized.Name)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		// h.GetListUsers(w, r)
+
+	//goroutine Run, action -> with channels(user state, leave, joikn, message) -> call concrete Method
+	//listen event by channel -> select case : Join , Message, Leave
+	// go h.Services.Chat.Run(chat)
+	case "POST":
+		fmt.Println("post quer")
+		// message, _, _, _, err := GetJsonData(w, r, "message")
+		// if err != nil {
+		// 	http.Error(w, err.Error(), http.StatusBadRequest)
+		// 	return
+		// }
+		// seqMessages, err := h.Services.Chat.GetMessages(message)
+
+		// if err != nil {
+		// 	log.Println(err)
+		// 	JsonResponse(w, r, http.StatusInternalServerError, err)
+		// 	return
+		// }
+		// log.Println("post QUERy")
+	}
+	//check type, if newuser -> call NewUser service, etc
+}
+
 func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
@@ -30,6 +74,7 @@ func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 
 	case "POST":
+
 		message, _, _, _, err := GetJsonData(w, r, "message")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -46,8 +91,10 @@ func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//add newuser in map[string]string
 func (h *Handler) AddNewUser(w http.ResponseWriter, r *http.Request) {
 
+	//call getListusers ->
 	switch r.Method {
 	case "GET":
 		//1 create new obj chat - for each new user(conn)
@@ -57,12 +104,14 @@ func (h *Handler) AddNewUser(w http.ResponseWriter, r *http.Request) {
 		// 	log.Println(err)
 		// 	return
 		// }
+		//call ds
 		go h.Services.Chat.Run(chat)
-		err := h.Services.Chat.ChatBerserker(w, r, chat, Authorized.UUID, Authorized.Name)
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		// err := h.Services.Chat.ChatBerserker(w, r, chat, Authorized.UUID, Authorized.Name)
+		// if err != nil {
+		// 	log.Println(err)
+		// 	return
+		// }
+		h.GetListUsers(w, r)
 	//goroutine Run, action -> with channels(user state, leave, joikn, message) -> call concrete Method
 	//listen event by channel -> select case : Join , Message, Leave
 	// go h.Services.Chat.Run(chat)
@@ -73,6 +122,7 @@ func (h *Handler) AddNewUser(w http.ResponseWriter, r *http.Request) {
 
 // ednpoint - api/caht/listuser; api/chat/historyuser/; api/chat/message
 
+//return arr obj name:uuid
 func (h *Handler) GetListUsers(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {

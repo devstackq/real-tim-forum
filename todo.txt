@@ -8,6 +8,8 @@
 //addNewUser chan -> plain - todo
 
     // chrome fix -> chat -> fix own user id client or service bug
+    //update online users
+    
 
 //fix - if server drop -> need auth ? wtf 
 //fix repo - retiurn http status 

@@ -1,8 +1,14 @@
-import Parent from "./Parent.js";
+import WebSocket from "./WebScoket.js";
 
-export default class Chat extends Parent {
-  constructor() {
+export default class Chat extends WebSocket {
+  // setWS(value) {
+  //   this.ws.conn = value;
+  // }
+  constructor(ws) {
     super();
+    this.ws = {
+      conn: new WebSocket("ws://localhost:6969/api/chat"),
+    };
   }
 
   setTitle(title) {
@@ -23,18 +29,27 @@ export default class Chat extends Parent {
   }
   //uuid receiver & send my uuid
   //show all user - except yourself todo:
-  async openChat() {
+
+  openChat() {
     let chatWindow = document.getElementById("chat");
+    chatWindow.innerHTML = "";
     chatWindow.style.display = "block";
     let currentUserUuid = super.getUserSession();
     let userid = super.getUserId();
 
-    let obj = { receiver: this.value, sender: currentUserUuid };
-    let response = await super.fetch("chat/history", obj);
-    // console.log(response);
-    if (response != null) {
+    let obj = {
+      receiver: this.getAttribute("uuid"),
+      sender: currentUserUuid,
+      type: "getmessages",
+    };
+    let ws = super.getWs();
+    // let ws = new WebSocket("ws://localhost:6969/api/chat");
+    // let ws = this.value;
+    ws.onopen = () => ws.send(JSON.stringify(obj));
+
+    ws.onmessage = (e) => {
       // this.render(response, "#chat");
-      response.forEach((item) => {
+      JSON.parse(e.data).forEach((item) => {
         let div = document.createElement("div");
         for (let [k, v] of Object.entries(item)) {
           let span = document.createElement("span");
@@ -48,54 +63,13 @@ export default class Chat extends Parent {
         }
         chatWindow.append(div);
       });
-      // chatWindow.textContent = res;
-    } else {
-      super.showNotify("no have message", "error");
-    }
-  }
+      // } else {
+      //   super.showNotify("no have message", "error");
+    };
 
-  showOnlineUsers(users) {
-    let list = document.getElementById("listUser");
-    list.innerHTML = "";
-    for (let [k, v] of Object.entries(users)) {
-      if (Object.entries(users).length == 1) {
-        super.showNotify("Now, no has online users", "error");
-        return;
-      }
-      if (k != super.getUserSession() && Object.entries(users).length > 1) {
-        let p = document.createElement("p");
-
-        p.value = k;
-        p.onclick = this.openChat;
-        p.textContent = v;
-        list.append(p);
-      }
-    }
-  }
-  //get senderId, receiverId, msg
-  async init() {
-    //DRY
-    // if (wsusers.readyState !== 1) {
-
-    //1 websocket - all, type other
-    //if addnewUser -> send client  updated list server
-
-    //best practice?
-    // setInterval(() => {
-    let wsusers = new WebSocket("ws://localhost:6969/api/chat/users");
-    let list = { type: "listusers" };
-    wsusers.onopen = () => wsusers.send(JSON.stringify(list));
-    wsusers.onmessage = (e) => this.showOnlineUsers(JSON.parse(e.data));
-
-    //onerror    // window.location.replace("/signin");
-
-    //add newuser
-    let ws = new WebSocket("ws://localhost:6969/api/chat/newuser");
-    ws.addEventListener("message", (e) => {
-      console.log(JSON.parse(e.data), "get data from back ws");
-    });
-    //check state -> then send message
-    ws.onopen = () => ws.send(JSON.stringify({ type: "newuser" }));
+    ws.onerror = function (error) {
+      console.log("Ошибка " + error.message);
+    };
 
     ws.onclose = function (event) {
       if (event.wasClean) {
@@ -105,10 +79,64 @@ export default class Chat extends Parent {
       }
       console.log("Код: " + event.code + " причина: " + event.reason);
     };
-    ws.onmessage = function (event) {
-      console.log("Получены данные " + event.data, JSON.parse(event.data));
+  }
+
+  showOnlineUsers(users) {
+    // console.log(users);
+    let list = document.getElementById("listUser");
+    list.innerHTML = "";
+    for (let [k, v] of Object.entries(users)) {
+      if (Object.entries(users).length == 1) {
+        super.showNotify("Now, no has online users", "error");
+        return;
+      }
+      if (k != super.getUserSession() && Object.entries(users).length > 1) {
+        let p = document.createElement("p");
+        p.value = this.getWS();
+        p.setAttribute("uuid", k);
+        p.onclick = this.openChat;
+        p.textContent = v;
+        list.append(p);
+      }
+    }
+  }
+  sendMessage() {
+    console.log("sed");
+  }
+  //get senderId, receiverId, msg
+  async init() {
+    //DRY
+    document.getElementById("message_container").onclick = this.sendMessage;
+    // this.value = this.ws.conn;
+    // if (wsusers.readyState !== 1) {
+    //1 websocket - all, type other
+    //if addnewUser -> send client  updated list server
+
+    //best practice?
+    // setInterval(() => {
+    //onerror    // window.location.replace("/sigWebSocket { url: "ws://localhost:6969/
+    //newuser
+    // this.setWS(new WebSocket("ws://localhost:6969/api/chat"));
+    this.ws.conn.onopen = () =>
+      this.ws.conn.send(JSON.stringify({ type: "newuser" }));
+    //list online users
+    // this.ws.conn.onopen = () => this.ws.conn.send(JSON.stringify({ type: "listusers" }));
+
+    // if(JSON.parse(e.data == "newuser")
+    this.ws.conn.onmessage = (e) => {
+      setInterval(() => {
+        this.showOnlineUsers(JSON.parse(e.data));
+      }, 5000);
     };
-    ws.onerror = function (error) {
+
+    this.ws.conn.onclose = function (event) {
+      if (event.wasClean) {
+        console.log("Обрыв соединения"); // например, "убит" процесс сервера
+      }
+      console.log("Код: " + event.code + " причина: " + event.reason);
+    };
+
+    this.ws.conn.onerror = function (error) {
       console.log("Ошибка " + error.message);
     };
 

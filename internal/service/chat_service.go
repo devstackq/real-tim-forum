@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
@@ -39,6 +38,12 @@ func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 	//fill user.Name -> in db, by uuid
 	c.Users[u.UUID] = u.Conn
 	c.ListsUsers[u.UUID] = u.FullName // if leave remove
+
+	//updatelist users
+	err := u.Conn.WriteJSON(c.ListsUsers)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) error {
@@ -73,24 +78,25 @@ func (cs *ChatService) Run(c *models.Chat) {
 }
 
 //out handler ?
-func (cs *ChatService) ChatBerserker(w http.ResponseWriter, r *http.Request, c *models.Chat, sender string, name string) error {
+func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, sender string, name string) error {
 
 	//senderUuid, connWS ->
 	//if receiver online -> send notify else -> saveDb message, return  updated []messages -cleint Chat page
 	// receiverUUID, connWS
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err, 1)
-		return err
-	}
+	// conn, err := upgrader.Upgrade(w, r, nil)
+	// if err != nil {
+	// 	log.Println(err, 1)
+	// 	return err
+	// }
 
 	//create object - each new conn
 	json := models.Message{}
 
-	err = conn.ReadJSON(&json)
+	err := conn.ReadJSON(&json)
 	if err != nil {
 		return err
 	}
+	fmt.Println(json.Type, "jzon")
 	// err = conn.PingHandler()
 	// if strings.TrimSpace(username) == "" {
 	// getUserByConnUUID(json.Receiver)
@@ -101,19 +107,21 @@ func (cs *ChatService) ChatBerserker(w http.ResponseWriter, r *http.Request, c *
 	///client side - /chat, get query (JoinUser get cookie UUID) ws.send(uuid, type join)
 	//client side - click send msg  (sendMsg, )
 
-	// UUID = sender
-	// sender, err := r.Cookie("session")
-
-	if json.Type == "err || leave || etc" {
-		//remoce map[user]
+	// 		log.Println(err)
+	// 	}
+	// 	// send json data -> then show client side
+	// }getmessages
+	if json.Type == "getmessages" {
+		messages, err := cs.GetMessages(&json)
+		if err != nil {
+			log.Println(err)
+		}
+		// send client
+		// fmt.Println(messages, "msgs")
+		conn.WriteJSON(messages)
 	}
 
-	// if json.Type == "listusers" {
-	// 	//return conn:nameUser
-	// 	err = conn.WriteJSON(c.ListsUsers)
-	// 	fmt.Println(err)
-	// 	// send json data -> then show client side
-	// }
+	//addnewuser, listusers, click -> ws.send(msgs)
 
 	// if json.Type == "message" {
 	// 	//list users -> click -> msg -> send -> get receiverId, msg -> ws.send
@@ -130,14 +138,16 @@ func (cs *ChatService) ChatBerserker(w http.ResponseWriter, r *http.Request, c *
 	// 	}
 	// }
 	//set data - in cchat struct -> join user data
-	user := &models.User{
-		UUID:     sender,
-		Conn:     conn, //set conn current user
-		Global:   c,    // set  User struct - chat object
-		FullName: name,
-	}
+	if json.Type == "newuser" {
+		user := &models.User{
+			UUID:     sender,
+			Conn:     conn, //set conn current user
+			Global:   c,    // set  User struct - chat object
+			FullName: name,
+		}
 
-	c.Join <- user
+		c.Join <- user
+	}
 	//add user -> /api/chat
 	//broadcase -> when send messgae click
 	return nil
