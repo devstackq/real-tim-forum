@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 )
@@ -18,6 +17,18 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 //add message in db
 func (cr *ChatRepository) AddMessage(m *models.Message) error {
 	return nil
+}
+
+func (cr *ChatRepository) GetUserName(uid int) (string, error) {
+
+	var name string
+	query := `SELECT full_name FROM users WHERE id=?`
+	row := cr.db.QueryRow(query, uid)
+	err := row.Scan(&name)
+	if err != nil {
+		return "", err
+	}
+	return name, nil
 }
 
 func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, error) {
@@ -46,19 +57,33 @@ func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, erro
 			return nil, err
 		}
 	}
+
 	queryStmt, err := cr.db.Query("SELECT content, user_id FROM messages  WHERE room=?", room)
 	// queryStmt, err := cr.db.Query("SELECT content, user_id FROM messages  WHERE room=? ORDER BY  message_sent_time DESC", room)
 	if err != nil {
 		return nil, err
 	}
+
 	for queryStmt.Next() {
-		//query getUsername byPostId
+		//or when create msg - set name ?
+		nameSender, err := cr.GetUserName(senderUserID)
+		if err != nil {
+			return nil, err
+		}
+		nameReceiver, err := cr.GetUserName(receiverUserID)
+		if err != nil {
+			return nil, err
+		}
+
+		msg.Sender = nameSender
+		msg.Receiver = nameReceiver
+
 		if err := queryStmt.Scan(&msg.Content, &msg.UserID); err != nil {
 			return nil, err
 		}
 		messages = append(messages, msg)
 	}
-	fmt.Println(room, messages)
+	// fmt.Println(room, messages)
 	return messages, nil
 }
 

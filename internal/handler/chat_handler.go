@@ -17,11 +17,12 @@ var upgrader = websocket.Upgrader{
 //add users in map
 var chat = &models.Chat{
 	// Users:   make(map[string]*models.User), // make for flexible size struct
-	Users:      make(map[string]*websocket.Conn),
-	ListsUsers: make(map[string]string),
-	Message:    make(chan *models.Message),
-	Join:       make(chan *models.User),
-	Leave:      make(chan *models.User),
+	Users:       make(map[string]*websocket.Conn),
+	ListsUsers:  make(map[string]string),
+	NewMessage:  make(chan *models.Message),
+	Join:        make(chan *models.User),
+	Leave:       make(chan *models.User),
+	ListMessage: make(chan *models.Message),
 }
 
 func (h *Handler) ChatHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,9 +36,9 @@ func (h *Handler) ChatHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			return
 		}
-
+		log.Println(conn.RemoteAddr(), conn.Subprotocol(), "conn")
 		go h.Services.Chat.Run(chat)
-		err = h.Services.Chat.ChatBerserker(conn, chat, Authorized.UUID, Authorized.Name)
+		err = h.Services.Chat.ChatBerserker(conn, chat, Authorized.Name)
 		if err != nil {
 			log.Println(err)
 			return
@@ -75,19 +76,19 @@ func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 
 	case "POST":
 
-		message, _, _, _, err := GetJsonData(w, r, "message")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		seqMessages, err := h.Services.Chat.GetMessages(message)
+		// message, _, _, _, err := GetJsonData(w, r, "message")
+		// if err != nil {
+		// 	http.Error(w, err.Error(), http.StatusBadRequest)
+		// 	return
+		// }
+		// seqMessages, err := h.Services.Chat.GetMessages(message)
 
-		if err != nil {
-			log.Println(err)
-			JsonResponse(w, r, http.StatusInternalServerError, err)
-			return
-		}
-		JsonResponse(w, r, http.StatusOK, seqMessages)
+		// if err != nil {
+		// 	log.Println(err)
+		// 	JsonResponse(w, r, http.StatusInternalServerError, err)
+		// 	return
+		// }
+		// JsonResponse(w, r, http.StatusOK, seqMessages)
 	}
 }
 

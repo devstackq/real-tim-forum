@@ -9,7 +9,22 @@
 
     // chrome fix -> chat -> fix own user id client or service bug
     //update online users
-    
+    //room random generate new chat
+
+    		//use	
+               function onLoad() {
+                  var wsUri = "ws://127.0.0.1:7777";
+                  websocket = new WebSocket(wsUri);
+                  websocket.onopen = function(evt) { onOpen(evt) };
+                  websocket.onclose = function(evt) { onClose(evt) };
+                  websocket.onmessage = function(evt) { onMessage(evt) };
+                  websocket.onerror = function(evt) { onError(evt) };
+               }
+					
+               function onOpen(evt) {
+                  state.className = "success";
+                  state.innerHTML = "Connected to server";
+               }
 
 //fix - if server drop -> need auth ? wtf 
 //fix repo - retiurn http status 

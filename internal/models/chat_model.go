@@ -15,6 +15,7 @@ type Message struct {
 	Receiver string `json:"receiver"`
 	Type     string `json:"type"`
 	UserID   int    `json:"userid"`
+	Conn     *websocket.Conn
 }
 
 // func NewMessage(body string, sender int) *Message {
@@ -27,10 +28,11 @@ type Message struct {
 type Chat struct {
 	Users map[string]*websocket.Conn `json:"users"`
 	// Users   map[string]*User `json:"users"
-	ListsUsers map[string]string
-	Message    chan *Message `json:"messages"`
-	Join       chan *User
-	Leave      chan *User
+	ListsUsers  map[string]string
+	NewMessage  chan *Message `json:"newmessage"`
+	Join        chan *User
+	Leave       chan *User
+	ListMessage chan *Message `json:"listmessages"`
 }
 
 //user19 -> send msg -> user 59, from, who, chatid99

@@ -140,18 +140,27 @@ label,
 .postContainer div {
   background: #e0e0e0;
 }
+
 .chat_container div {
   padding: 8px;
-  margin-bottom: 10px;
 }
 .chat_container {
   display: none;
   padding: 20px;
-  background: #c8c8c8;
+  background: lightblue;
   width: 100%;
   max-width: 800px;
   position: relative;
 }
 .chat_sender {
   margin-left: 50%;
+  color: red !important;
+}
+
+#chatbox {
+  border: 1px solid red;
+  width: 100%;
+  max-width: 800px;
+  height: 240px;
+  overflow-y: scroll;
 }

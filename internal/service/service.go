@@ -27,11 +27,9 @@ type Vote interface {
 	VoteTerminator(*models.Vote) (*models.Vote, error)
 }
 type Chat interface {
-	// ChatBerserker(http.ResponseWriter, *http.Request, *models.Chat, string, string) error
-	ChatBerserker(*websocket.Conn, *models.Chat, string, string) error
+	ChatBerserker(*websocket.Conn, *models.Chat, string) error
 	Run(*models.Chat)
-	GetMessages(*models.Message) ([]models.Message, error)
-	// GetListUsers(http.ResponseWriter, *http.Request, *models.Chat) (map[string]string, error)
+	// GetMessages(*models.Message) ([]models.Message, error)
 }
 
 type Service struct {
