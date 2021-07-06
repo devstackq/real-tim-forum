@@ -17,6 +17,7 @@ var ChatJSON struct {
 	Type        string            `json:"type"`
 	ListUsers   map[string]string `json:"users"`
 	Receiver    string            `json:"receiver"`
+	Message     string            `json:"message"`
 }
 
 type ChatService struct {
@@ -33,28 +34,29 @@ var upgrader = websocket.Upgrader{
 }
 
 func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
-
+	//find users room, if zero
 	room, err := cs.repository.IsExistRoom(m)
 	if err != nil {
-		log.Println(err, "empty room")
+		log.Println(err, "empty room get msg")
 	}
-	m.Room = room
-
-	seq, err := cs.repository.GetMessages(m)
-	if err != nil {
-		log.Println(err)
-	}
-	if seq == nil {
+	// m.Room = room
+	if room == "" {
 		ChatJSON.Type = "nomessages"
 		ChatJSON.Receiver = m.Receiver
 		m.Conn.WriteJSON(ChatJSON)
-	} else {
-		ChatJSON.Type = "listmessages"
-		ChatJSON.ListMessage = seq
-		err = m.Conn.WriteJSON(ChatJSON)
-		if err != nil {
-			return err
-		}
+		return nil
+	}
+	m.Room = room
+	seq, err := cs.repository.GetMessages(m)
+	if err != nil {
+		log.Println(err, "get msg err")
+	}
+
+	ChatJSON.Type = "listmessages"
+	ChatJSON.ListMessage = seq
+	err = m.Conn.WriteJSON(ChatJSON)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -103,13 +105,10 @@ func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) {
 	//logic todo here if exist
 	room, err := cs.repository.IsExistRoom(m)
 	if err != nil {
-		log.Println(err, "empty room")
+		log.Println(err, " room New msg3")
 	}
 	randomRoom := randomaizer()
-
-	if err != nil {
-		log.Println(err, "uuid")
-	}
+	fmt.Println(room, "rec", m.Receiver, "sen", m.Sender, "pre add message")
 
 	if room == "" {
 		m.Room = randomRoom
@@ -121,7 +120,7 @@ func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) {
 	} else {
 		m.Room = room
 	}
-fix each time new room create new message 
+	// fix each time new room create new message
 	m.Name, err = cs.repository.GetUserName(m.UserID)
 	if err != nil {
 		log.Println(err, "get username err")
@@ -131,22 +130,18 @@ fix each time new room create new message
 	if err != nil {
 		log.Println(err, "err add new msg")
 	}
-	// save in Chat TABLE
-
 	if c.Users[m.Receiver] != nil {
 		log.Println(m.Content, "send another conn")
 		rec := c.Users[m.Receiver]
-		m.Type = "lastmessage"
-		err := rec.WriteJSON(m)
+		ChatJSON.Type = "lastmessage"
+		ChatJSON.Message = m.Content
+		err = rec.WriteJSON(ChatJSON)
 		if err != nil {
-			log.Println(err)
-			// return err
+			log.Println(err, "err json add new msg")
 		}
 		//notify user, & send message in WriteMessage
 		// defer rec.Close()
 	}
-	//else just save in db
-	// return nil
 }
 
 //1 main -> Start() ->  createEmptyObjecetChat -> 2 ws Handler, newConn -> 3 go Run() // goruutine each newConn(user)
@@ -200,6 +195,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 				Conn:     conn,
 				Sender:   json.Sender,
 				Receiver: json.Receiver,
+				Name:     name,
 			}
 			c.ListMessage <- getMsg
 		}

@@ -4,7 +4,7 @@ export default class Chat extends Parent {
   constructor() {
     super();
     this.ws = new WebSocket("ws://localhost:6969/api/chat");
-    this.users = {};
+    this.users = []
     this.chatbox = document.getElementById("chatbox");
   }
 
@@ -31,6 +31,8 @@ export default class Chat extends Parent {
     let ul = document.createElement("ul");
     ul.id = "listusersID";
     // console.log(this.ws, 987);
+    this.users = users
+//  console.log( Object.entries(users))   
     for (let [k, v] of Object.entries(users)) {
       let li = document.createElement("li");
       if (Object.entries(users).length == 1) {
@@ -58,7 +60,6 @@ export default class Chat extends Parent {
     let chatbox = document.querySelector("#chatbox");
     let uid = super.getUserId();
     let content = document.getElementById("messageFieldId").value;
-
     let message = {
       content: content,
       sender: super.getUserSession(),
@@ -66,6 +67,8 @@ export default class Chat extends Parent {
       userid: parseInt(uid),
       type: "newmessage",
     };
+
+    console.log("send ms", message)
     this.ws.send(JSON.stringify(message));
     // append in last item client
     let li = document.createElement("li");
@@ -79,6 +82,7 @@ export default class Chat extends Parent {
     let userid = super.getUserId();
     if (messages != null) {
       let chat = document.querySelector("#chatbox");
+      document.getElementById("chatbox").innerHTML = ""
 
       messages.forEach((item) => {
         let div = document.createElement("div");
@@ -99,15 +103,15 @@ export default class Chat extends Parent {
       });
       //call func
       let receive = "";
+      console.log(messages, "slm")
       if (messages.length != 0) {
         receive = messages[0]["receiver"];
       }
       this.showChatWindow(this, receive);
     }
   }
-  //dry
+  //dr, 00, msg.receivery
   showChatWindow(scope, receiver) {
-    console.log("chat wind call");
     document.getElementById("chatbox").style.display = "block";
     //dry?
     let chat = document.querySelector("#chatbox");
@@ -117,7 +121,7 @@ export default class Chat extends Parent {
     textarea.id = "messageFieldId";
     sendBtn.id = "sendBtnId";
     sendBtn.textContent = "send messageq";
-
+    console.log(receiver, 11, this)
     sendBtn.onclick = this.sendMessage.bind(this, receiver);
     chat.append(textarea);
     chat.append(sendBtn);
@@ -147,18 +151,22 @@ export default class Chat extends Parent {
           break;
         case "listmessages":
           //get from db all messages
+          console.log("list msg type", msg)
           document.getElementById("chatbox").style.display = "block";
           this.showListMessage(msg.messages);
           break;
         case "lastmessage":
-          //dry?
+          lastMESSAGEs fix
+          console.log("lastMESSAGEs", msg.message)
           let chatbox = document.getElementById("chatbox");
           let li = document.createElement("li");
-          li.textContent = msg.content;
+          li.textContent = msg.message;
+          console.log(chatbox.children.length, 'len chatbox')
           chatbox.children[chatbox.children.length - 2].append(li);
           break;
         case "nomessages":
           //now no messages -> fix, show message field
+console.log("nomessage", msg)
           this.showChatWindow(this, msg.receiver);
           super.showNotify("now no messages", "error");
           break;
@@ -167,7 +175,7 @@ export default class Chat extends Parent {
         chatBox.write(text);
         document.getElementById("chatbox").contentWindow.scrollByPages(1);
       }
-      sjhow sent time, name, fix first create room, added user NOW show another clients
+      // sjhow sent time, name, fix first create room, added user NOW show another clients
 
       // setInterval(() => {
       //   this.showOnlineUsers(JSON.parse(e.data));

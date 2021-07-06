@@ -18,12 +18,20 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 
 func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
 	//save in db message in chat, messages table
+	senderUserID, err := cr.GetUserID(m.Sender)
+	if err != nil {
+		return err
+	}
+	receiverUserID, err := cr.GetUserID(m.Receiver)
+	if err != nil {
+		return err
+	}
 
 	queryChat, err := cr.db.Prepare(`INSERT INTO chats(user_id1, user_id2, room) VALUES(?,?,?)`)
 	if err != nil {
 		return err
 	}
-	_, err = queryChat.Exec(m.Sender, m.Receiver, m.Room)
+	_, err = queryChat.Exec(senderUserID, receiverUserID, m.Room)
 	if err != nil {
 		return err
 	}
@@ -32,9 +40,10 @@ func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
 	return nil
 }
 
+//addnewMessage - save name, no need fix
 //add message in db
 func (cr *ChatRepository) AddNewMessage(m *models.Message) error {
-	log.Println(m.Name, "repo add msg name")
+	log.Println(m.Name, "name, room", m.Room)
 	//save in db message in chat, messages table
 	queryMsg, err := cr.db.Prepare(`INSERT INTO messages(content, room, user_id, name, sent_time) VALUES(?,?,?, ?, ?)`)
 	if err != nil {
@@ -99,6 +108,9 @@ func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 	row := cr.db.QueryRow("SELECT room FROM chats WHERE user_id1=? AND user_id2=?", senderUserID, receiverUserID)
 	err = row.Scan(&room)
 	//2,1 -> swap query ?
+
+	log.Println(room, 1)
+
 	if err != nil {
 		row = cr.db.QueryRow("SELECT room FROM chats WHERE user_id1=? AND user_id2=?", receiverUserID, senderUserID)
 		err = row.Scan(&room)
@@ -106,6 +118,8 @@ func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 			return "", err
 		}
 	}
+
+	log.Println(room, 2)
 
 	return room, nil
 }
