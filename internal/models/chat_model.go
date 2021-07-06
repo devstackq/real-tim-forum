@@ -1,6 +1,10 @@
 package models
 
-import "github.com/gorilla/websocket"
+import (
+	"time"
+
+	"github.com/gorilla/websocket"
+)
 
 //chatID99 -> from, who chatid JOIN
 //query select * from messages where uiser_id1 => and user_id2=?
@@ -16,8 +20,9 @@ type Message struct {
 	Type     string `json:"type"`
 	UserID   int    `json:"userid"`
 	Conn     *websocket.Conn
-	Room     string `json:"room"`
-	Name     string `json:"name"`
+	Room     string    `json:"room"`
+	Name     string    `json:"name"`
+	SentTime time.Time `json:"senttime"`
 }
 
 // func NewMessage(body string, sender int) *Message {

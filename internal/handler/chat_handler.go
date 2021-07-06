@@ -33,22 +33,18 @@ func (h *Handler) ChatHandler(w http.ResponseWriter, r *http.Request) {
 		// write by channel new user ->   &chat.Join <- newUser
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			log.Println(err)
 			return
 		}
 		log.Println(conn.RemoteAddr(), conn.Subprotocol(), "conn")
+
 		go h.Services.Chat.Run(chat)
 		err = h.Services.Chat.ChatBerserker(conn, chat, Authorized.Name)
 		if err != nil {
 			log.Println(err)
 			return
 		}
-
-		// h.GetListUsers(w, r)
-
 	//goroutine Run, action -> with channels(user state, leave, joikn, message) -> call concrete Method
 	//listen event by channel -> select case : Join , Message, Leave
-	// go h.Services.Chat.Run(chat)
 	case "POST":
 		fmt.Println("post quer")
 		// message, _, _, _, err := GetJsonData(w, r, "message")

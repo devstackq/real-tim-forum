@@ -3,17 +3,20 @@ package service
 import (
 	"fmt"
 	"log"
+	"math/rand"
+	"strings"
+	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
 	"github.com/gorilla/websocket"
-	uuid "github.com/satori/go.uuid"
 )
 
 var ChatJSON struct {
 	ListMessage []models.Message  `json:"messages"`
 	Type        string            `json:"type"`
 	ListUsers   map[string]string `json:"users"`
+	Receiver    string            `json:"receiver"`
 }
 
 type ChatService struct {
@@ -31,16 +34,27 @@ var upgrader = websocket.Upgrader{
 
 func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
 
+	room, err := cs.repository.IsExistRoom(m)
+	if err != nil {
+		log.Println(err, "empty room")
+	}
+	m.Room = room
+
 	seq, err := cs.repository.GetMessages(m)
 	if err != nil {
-		log.Println(err, m)
-		return err
+		log.Println(err)
 	}
-	ChatJSON.Type = "messagesreceive"
-	ChatJSON.ListMessage = seq
-	err = m.Conn.WriteJSON(ChatJSON)
-	if err != nil {
-		return err
+	if seq == nil {
+		ChatJSON.Type = "nomessages"
+		ChatJSON.Receiver = m.Receiver
+		m.Conn.WriteJSON(ChatJSON)
+	} else {
+		ChatJSON.Type = "listmessages"
+		ChatJSON.ListMessage = seq
+		err = m.Conn.WriteJSON(ChatJSON)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -63,7 +77,21 @@ func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 	}
 }
 
-func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) error {
+//utils ?
+func randomaizer() string {
+	rand.Seed(time.Now().Unix())
+	charSet := "abcdedfghijklmnopqrst"
+	var output strings.Builder
+	length := 10
+	for i := 0; i < length; i++ {
+		random := rand.Intn(len(charSet))
+		randomChar := charSet[random]
+		output.WriteString(string(randomChar))
+	}
+	return output.String()
+}
+
+func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) {
 
 	//comapere ListUsers {
 	// get Users[m.Receiver]
@@ -73,40 +101,52 @@ func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) error {
 	//send msg - to  conn - receiver if have server
 
 	//logic todo here if exist
-
 	room, err := cs.repository.IsExistRoom(m)
 	if err != nil {
-		return err
+		log.Println(err, "empty room")
 	}
-	randomRoom := uuid.Must(uuid.NewV4(), err).String()
+	randomRoom := randomaizer()
+
 	if err != nil {
-		return err
+		log.Println(err, "uuid")
 	}
+
 	if room == "" {
 		m.Room = randomRoom
-		cs.repository.AddNewRoom(m)
+		log.Println(m.Room, "send new room in db fucn")
+		err = cs.repository.AddNewRoom(m)
+		if err != nil {
+			log.Println(err, "add room err")
+		}
 	} else {
 		m.Room = room
-		cs.repository.AddNewMessage(m)
 	}
-	//go, add author name
-	cs.repository.AddNewMessage(m)
+fix each time new room create new message 
+	m.Name, err = cs.repository.GetUserName(m.UserID)
+	if err != nil {
+		log.Println(err, "get username err")
+	}
+
+	err = cs.repository.AddNewMessage(m)
+	if err != nil {
+		log.Println(err, "err add new msg")
+	}
+	// save in Chat TABLE
 
 	if c.Users[m.Receiver] != nil {
 		log.Println(m.Content, "send another conn")
-		// fmt.Println(c.Users[m.Receiver], "brodcast2")
 		rec := c.Users[m.Receiver]
-		m.Type = "receivemessage"
-		//save message & sender, receiver id in DB
+		m.Type = "lastmessage"
 		err := rec.WriteJSON(m)
 		if err != nil {
-			return err
+			log.Println(err)
+			// return err
 		}
 		//notify user, & send message in WriteMessage
 		// defer rec.Close()
 	}
 	//else just save in db
-	return nil
+	// return nil
 }
 
 //1 main -> Start() ->  createEmptyObjecetChat -> 2 ws Handler, newConn -> 3 go Run() // goruutine each newConn(user)
@@ -139,7 +179,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 		if err != nil {
 			return err
 		}
-		fmt.Println(json.Type, "jzon")
+		fmt.Println(json.Type, json.UserID, "jzon")
 		// err = conn.PingHandler()
 		// if strings.TrimSpace(username) == "" {
 		//add new User -> service and add in Map user like online
@@ -170,6 +210,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 				Receiver: json.Receiver,
 				Sender:   json.Sender,
 				Content:  json.Content,
+				UserID:   json.UserID,
 			}
 			c.NewMessage <- message
 		}

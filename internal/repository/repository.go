@@ -39,6 +39,7 @@ type Chat interface {
 	AddNewMessage(m *models.Message) error
 	AddNewRoom(m *models.Message) error
 	IsExistRoom(m *models.Message) (string, error)
+	GetUserName(int) (string, error)
 }
 type Repository struct {
 	User

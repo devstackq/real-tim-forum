@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"log"
 	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
@@ -17,6 +18,7 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 
 func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
 	//save in db message in chat, messages table
+
 	queryChat, err := cr.db.Prepare(`INSERT INTO chats(user_id1, user_id2, room) VALUES(?,?,?)`)
 	if err != nil {
 		return err
@@ -32,8 +34,9 @@ func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
 
 //add message in db
 func (cr *ChatRepository) AddNewMessage(m *models.Message) error {
+	log.Println(m.Name, "repo add msg name")
 	//save in db message in chat, messages table
-	queryMsg, err := cr.db.Prepare(`INSERT INTO messages(content, room, user_id, name, sent_time) VALUES(?,?,?)`)
+	queryMsg, err := cr.db.Prepare(`INSERT INTO messages(content, room, user_id, name, sent_time) VALUES(?,?,?, ?, ?)`)
 	if err != nil {
 		return err
 	}
@@ -45,36 +48,39 @@ func (cr *ChatRepository) AddNewMessage(m *models.Message) error {
 	return nil
 }
 
+func (ur *ChatRepository) GetUserName(id int) (string, error) {
+
+	var name string
+	query := `SELECT full_name FROM users WHERE id=?`
+	row := ur.db.QueryRow(query, id)
+	err := row.Scan(&name)
+	if err != nil {
+		return "", err
+	}
+	return name, nil
+}
+
 func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, error) {
 
 	var messages = []models.Message{}
 	msg := models.Message{}
 
-	room, err := cr.IsExistRoom(m)
+	queryStmt, err := cr.db.Query("SELECT content, user_id, name, sent_time FROM messages  WHERE room=?", m.Room)
+	// queryStmt, err := cr.db.Query("SELECT content, user_id FROM messages  WHERE room=? ORDER BY  message_sent_time DESC", room)
 	if err != nil {
 		return nil, err
 	}
-	if room != "" {
 
-		queryStmt, err := cr.db.Query("SELECT content, user_id FROM messages  WHERE room=?", room)
-		// queryStmt, err := cr.db.Query("SELECT content, user_id FROM messages  WHERE room=? ORDER BY  message_sent_time DESC", room)
-		if err != nil {
+	for queryStmt.Next() {
+		//or when create msg - set name ?
+		if err := queryStmt.Scan(&msg.Content, &msg.UserID, &msg.Name, &msg.SentTime); err != nil {
 			return nil, err
 		}
 
-		for queryStmt.Next() {
-			//or when create msg - set name ?
-			if err := queryStmt.Scan(&msg.Content, &msg.UserID); err != nil {
-				return nil, err
-			}
-			msg.Receiver = m.Receiver
-			msg.Sender = m.Sender
-			messages = append(messages, msg)
-		}
-	} else {
-		return nil, err
+		msg.Receiver = m.Receiver
+		msg.Sender = m.Sender
+		messages = append(messages, msg)
 	}
-	// fmt.Println(room, messages)
 	return messages, nil
 }
 
@@ -89,6 +95,7 @@ func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 		return "", err
 	}
 	var room string
+
 	row := cr.db.QueryRow("SELECT room FROM chats WHERE user_id1=? AND user_id2=?", senderUserID, receiverUserID)
 	err = row.Scan(&room)
 	//2,1 -> swap query ?
@@ -99,6 +106,7 @@ func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 			return "", err
 		}
 	}
+
 	return room, nil
 }
 
@@ -113,6 +121,5 @@ func (cr *ChatRepository) GetUserID(uuid string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	return userid, nil
 }
