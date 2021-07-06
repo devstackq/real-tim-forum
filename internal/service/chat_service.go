@@ -42,6 +42,25 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
 	}
 	return nil
 }
+func (cs *ChatService) Reader(conn *websocket.Conn) {
+	for {
+
+		messageType, p, err := conn.ReadJSON()
+
+		messageType, p, err := conn.ReadMessage()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		fmt.Println(string(p), "switch case here send from client")
+
+		if err := conn.WriteMessage(messageType, p); err != nil {
+			log.Println(err)
+			return
+		}
+	}
+}
 
 //open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
 func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
@@ -134,6 +153,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 		}
 		c.ListMessage <- getMsg
 	}
+	cs.Reader(conn)
 	return nil
 }
 

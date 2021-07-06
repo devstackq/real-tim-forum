@@ -26,52 +26,50 @@ export default class Chat extends Parent {
   //show all user - except yourself todo:
 
   //DRY
-  openChat() {
-    console.log("click chat", this);
+  openChat(that, uuid) {
     let chatWindow = document.getElementById("chatbox");
     chatWindow.innerHTML = "";
     chatWindow.style.display = "block";
     let userid = super.getUserId();
 
     let obj = {
-      receiver: this.getAttribute("uuid"),
+      receiver: uuid,
       sender: super.getUserSession(),
       type: "listmessages",
     };
     // let ws = this.getAttribute("ws");
-    // let ws = this.value;
+    let ws = this.ws;
     // best practice?
-    let ws = new WebSocket("ws://localhost:6969/api/chat");
+    // let ws = new WebSocket("ws://localhost:6969/api/chat");
 
-    ws.onopen = () => ws.send(JSON.stringify(obj));
+     ws.send(JSON.stringify(obj))
+  }
+    // ws.onmessage = (e) => {
+    //   console.log(JSON.parse(e.data));
+    //   // this.render(response, "#chat");
+    //   JSON.parse(e.data).forEach((item) => {
+    //     let chat = document.querySelector("#chatbox");
+    //     let div = document.createElement("div");
 
-    ws.onmessage = (e) => {
-      console.log(JSON.parse(e.data));
-      // this.render(response, "#chat");
-      JSON.parse(e.data).forEach((item) => {
-        let chat = document.querySelector("#chatbox");
-        let div = document.createElement("div");
-
-        for (let [k, v] of Object.entries(item)) {
-          let span = document.createElement("span");
-          if (v != null && v != "") {
-            span.textContent = `  ${v}: `;
-          }
-          if (k == "userid") {
-            if (v == userid) {
-              div.classList.add("chat_sender");
-            }
-          }
-          // chatBox.write(text);
-          div.append(span);
-        }
-        chat.append(div);
-        // document.getElementById("chatbox").contentWindow.scrollByPages(1);
-      });
+    //     for (let [k, v] of Object.entries(item)) {
+    //       let span = document.createElement("span");
+    //       if (v != null && v != "") {
+    //         span.textContent = `  ${v}: `;
+    //       }
+    //       if (k == "userid") {
+    //         if (v == userid) {
+    //           div.classList.add("chat_sender");
+    //         }
+    //       }
+    //       // chatBox.write(text);
+    //       div.append(span);
+    //     }
+    //     chat.append(div);
+    //     // document.getElementById("chatbox").contentWindow.scrollByPages(1);
+    //   });
       // } else {
       //   super.showNotify("no have message", "error");
-    };
-  }
+    
 
   showOnlineUsers(users) {
     let ul = document.createElement("ul");
@@ -84,9 +82,9 @@ export default class Chat extends Parent {
         return;
       }
       if (k != super.getUserSession() && Object.entries(users).length > 1) {
-        li.setAttribute("uuid", k);
-        li.setAttribute("ws", this.ws);
-        li.onclick = this.openChat;
+        // li.setAttribute("uuid", k);s
+        // li.setAttribute("ws", this.ws);
+        li.onclick = this.openChat.bind(this, k)
         // li.value = this.ws;
         li.textContent = v;
         // li += v + "<br>"; innerHtml
