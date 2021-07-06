@@ -16,7 +16,6 @@ func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
 			JsonResponse(w, r, http.StatusUnauthorized, "cookie expires or not correct")
 			return
 		}
-		// best practice ?
 		userId, err := r.Cookie("user_id")
 		if err != nil {
 			log.Println("userid expires or incorrect")

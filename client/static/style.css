@@ -163,4 +163,13 @@ label,
   max-width: 800px;
   height: 240px;
   overflow-y: scroll;
+  position: relative;
+}
+#messageFieldId,
+#sendBtnId {
+  position: absolute;
+  bottom: 0;
+}
+#sendBtnId {
+  left: 40%;
 }

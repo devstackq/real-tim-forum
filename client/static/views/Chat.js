@@ -4,6 +4,7 @@ export default class Chat extends Parent {
   constructor() {
     super();
     this.ws = new WebSocket("ws://localhost:6969/api/chat");
+    this.users = {};
   }
 
   setTitle(title) {
@@ -25,52 +26,6 @@ export default class Chat extends Parent {
   //uuid receiver & send my uuid
   //show all user - except yourself todo:
 
-  //DRY
-  openChat(that, uuid) {
-    let chatWindow = document.getElementById("chatbox");
-    chatWindow.innerHTML = "";
-    chatWindow.style.display = "block";
-    let userid = super.getUserId();
-
-    let obj = {
-      receiver: uuid,
-      sender: super.getUserSession(),
-      type: "listmessages",
-    };
-    // let ws = this.getAttribute("ws");
-    let ws = this.ws;
-    // best practice?
-    // let ws = new WebSocket("ws://localhost:6969/api/chat");
-
-     ws.send(JSON.stringify(obj))
-  }
-    // ws.onmessage = (e) => {
-    //   console.log(JSON.parse(e.data));
-    //   // this.render(response, "#chat");
-    //   JSON.parse(e.data).forEach((item) => {
-    //     let chat = document.querySelector("#chatbox");
-    //     let div = document.createElement("div");
-
-    //     for (let [k, v] of Object.entries(item)) {
-    //       let span = document.createElement("span");
-    //       if (v != null && v != "") {
-    //         span.textContent = `  ${v}: `;
-    //       }
-    //       if (k == "userid") {
-    //         if (v == userid) {
-    //           div.classList.add("chat_sender");
-    //         }
-    //       }
-    //       // chatBox.write(text);
-    //       div.append(span);
-    //     }
-    //     chat.append(div);
-    //     // document.getElementById("chatbox").contentWindow.scrollByPages(1);
-    //   });
-      // } else {
-      //   super.showNotify("no have message", "error");
-    
-
   showOnlineUsers(users) {
     let ul = document.createElement("ul");
     ul.id = "listusersID";
@@ -82,10 +37,19 @@ export default class Chat extends Parent {
         return;
       }
       if (k != super.getUserSession() && Object.entries(users).length > 1) {
-        // li.setAttribute("uuid", k);s
-        // li.setAttribute("ws", this.ws);
-        li.onclick = this.openChat.bind(this, k)
-        // li.value = this.ws;
+        li.onclick = (e) => {
+          let chatWindow = document.getElementById("chatbox");
+          chatWindow.innerHTML = "";
+          chatWindow.style.display = "block";
+          // let userid = super.getUserId();
+          let obj = {
+            receiver: k,
+            sender: super.getUserSession(),
+            type: "getmessages",
+          };
+          this.ws.send(JSON.stringify(obj));
+        };
+
         li.textContent = v;
         // li += v + "<br>"; innerHtml
         ul.append(li);
@@ -94,23 +58,62 @@ export default class Chat extends Parent {
     document.getElementById("userlistbox").append(ul);
   }
 
-  sendMessage() {
-    console.log("send");
+  sendMessage(receiver) {
+    let message = {
+      content: document.getElementById("messageFieldId").value,
+      sender: super.getUserSession(),
+      receiver: receiver,
+      type: "newmessage",
+    };
+    this.ws.send(JSON.stringify(message));
   }
+  //DRY ?
+  showListMessage(messages) {
+    let userid = super.getUserId();
+    if (messages != null) {
+      let chat = document.querySelector("#chatbox");
+      let textarea = document.createElement("textarea");
+      let sendBtn = document.createElement("button");
+      textarea.id = "messageFieldId";
+      sendBtn.id = "sendBtnId";
+      sendBtn.textContent = "send message";
+
+      messages.forEach((item) => {
+        let div = document.createElement("div");
+
+        for (let [k, v] of Object.entries(item)) {
+          let span = document.createElement("span");
+          if (v != null && v != "" && k != "sender" && k != "receiver") {
+            span.textContent = `  ${v}: `;
+          }
+          if (k == "userid") {
+            if (v == userid) {
+              div.classList.add("chat_sender");
+            }
+          }
+          div.append(span);
+        }
+        chat.append(div);
+      });
+
+      sendBtn.onclick = this.sendMessage.bind(this, messages[0]["receiver"]);
+      chat.append(textarea);
+      chat.append(sendBtn);
+    } else {
+      console.log("no msg");
+      super.showNotify("no have message", "error");
+    }
+  }
+
   //get senderId, receiverId, msg
   async init() {
     //DRY
-    // document.onload =
     let newuser = {
       sender: super.getUserSession(),
       type: "newuser",
     };
+
     this.ws.onopen = () => this.ws.send(JSON.stringify(newuser));
-
-    document.getElementById("message_container").onclick = this.sendMessage;
-
-    // if (wsusers.readyState !== 1) {
-    //if addnewUser -> send client  updated list server
 
     this.ws.onmessage = (e) => {
       let chatBox = document.getElementById("chatbox").contentDocument;
@@ -120,30 +123,25 @@ export default class Chat extends Parent {
       let timeStr = time.toLocaleTimeString();
 
       switch (msg.type) {
-        case "message":
-          text =
-            "(" + timeStr + ") <b>" + msg.name + "</b>: " + msg.text + "<br>";
-          break;
         case "listusers":
           this.showOnlineUsers(msg.users);
-        // let ul = document.createElement("ul");
-        // for (let [k, v] of Object.entries(msg.users)) {
-        //   let li = document.createElement("li");
-        //   if (
-        //     k != super.getUserSession() &&
-        //     Object.entries(msg.users).length > 1
-        //   ) {
-        //     li.onclick = this.openChat;
-        //     li.value = this.ws;
-        //     li.textContent = v;
-        //     // li += v + "<br>"; innerHtml
-        //     ul.append(li);
-        //   }
-        // }
-        // document.getElementById("userlistbox").append(ul);
-        // break;
-        // case (e) => document.getElementById("listusersID").children.onclick :
-        //   console.log(e);
+          break;
+        case "messagesreceive":
+          //why claaed ? now type l;istusers
+          console.log(msg);
+          this.showListMessage(msg.messages);
+          break;
+        case "receivemessage":
+          // this.showListMessage(msg.messages);
+          console.log("receivemessage", msg);
+
+          // append current chatbox, newmessage
+          let chatbox = document.getElementById("chatbox");
+          //get chatbox children, appen last item
+          let li = document.createElement("li");
+          li.textContent = msg.content;
+          chatbox.children[chatbox.children.length - 3].append(li);
+          break;
       }
 
       if (text.length) {
@@ -165,13 +163,6 @@ export default class Chat extends Parent {
       this.ws.onerror = function (error) {
         console.log("Ошибка " + error.message);
       };
-
-      //data list user -> send  by uuid
-      // this.showOnlineUsers(JSON.parse(event.data));
-
-      //getLisrUser() & online and offline
-      //click -> userId -> getHistoryByChatId()
-      //click -> send msg -> webws -> save msg, notify another user
     };
   }
 
@@ -183,8 +174,6 @@ export default class Chat extends Parent {
     <div id="userlistbox" > </div>
       <div id="chatbox" class="chat_container" >  </div>
       <div id="message_container" >
-      <textarea  id="message"> </textarea> 
-      <button id="sendMessage" > send </button>
       </div>
     `;
     return super.showHeader() + body;

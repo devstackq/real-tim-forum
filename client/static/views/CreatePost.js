@@ -19,7 +19,7 @@ export default class CreatePost extends Parent {
       };
       post = super.fillObject(post);
       post.categories = [];
-
+      console.log(post);
       var inputs = document.querySelectorAll(".category");
 
       for (var i = 0; i < inputs.length; i++) {

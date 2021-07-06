@@ -34,8 +34,7 @@ func GetJsonData(w http.ResponseWriter, r *http.Request, signature string) (*mod
 	var u models.User
 	var m models.Message
 
-	var err error
-
+	// err = json.Unmarshal(resBody, &j.M)
 	resBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return nil, nil, nil, nil, err

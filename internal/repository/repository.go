@@ -35,8 +35,10 @@ type Comment interface {
 	CreateComment(*models.Comment) (int, error)
 }
 type Chat interface {
-	ChatManager(*models.Chat) error
 	GetMessages(m *models.Message) ([]models.Message, error)
+	AddNewMessage(m *models.Message) error
+	AddNewRoom(m *models.Message) error
+	IsExistRoom(m *models.Message) (string, error)
 }
 type Repository struct {
 	User

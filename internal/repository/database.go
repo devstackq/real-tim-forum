@@ -162,7 +162,7 @@ func createTables(db *sql.DB) error {
 		room TEXT,
 		user_id INTEGER,
 		name TEXT,
-		message_sent_time DATETIME
+		sent_time DATETIME
 		)`,
 	)
 	// FOREIGN KEY(room) REFERENCES chats(room)

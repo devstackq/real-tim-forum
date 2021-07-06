@@ -25,6 +25,13 @@ type User struct {
 	UUID        string
 }
 
+type Tezt struct {
+	V *Vote
+	P *Post
+	U *User
+	M *Message
+}
+
 // var Any struct {
 // 	Posts Post
 // 	Users User

@@ -9,13 +9,15 @@ import "github.com/gorilla/websocket"
 //- hello, fine and u ? uid2
 type Message struct {
 	ID       int    `json:"id"`
-	Content  string `json:"message"`
+	Content  string `json:"content"`
 	ChatID   int    `json:"chatid"`
 	Sender   string `json:"sender"`
 	Receiver string `json:"receiver"`
 	Type     string `json:"type"`
 	UserID   int    `json:"userid"`
 	Conn     *websocket.Conn
+	Room     string `json:"room"`
+	Name     string `json:"name"`
 }
 
 // func NewMessage(body string, sender int) *Message {

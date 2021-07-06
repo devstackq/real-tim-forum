@@ -7,6 +7,7 @@ import (
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
 	"github.com/gorilla/websocket"
+	uuid "github.com/satori/go.uuid"
 )
 
 var ChatJSON struct {
@@ -29,37 +30,19 @@ var upgrader = websocket.Upgrader{
 }
 
 func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
+
 	seq, err := cs.repository.GetMessages(m)
 	if err != nil {
 		log.Println(err, m)
 		return err
 	}
-	// ChatJSON.Type = "listmessages"
-	// ChatJSON.ListMessage = seq
-	err = m.Conn.WriteJSON(seq)
+	ChatJSON.Type = "messagesreceive"
+	ChatJSON.ListMessage = seq
+	err = m.Conn.WriteJSON(ChatJSON)
 	if err != nil {
 		return err
 	}
 	return nil
-}
-func (cs *ChatService) Reader(conn *websocket.Conn) {
-	for {
-
-		messageType, p, err := conn.ReadJSON()
-
-		messageType, p, err := conn.ReadMessage()
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		fmt.Println(string(p), "switch case here send from client")
-
-		if err := conn.WriteMessage(messageType, p); err != nil {
-			log.Println(err)
-			return
-		}
-	}
 }
 
 //open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
@@ -84,18 +67,43 @@ func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) error {
 
 	//comapere ListUsers {
 	// get Users[m.Receiver]
-
 	// if c.Users[m.Receiver] == uuidReceiverInDB?
+
+	//save db in message, caht table & message, add author, date message
+	//send msg - to  conn - receiver if have server
+
+	//logic todo here if exist
+
+	room, err := cs.repository.IsExistRoom(m)
+	if err != nil {
+		return err
+	}
+	randomRoom := uuid.Must(uuid.NewV4(), err).String()
+	if err != nil {
+		return err
+	}
+	if room == "" {
+		m.Room = randomRoom
+		cs.repository.AddNewRoom(m)
+	} else {
+		m.Room = room
+		cs.repository.AddNewMessage(m)
+	}
+	//go, add author name
+	cs.repository.AddNewMessage(m)
+
 	if c.Users[m.Receiver] != nil {
+		log.Println(m.Content, "send another conn")
 		// fmt.Println(c.Users[m.Receiver], "brodcast2")
 		rec := c.Users[m.Receiver]
+		m.Type = "receivemessage"
 		//save message & sender, receiver id in DB
 		err := rec.WriteJSON(m)
 		if err != nil {
 			return err
 		}
 		//notify user, & send message in WriteMessage
-		defer rec.Close()
+		// defer rec.Close()
 	}
 	//else just save in db
 	return nil
@@ -108,8 +116,8 @@ func (cs *ChatService) Run(c *models.Chat) {
 		select {
 		case user := <-c.Join:
 			cs.addNewUser(user, c)
-		case msg := <-c.NewMessage:
-			cs.broadcast(c, msg)
+		case message := <-c.NewMessage:
+			cs.broadcast(c, message)
 		case list := <-c.ListMessage:
 			cs.getMessages(list, c)
 			// default :
@@ -125,36 +133,50 @@ func (cs *ChatService) Run(c *models.Chat) {
 func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name string) error {
 
 	json := models.Message{}
+	for {
 
-	err := conn.ReadJSON(&json)
-	if err != nil {
-		return err
-	}
-	fmt.Println(json.Type, "jzon")
-	// err = conn.PingHandler()
-	// if strings.TrimSpace(username) == "" {
-	//add new User -> service and add in Map user like online
+		err := conn.ReadJSON(&json)
+		if err != nil {
+			return err
+		}
+		fmt.Println(json.Type, "jzon")
+		// err = conn.PingHandler()
+		// if strings.TrimSpace(username) == "" {
+		//add new User -> service and add in Map user like online
 
-	//set data - in cchat struct -> join user data
-	if json.Type == "newuser" {
-		user := &models.User{
-			UUID:     json.Sender,
-			Conn:     conn, //set conn current user
-			Global:   c,    // set  User struct - chat object
-			FullName: name,
+		//set data - in cchat struct -> join user data
+		if json.Type == "newuser" {
+			user := &models.User{
+				UUID:     json.Sender,
+				Conn:     conn, //set conn current user
+				Global:   c,    // set  User struct - chat object
+				FullName: name,
+			}
+			c.Join <- user
 		}
-		c.Join <- user
-	}
-	if json.Type == "listmessages" {
-		getMsg := &models.Message{
-			Conn:     conn,
-			Sender:   json.Sender,
-			Receiver: json.Receiver,
+
+		if json.Type == "getmessages" {
+			getMsg := &models.Message{
+				Conn:     conn,
+				Sender:   json.Sender,
+				Receiver: json.Receiver,
+			}
+			c.ListMessage <- getMsg
 		}
-		c.ListMessage <- getMsg
+
+		if json.Type == "newmessage" {
+			message := &models.Message{
+				Conn:     conn, //set conn current user
+				Receiver: json.Receiver,
+				Sender:   json.Sender,
+				Content:  json.Content,
+			}
+			c.NewMessage <- message
+		}
 	}
-	cs.Reader(conn)
+	// cs.Reader(conn)
 	return nil
+
 }
 
 // signin -> Authorization.UUID -> /api/chat -> ChatHandler->
