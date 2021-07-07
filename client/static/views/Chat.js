@@ -4,7 +4,7 @@ export default class Chat extends Parent {
   constructor() {
     super();
     this.ws = new WebSocket("ws://localhost:6969/api/chat");
-    this.users = []
+    this.users = [];
     this.chatbox = document.getElementById("chatbox");
   }
 
@@ -30,9 +30,7 @@ export default class Chat extends Parent {
   showOnlineUsers(users) {
     let ul = document.createElement("ul");
     ul.id = "listusersID";
-    // console.log(this.ws, 987);
-    this.users = users
-//  console.log( Object.entries(users))   
+    this.users = users;
     for (let [k, v] of Object.entries(users)) {
       let li = document.createElement("li");
       if (Object.entries(users).length == 1) {
@@ -60,32 +58,45 @@ export default class Chat extends Parent {
     let chatbox = document.querySelector("#chatbox");
     let uid = super.getUserId();
     let content = document.getElementById("messageFieldId").value;
+    let senderUUID = super.getUserSession();
     let message = {
       content: content,
-      sender: super.getUserSession(),
+      sender: senderUUID,
       receiver: receiver,
       userid: parseInt(uid),
       type: "newmessage",
     };
+    let senderName = "";
+    for (let [k, v] of Object.entries(this.users)) {
+      if (k === senderUUID) {
+        senderName = v;
+      }
+    }
+    let div = document.createElement("div");
+    let span = document.createElement("span");
+    span.className = "chat_sender";
+    span.textContent = ` ${message.content} ${new Date()} ${senderName} `;
+    // chatbox.children[chatbox.children.length - 3].append(span);
+    div.append(span)
+    if (chatbox.children != undefined) {
+      if (chatbox.children.length > 2) {
+        chatbox.children[chatbox.children.length - 3].append(div);
+      } else {
+        chatbox.children[chatbox.children.length - 2].append(div);
+      }
+    }
+    document.getElementById("messageFieldId").value = "";
 
-    // console.log("send ms", message)
     this.ws.send(JSON.stringify(message));
-    // append in last item client
-    let li = document.createElement("li");
-    li.textContent = content;
-    li.className = "chat_sender";
-    
-    console.log(li)
-console.log(chatbox.children.length, "send len msg")
-
-    chatbox.children[chatbox.children.length - 2].append(li);
+    // chatbox.children[chatbox.children.length - 2].append(li);
   }
   //DRY ?
   showListMessage(messages) {
     let userid = super.getUserId();
     if (messages != null) {
       let chat = document.querySelector("#chatbox");
-      document.getElementById("chatbox").innerHTML = ""
+       chat.innerHTML = "";
+       console.log('slm')
 
       messages.forEach((item) => {
         let div = document.createElement("div");
@@ -106,7 +117,7 @@ console.log(chatbox.children.length, "send len msg")
       });
       //call func
       let receive = "";
-      // console.log(messages, "slm")
+    
       if (messages.length != 0) {
         receive = messages[0]["receiver"];
       }
@@ -136,8 +147,9 @@ console.log(chatbox.children.length, "send len msg")
       sender: super.getUserSession(),
       type: "newuser",
     };
-
+//client 1 enter chat service -> 
     this.ws.onopen = () => this.ws.send(JSON.stringify(newuser));
+
 
     this.ws.onmessage = (e) => {
       let chatBox = document.getElementById("chatbox").contentDocument;
@@ -145,37 +157,41 @@ console.log(chatbox.children.length, "send len msg")
       let msg = JSON.parse(e.data);
       // let time = new Date(msg.date);
       // let timeStr = time.toLocaleTimeString();
-console.log(msg.type)
+      console.log(msg.type);
       switch (msg.type) {
         case "listusers":
           //update each 10 sec ? for show new user
+          setInterval(() => {
           this.showOnlineUsers(msg.users);
+            }, 5000);
+
           break;
         case "listmessages":
-          //get from db all messages
-          // console.log("list msg type", msg)
+          console.log("listmsg type", msg);
           // document.getElementById("chatbox").innerHTML = ''
           document.getElementById("chatbox").style.display = "block";
           this.showListMessage(msg.messages);
           break;
         case "lastmessage":
           let chatbox = document.getElementById("chatbox");
-          let li = document.createElement("li");
-          li.textContent = msg.message;
-          console.log(chatbox.children.length, 'len chatbox')
-          if(chatbox.children != undefined) {
-            if(chatbox.children.length > 2) {
-            chatbox.children[chatbox.children.length - 3].append(li);
-            }else {
-              chatbox.children[chatbox.children.length - 2].append(li);
+          let span = document.createElement("span");
+          let div = document.createElement('div')
+          span.textContent = ` ${msg.message} ${msg.senttime} ${msg.sendername} `;
+        div.append(span)
+          if (chatbox.children != undefined) {
+            if (chatbox.children.length > 2) {
+              chatbox.children[chatbox.children.length - 3].append(div);
+            } else {
+              chatbox.children[chatbox.children.length - 2].append(div);
             }
           }
-          document.getElementById('messageFieldId').value = ''
-
+          document.getElementById("messageFieldId").value = "";
           break;
         case "nomessages":
+           let chat = document.querySelector("#chatbox");
+       chat.innerHTML = "";
+     
           //now no messages -> fix, show message field
-console.log("nomessage", msg)
           this.showChatWindow(this, msg.receiver);
           super.showNotify("now no messages", "error");
           break;
@@ -185,7 +201,7 @@ console.log("nomessage", msg)
         chatBox.write(text);
         document.getElementById("chatbox").contentWindow.scrollByPages(1);
       }
-      // sjhow sent time, name, fix first create room, added user NOW show another clients
+      // sjhow sent time, name, fix first create room, added user NOW show another cspanents
 
       // setInterval(() => {
       //   this.showOnlineUsers(JSON.parse(e.data));

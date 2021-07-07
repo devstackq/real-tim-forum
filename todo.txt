@@ -5,13 +5,21 @@
 5 spa - render chat page
 6 js logic
 7 back end logic
-//addNewUser chan -> plain - todo
+
+scroll inside - chat textarea
+html elems -> in costructor ? 
+click user msg -> another users hidden
+
+leave user - delete server conn - if logout or close window or change endpoint ?
+addded user online update in clien side - real time update
+
+history message another users list 
 
     // chrome fix -> chat -> fix own user id client or service bug
     //update online users
     //room random generate new chat
 
-    		//use	
+try    		//use	
                function onLoad() {
                   var wsUri = "ws://127.0.0.1:7777";
                   websocket = new WebSocket(wsUri);

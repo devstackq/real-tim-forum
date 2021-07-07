@@ -18,6 +18,8 @@ var ChatJSON struct {
 	ListUsers   map[string]string `json:"users"`
 	Receiver    string            `json:"receiver"`
 	Message     string            `json:"message"`
+	Name        string            `json:"sendername"`
+	SentTime    time.Time         `json:"senttime"`
 }
 
 type ChatService struct {
@@ -134,8 +136,10 @@ func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) {
 		log.Println(m.Content, "send another conn")
 		rec := c.Users[m.Receiver]
 		// ChatJSON.Type = "lastmessage"
-		ChatJSON.Type = "listmessages"
+		ChatJSON.Type = "lastmessage"
 		ChatJSON.Message = m.Content
+		ChatJSON.SentTime = time.Now()
+		ChatJSON.Name = m.Name
 		err = rec.WriteJSON(ChatJSON)
 		if err != nil {
 			log.Println(err, "err json add new msg")
