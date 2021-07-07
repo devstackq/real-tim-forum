@@ -133,7 +133,8 @@ func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) {
 	if c.Users[m.Receiver] != nil {
 		log.Println(m.Content, "send another conn")
 		rec := c.Users[m.Receiver]
-		ChatJSON.Type = "lastmessage"
+		// ChatJSON.Type = "lastmessage"
+		ChatJSON.Type = "listmessages"
 		ChatJSON.Message = m.Content
 		err = rec.WriteJSON(ChatJSON)
 		if err != nil {

@@ -68,12 +68,15 @@ export default class Chat extends Parent {
       type: "newmessage",
     };
 
-    console.log("send ms", message)
+    // console.log("send ms", message)
     this.ws.send(JSON.stringify(message));
     // append in last item client
     let li = document.createElement("li");
     li.textContent = content;
     li.className = "chat_sender";
+    
+    console.log(li)
+console.log(chatbox.children.length, "send len msg")
 
     chatbox.children[chatbox.children.length - 2].append(li);
   }
@@ -103,7 +106,7 @@ export default class Chat extends Parent {
       });
       //call func
       let receive = "";
-      console.log(messages, "slm")
+      // console.log(messages, "slm")
       if (messages.length != 0) {
         receive = messages[0]["receiver"];
       }
@@ -121,7 +124,7 @@ export default class Chat extends Parent {
     textarea.id = "messageFieldId";
     sendBtn.id = "sendBtnId";
     sendBtn.textContent = "send messageq";
-    console.log(receiver, 11, this)
+    // console.log(receiver, 11, this)
     sendBtn.onclick = this.sendMessage.bind(this, receiver);
     chat.append(textarea);
     chat.append(sendBtn);
@@ -142,27 +145,33 @@ export default class Chat extends Parent {
       let msg = JSON.parse(e.data);
       // let time = new Date(msg.date);
       // let timeStr = time.toLocaleTimeString();
-
+console.log(msg.type)
       switch (msg.type) {
         case "listusers":
-          console.log("add new user");
           //update each 10 sec ? for show new user
           this.showOnlineUsers(msg.users);
           break;
         case "listmessages":
           //get from db all messages
-          console.log("list msg type", msg)
+          // console.log("list msg type", msg)
+          // document.getElementById("chatbox").innerHTML = ''
           document.getElementById("chatbox").style.display = "block";
           this.showListMessage(msg.messages);
           break;
         case "lastmessage":
-          lastMESSAGEs fix
-          console.log("lastMESSAGEs", msg.message)
           let chatbox = document.getElementById("chatbox");
           let li = document.createElement("li");
           li.textContent = msg.message;
           console.log(chatbox.children.length, 'len chatbox')
-          chatbox.children[chatbox.children.length - 2].append(li);
+          if(chatbox.children != undefined) {
+            if(chatbox.children.length > 2) {
+            chatbox.children[chatbox.children.length - 3].append(li);
+            }else {
+              chatbox.children[chatbox.children.length - 2].append(li);
+            }
+          }
+          document.getElementById('messageFieldId').value = ''
+
           break;
         case "nomessages":
           //now no messages -> fix, show message field
@@ -171,6 +180,7 @@ console.log("nomessage", msg)
           super.showNotify("now no messages", "error");
           break;
       }
+
       if (text.length) {
         chatBox.write(text);
         document.getElementById("chatbox").contentWindow.scrollByPages(1);
