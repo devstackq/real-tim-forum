@@ -5,6 +5,10 @@
 5 spa - render chat page
 6 js logic
 7 back end logic
+dry func - service repo - > insert utils.go DRY 
+
+add in global constructor listusers -> then everwhere USE -> delete pus, etc
+//if disconnect user -> delete - this.users & server side delete 
 
 scroll inside - chat textarea
 html elems -> in costructor ? 

@@ -19,10 +19,9 @@ type User struct {
 	Image       []byte          `json:"image"`
 	Username    string          `json:"username"`
 	LastSeen    string          `json:"lastseen"`
-	Session     *Session        `json:"session"`
 	Conn        *websocket.Conn `json:"conn"`
 	Global      *Chat
-	UUID        string
+	UUID        string `json:"UUID"`
 }
 
 type Tezt struct {

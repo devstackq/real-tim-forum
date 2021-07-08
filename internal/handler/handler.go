@@ -103,15 +103,5 @@ func (h *Handler) createRoutes() []Route {
 			Handler: h.ChatHandler,
 			IsAuth:  true,
 		},
-		// {
-		// 	Path:    "/api/chat/users",
-		// 	Handler: h.GetListUsers,
-		// 	IsAuth:  true,
-		// },
-		// {
-		// 	Path:    "/api/chat/history",
-		// 	Handler: h.GetMessages,
-		// 	IsAuth:  true,
-		// },
 	}
 }

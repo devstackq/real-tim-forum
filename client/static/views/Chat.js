@@ -27,31 +27,44 @@ export default class Chat extends Parent {
   //uuid receiver & send my uuid
   //show all user - except yourself todo:
 
-  showOnlineUsers(users) {
+  showOnlineUsers(object) {
+    let parent = document.getElementById("userlistbox");
     let ul = document.createElement("ul");
+    parent.innerHTML = "";
     ul.id = "listusersID";
-    this.users = users;
-    for (let [k, v] of Object.entries(users)) {
-      let li = document.createElement("li");
-      if (Object.entries(users).length == 1) {
-        super.showNotify("Now, no has online users", "error");
-        return;
-      }
-      if (k != super.getUserSession() && Object.entries(users).length > 1) {
-        li.onclick = (e) => {
-          // chatbox.innerHTML = "";
-          let obj = {
-            receiver: k,
-            sender: super.getUserSession(),
-            type: "getmessages",
+    // iter obj users
+    for (let [k, user] of Object.entries(object)) {
+      this.users.push(user);
+      let li = "";
+      for (let [key, value] of Object.entries(user)) {
+        if (Object.entries(user).length == 1) {
+          super.showNotify("Now, no has online user", "error");
+          return;
+        }
+        if (key == "fullname") {
+          li = document.createElement("li");
+          li.textContent = value;
+
+          li.onclick = (e) => {
+            // chatbox.innerHTML = "";
+            let obj = {
+              receiver: user["UUID"],
+              sender: super.getUserSession(),
+              type: "getmessages",
+            };
+            this.ws.send(JSON.stringify(obj));
           };
-          this.ws.send(JSON.stringify(obj));
-        };
-        li.textContent = v;
-        ul.append(li);
+        }
+
+        if (
+          user["UUID"] != super.getUserSession() &&
+          Object.entries(user).length > 1
+        ) {
+          ul.append(li);
+        }
       }
     }
-    document.getElementById("userlistbox").append(ul);
+    parent.append(ul);
   }
 
   sendMessage(receiver) {
@@ -77,7 +90,7 @@ export default class Chat extends Parent {
     span.className = "chat_sender";
     span.textContent = ` ${message.content} ${new Date()} ${senderName} `;
     // chatbox.children[chatbox.children.length - 3].append(span);
-    div.append(span)
+    div.append(span);
     if (chatbox.children != undefined) {
       if (chatbox.children.length > 2) {
         chatbox.children[chatbox.children.length - 3].append(div);
@@ -95,12 +108,10 @@ export default class Chat extends Parent {
     let userid = super.getUserId();
     if (messages != null) {
       let chat = document.querySelector("#chatbox");
-       chat.innerHTML = "";
-       console.log('slm')
+      chat.innerHTML = "";
 
       messages.forEach((item) => {
         let div = document.createElement("div");
-
         for (let [k, v] of Object.entries(item)) {
           let span = document.createElement("span");
           if (v != null && v != "" && k != "sender" && k != "receiver") {
@@ -117,7 +128,7 @@ export default class Chat extends Parent {
       });
       //call func
       let receive = "";
-    
+
       if (messages.length != 0) {
         receive = messages[0]["receiver"];
       }
@@ -143,13 +154,17 @@ export default class Chat extends Parent {
   //get senderId, receiverId, msg
   async init() {
     //DRY
+    setInterval(() => {
+      console.log("call set interva ");
+      this.ws.send(JSON.stringify({ sender: "", type: "getusers" }));
+    }, 9000);
+
     let newuser = {
       sender: super.getUserSession(),
       type: "newuser",
     };
-//client 1 enter chat service -> 
+    //client 1 enter chat service ->
     this.ws.onopen = () => this.ws.send(JSON.stringify(newuser));
-
 
     this.ws.onmessage = (e) => {
       let chatBox = document.getElementById("chatbox").contentDocument;
@@ -157,17 +172,11 @@ export default class Chat extends Parent {
       let msg = JSON.parse(e.data);
       // let time = new Date(msg.date);
       // let timeStr = time.toLocaleTimeString();
-      console.log(msg.type);
       switch (msg.type) {
         case "listusers":
-          //update each 10 sec ? for show new user
-          setInterval(() => {
           this.showOnlineUsers(msg.users);
-            }, 5000);
-
           break;
         case "listmessages":
-          console.log("listmsg type", msg);
           // document.getElementById("chatbox").innerHTML = ''
           document.getElementById("chatbox").style.display = "block";
           this.showListMessage(msg.messages);
@@ -175,9 +184,10 @@ export default class Chat extends Parent {
         case "lastmessage":
           let chatbox = document.getElementById("chatbox");
           let span = document.createElement("span");
-          let div = document.createElement('div')
-          span.textContent = ` ${msg.message} ${msg.senttime} ${msg.sendername} `;
-        div.append(span)
+          let div = document.createElement("div");
+          console.log(msg);
+          span.textContent = ` ${msg.message.content} ${msg.message.senttime} ${msg.name} `;
+          div.append(span);
           if (chatbox.children != undefined) {
             if (chatbox.children.length > 2) {
               chatbox.children[chatbox.children.length - 3].append(div);
@@ -188,9 +198,9 @@ export default class Chat extends Parent {
           document.getElementById("messageFieldId").value = "";
           break;
         case "nomessages":
-           let chat = document.querySelector("#chatbox");
-       chat.innerHTML = "";
-     
+          let chat = document.querySelector("#chatbox");
+          chat.innerHTML = "";
+
           //now no messages -> fix, show message field
           this.showChatWindow(this, msg.receiver);
           super.showNotify("now no messages", "error");

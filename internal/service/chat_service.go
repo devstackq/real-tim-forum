@@ -3,8 +3,6 @@ package service
 import (
 	"fmt"
 	"log"
-	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
@@ -12,14 +10,12 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var ChatJSON struct {
-	ListMessage []models.Message  `json:"messages"`
-	Type        string            `json:"type"`
-	ListUsers   map[string]string `json:"users"`
-	Receiver    string            `json:"receiver"`
-	Message     string            `json:"message"`
-	Name        string            `json:"sendername"`
-	SentTime    time.Time         `json:"senttime"`
+var ChatStorage struct {
+	ListMessage []models.Message        `json:"messages"`
+	ListUsers   map[string]*models.User `json:"users"`
+	Message     models.Message          `json:"message"`
+	Type        string                  `json:"type"`
+	Receiver    string                  `json:"receiver"`
 }
 
 type ChatService struct {
@@ -30,22 +26,16 @@ func NewChatService(repo repository.Chat) *ChatService {
 	return &ChatService{repo}
 }
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024, // read/write, count network call
-	WriteBufferSize: 1024,
-}
-
 func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
 	//find users room, if zero
 	room, err := cs.repository.IsExistRoom(m)
 	if err != nil {
 		log.Println(err, "empty room get msg")
 	}
-	// m.Room = room
 	if room == "" {
-		ChatJSON.Type = "nomessages"
-		ChatJSON.Receiver = m.Receiver
-		m.Conn.WriteJSON(ChatJSON)
+		ChatStorage.Type = "nomessages"
+		ChatStorage.Receiver = m.Receiver
+		m.Conn.WriteJSON(ChatStorage)
 		return nil
 	}
 	m.Room = room
@@ -54,63 +44,51 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
 		log.Println(err, "get msg err")
 	}
 
-	ChatJSON.Type = "listmessages"
-	ChatJSON.ListMessage = seq
-	err = m.Conn.WriteJSON(ChatJSON)
+	ChatStorage.Type = "listmessages"
+	ChatStorage.ListMessage = seq
+	err = m.Conn.WriteJSON(ChatStorage)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
+//or global each time send client - use client side this var ?``
+
 //open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
 func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
+	//fill user.Name -> in db, by uuid  u.Conn
+	c.ListUsers[u.UUID] = u //add conn ws, & name by [uuid key]
+	cs.getListUsers(u, c)
+}
 
-	//fill user.Name -> in db, by uuid
-	c.Users[u.UUID] = u.Conn
-	c.ListsUsers[u.UUID] = u.FullName // if leave remove
+func (cs *ChatService) getListUsers(u *models.User, c *models.Chat) {
 
-	//updatelist users
-	ChatJSON.Type = "listusers"
-	ChatJSON.ListUsers = c.ListsUsers
+	ChatStorage.Type = "listusers"
+	ChatStorage.ListUsers = c.ListUsers // get gloabal var, map[uuid]name
 
-	err := u.Conn.WriteJSON(ChatJSON)
+	err := u.Conn.WriteJSON(ChatStorage) //send client conn - list users
 	if err != nil {
 		log.Println(err)
 		return
 	}
 }
 
-//utils ?
-func randomaizer() string {
-	rand.Seed(time.Now().Unix())
-	charSet := "abcdedfghijklmnopqrst"
-	var output strings.Builder
-	length := 10
-	for i := 0; i < length; i++ {
-		random := rand.Intn(len(charSet))
-		randomChar := charSet[random]
-		output.WriteString(string(randomChar))
-	}
-	return output.String()
-}
-
-func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) {
+func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
 
 	//comapere ListUsers {
 	// get Users[m.Receiver]
 	// if c.Users[m.Receiver] == uuidReceiverInDB?
 
 	//save db in message, caht table & message, add author, date message
-	//send msg - to  conn - receiver if have server
+	//send msg - to  conn - receiver if have in server
 
-	//logic todo here if exist
 	room, err := cs.repository.IsExistRoom(m)
 	if err != nil {
 		log.Println(err, " room New msg3")
 	}
-	randomRoom := randomaizer()
-	fmt.Println(room, "rec", m.Receiver, "sen", m.Sender, "pre add message")
+	randomRoom := Randomaizer()
+	fmt.Println(room, "reciece", m.Receiver, "sen", m.Sender, "pre add message")
 
 	if room == "" {
 		m.Room = randomRoom
@@ -122,25 +100,26 @@ func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) {
 	} else {
 		m.Room = room
 	}
-	// fix each time new room create new message
-	m.Name, err = cs.repository.GetUserName(m.UserID)
-	if err != nil {
-		log.Println(err, "get username err")
-	}
+
+	// m.Name, err = cs.repository.GetUserName(m.UserID)
+	// if err != nil {
+	// 	log.Println(err, "get username err")
+	// }
 
 	err = cs.repository.AddNewMessage(m)
 	if err != nil {
 		log.Println(err, "err add new msg")
 	}
-	if c.Users[m.Receiver] != nil {
-		log.Println(m.Content, "send another conn")
-		rec := c.Users[m.Receiver]
-		// ChatJSON.Type = "lastmessage"
-		ChatJSON.Type = "lastmessage"
-		ChatJSON.Message = m.Content
-		ChatJSON.SentTime = time.Now()
-		ChatJSON.Name = m.Name
-		err = rec.WriteJSON(ChatJSON)
+	if c.ListUsers[m.Receiver] != nil {
+		log.Println(m.Content, "send another conn message")
+
+		receiver := c.ListUsers[m.Receiver]
+		ChatStorage.Message.Content = m.Content
+		ChatStorage.Message.SentTime = time.Now()
+		ChatStorage.Message.Name = m.Name
+		ChatStorage.Type = "lastmessage"
+
+		err = receiver.Conn.WriteJSON(ChatStorage)
 		if err != nil {
 			log.Println(err, "err json add new msg")
 		}
@@ -154,12 +133,14 @@ func (cs *ChatService) broadcast(c *models.Chat, m *models.Message) {
 func (cs *ChatService) Run(c *models.Chat) {
 	for {
 		select {
-		case user := <-c.Join:
-			cs.addNewUser(user, c)
+		case newuser := <-c.Join:
+			cs.addNewUser(newuser, c)
 		case message := <-c.NewMessage:
-			cs.broadcast(c, message)
+			cs.sendMessage(c, message)
 		case list := <-c.ListMessage:
 			cs.getMessages(list, c)
+		case users := <-c.GetUsers:
+			cs.getListUsers(users, c)
 			// default :
 		}
 	}
@@ -173,36 +154,35 @@ func (cs *ChatService) Run(c *models.Chat) {
 func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name string) error {
 
 	json := models.Message{}
-	for {
+	var err error
 
-		err := conn.ReadJSON(&json)
+	for {
+		err = conn.ReadJSON(&json)
 		if err != nil {
 			return err
 		}
 		fmt.Println(json.Type, json.UserID, "jzon")
-		// err = conn.PingHandler()
-		// if strings.TrimSpace(username) == "" {
-		//add new User -> service and add in Map user like online
 
-		//set data - in cchat struct -> join user data
+		// if strings.TrimSpace(username) == "" {
+
 		if json.Type == "newuser" {
 			user := &models.User{
-				UUID:     json.Sender,
-				Conn:     conn, //set conn current user
-				Global:   c,    // set  User struct - chat object
+				UUID: json.Sender,
+				Conn: conn, //set conn current user
+				// Global:   c,    // set  User struct - chat object
 				FullName: name,
 			}
 			c.Join <- user
 		}
 
 		if json.Type == "getmessages" {
-			getMsg := &models.Message{
+			messages := &models.Message{
 				Conn:     conn,
 				Sender:   json.Sender,
 				Receiver: json.Receiver,
 				Name:     name,
 			}
-			c.ListMessage <- getMsg
+			c.ListMessage <- messages
 		}
 
 		if json.Type == "newmessage" {
@@ -212,8 +192,16 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 				Sender:   json.Sender,
 				Content:  json.Content,
 				UserID:   json.UserID,
+				Name:     name,
 			}
 			c.NewMessage <- message
+		}
+
+		if json.Type == "getusers" {
+			users := &models.User{
+				Conn: conn,
+			}
+			c.GetUsers <- users
 		}
 	}
 	// cs.Reader(conn)

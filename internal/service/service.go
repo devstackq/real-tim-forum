@@ -29,7 +29,6 @@ type Vote interface {
 type Chat interface {
 	ChatBerserker(*websocket.Conn, *models.Chat, string) error
 	Run(*models.Chat)
-
 	// GetMessages(*models.Message) ([]models.Message, error)
 }
 

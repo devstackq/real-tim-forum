@@ -33,13 +33,14 @@ type Message struct {
 // }
 
 type Chat struct {
-	Users map[string]*websocket.Conn `json:"users"`
-	// Users   map[string]*User `json:"users"
-	ListsUsers  map[string]string
-	NewMessage  chan *Message `json:"newmessage"`
+	// Users      map[string]*websocket.Conn `json:"users"`
+	// ListsUsers map[string]string
+	ListUsers   map[string]*User `json:"uzers"` // key =
+	NewMessage  chan *Message    `json:"newmessage"`
 	Join        chan *User
 	Leave       chan *User
 	ListMessage chan *Message `json:"listmessages"`
+	GetUsers    chan *User
 }
 
 //user19 -> send msg -> user 59, from, who, chatid99
