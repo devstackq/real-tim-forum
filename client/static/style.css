@@ -187,3 +187,6 @@ label,
 #userlistbox li:hover {
   opacity: 1;
 }
+.current {
+  color: red;
+}

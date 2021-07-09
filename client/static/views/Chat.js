@@ -30,43 +30,65 @@ export default class Chat extends Parent {
   //uuid receiver & send my uuid
   //show all user - except yourself todo:
 
-  showOnlineUsers(object) {
+  showOnlineUsers(users) {
+    //filter if have new user -> append else nothing
     let parent = document.getElementById("userlistbox");
     let ul = document.createElement("ul");
     parent.innerHTML = "";
     ul.id = "listusersID";
-    // iter obj users
-    for (let [k, user] of Object.entries(object)) {
-      this.users.push(user);
-      let li = "";
-      for (let [key, value] of Object.entries(user)) {
-        if (Object.entries(user).length == 1) {
-          super.showNotify("Now, no has online user", "error");
-          return;
-        }
-        if (key == "fullname") {
-          li = document.createElement("li");
-          li.textContent = value;
-
-          li.onclick = (e) => {
-            // chatbox.innerHTML = "";
-            let obj = {
-              receiver: user["UUID"],
-              sender: super.getUserSession(),
-              type: "getmessages",
-            };
-            this.ws.send(JSON.stringify(obj));
-          };
-        }
-
-        if (
-          user["UUID"] != super.getUserSession() &&
-          Object.entries(user).length > 1
-        ) {
-          ul.append(li);
-        }
-      }
+    // for (let [k, user] of Object.entries(object)) {
+    //1 time push -> ourself
+    // this.users.push(users[0]);
+    let li = "";
+    if (users.length == 1) {
+      super.showNotify("Now, no has online user", "error");
+      return;
     }
+    users.forEach((user) => {
+      console.log(user, 2);
+
+      if (user.fullname == "fullname") {
+        li = document.createElement("li");
+        li.textContent = user.fullname;
+        //dry
+        //todo: //change color if clicked User current
+        let listUsers = document.getElementById("userlistbox").children;
+        console.log(listUsers, 1);
+        for (let i = 0; i < listUsers.length; i++) {
+          if (listUsers[i].className == "current") {
+            // console.log(listUsers[(i, 2)], 22);
+            listUsers[i].classList.delete("current");
+          }
+        }
+
+        li.onclick = (e) => {
+          // li.style.backgroundColor = "#fff";
+          //prev user -> delete class
+          li.classList.add("current");
+          // this.HtmlElems.messageFieldId.style.display='block'
+          this.HtmlElems.messageContainer.style.display = "block";
+          // chatbox.innerHTML = "";
+          let obj = {
+            receiver: user["UUID"],
+            sender: super.getUserSession(),
+            type: "getmessages",
+          };
+          this.ws.send(JSON.stringify(obj));
+        };
+      }
+      if (
+        user["UUID"] != super.getUserSession() &&
+        Object.entries(user).length > 1
+      ) {
+        ul.append(li);
+      }
+
+      // if (Object.entries(object).length == 1) {
+      //   super.showNotify("no has online user", "error");
+      // }
+      // // }
+    });
+
     parent.append(ul);
   }
 
@@ -108,6 +130,8 @@ export default class Chat extends Parent {
     let userid = super.getUserId();
     if (messages != null) {
       this.HtmlElems.messageContainer.style.display = "block";
+      this.HtmlElems.messageContainer.children["chatbox"].style.display =
+        "block";
       this.HtmlElems.messageContainer.children["chatbox"].innerHTML = "";
 
       messages.forEach((item) => {
@@ -170,7 +194,33 @@ export default class Chat extends Parent {
       // let timeStr = time.toLocaleTimeString();
       switch (msg.type) {
         case "listusers":
-          this.showOnlineUsers(msg.users);
+          //filter if have new user -> append else nothing || setInterval pause / play - if length users change
+          // for (let i = 0; i < this.users.length; i++) {
+          //   console.log(this.users[i]);
+          // }
+          //todo:
+          insert new user -> if no have this.useres
+          ds
+          // console.log(msg.users, "21", Object.entries(msg.users).length);
+          if (Object.entries(msg.users).length > 1) {
+            console.log("len ==2", this.users);
+            // for (let [key, object] of Object.entries(msg.users)) {
+            for (let [wsKey, wsUser] of Object.entries(msg.users)) {
+              console.log(wsUser["UUID"], 8, this.users);
+              this.users.forEach((user) => {
+                console.log(user, 9);
+                if (user["UUID"] !== wsUser["UUID"]) {
+                  //append new user
+                  this.users.push(wsUser);
+                  this.showOnlineUsers(this.users);
+                }
+              });
+              // }
+            }
+          } else {
+            this.users.push(msg.users);
+            this.showOnlineUsers(this.users);
+          }
           break;
         case "listmessages":
           this.HtmlElems.messageContainer.style.display = "block";
@@ -182,24 +232,22 @@ export default class Chat extends Parent {
           let span = document.createElement("span");
           let div = document.createElement("div");
           //dry
+          this.HtmlElems.messageContainer.children["chatbox"].style.display =
+            "block";
           for (let [k, v] of Object.entries(this.users)) {
             if (v["UUID"] === msg.receiver) {
               msg.aname = v.aname;
             }
           }
-
           span.textContent = `${msg.aname} : \n ${msg.message.content} ${msg.message.senttime}  `;
           div.append(span);
 
           this.HtmlElems.messageContainer.children["chatbox"].append(div);
-          // this.HtmlElems.messageContainer.children[
-          //   "chatbox"
-          // ].children.contentWindow.scrollByPages(1);
-
           this.HtmlElems.messageContainer.children["messageFieldId"].value = "";
           break;
         case "nomessages":
-          this.HtmlElems.messageContainer.style.display = "none";
+          this.HtmlElems.messageContainer.children["chatbox"].style.display =
+            "none";
           this.HtmlElems.messageContainer.children["chatbox"].innerHTML = "";
           //now no messages -> fix, show message field
           this.showChatWindow(this, msg.receiver);

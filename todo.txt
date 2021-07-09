@@ -15,6 +15,8 @@ scroll inside - chat textarea
 html elems -> in costructor ? 
 click user msg -> another users hidden
 
+listUsers -> current user click -> set className else -> delete class
+
 leave user - delete server conn - if logout or close window or change endpoint ?
 addded user online update in clien side - real time update
 
