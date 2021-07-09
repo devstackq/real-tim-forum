@@ -6,6 +6,9 @@ export default class Chat extends Parent {
     this.ws = new WebSocket("ws://localhost:6969/api/chat");
     this.users = [];
     this.chatbox = document.getElementById("chatbox");
+    this.HtmlElems = {
+      messageContainer: null,
+    };
   }
 
   setTitle(title) {
@@ -68,9 +71,10 @@ export default class Chat extends Parent {
   }
 
   sendMessage(receiver) {
-    let chatbox = document.querySelector("#chatbox");
     let uid = super.getUserId();
-    let content = document.getElementById("messageFieldId").value;
+    // let content = document.getElementById("messageFieldId").value;
+    let content =
+      this.HtmlElems.messageContainer.children["messageFieldId"].value;
     let senderUUID = super.getUserSession();
     let message = {
       content: content,
@@ -81,41 +85,40 @@ export default class Chat extends Parent {
     };
     let senderName = "";
     for (let [k, v] of Object.entries(this.users)) {
-      if (k === senderUUID) {
-        senderName = v;
+      if (v["UUID"] === senderUUID) {
+        senderName = v.aname;
       }
     }
     let div = document.createElement("div");
     let span = document.createElement("span");
     span.className = "chat_sender";
-    span.textContent = ` ${message.content} ${new Date()} ${senderName} `;
-    // chatbox.children[chatbox.children.length - 3].append(span);
-    div.append(span);
-    if (chatbox.children != undefined) {
-      if (chatbox.children.length > 2) {
-        chatbox.children[chatbox.children.length - 3].append(div);
-      } else {
-        chatbox.children[chatbox.children.length - 2].append(div);
-      }
-    }
-    document.getElementById("messageFieldId").value = "";
 
+    // span.textContent = `${msg.aname} : \n ${msg.message.content} ${msg.message.senttime}  `;
+
+    span.textContent = `${senderName} :  \n
+     ${message.content}   ${new Date().toLocaleTimeString()}  `;
+
+    div.append(span);
+    this.HtmlElems.messageContainer.children["chatbox"].append(div);
+    this.HtmlElems.messageContainer.children["messageFieldId"].value = "";
     this.ws.send(JSON.stringify(message));
-    // chatbox.children[chatbox.children.length - 2].append(li);
   }
   //DRY ?
   showListMessage(messages) {
     let userid = super.getUserId();
     if (messages != null) {
-      let chat = document.querySelector("#chatbox");
-      chat.innerHTML = "";
+      this.HtmlElems.messageContainer.style.display = "block";
+      this.HtmlElems.messageContainer.children["chatbox"].innerHTML = "";
 
       messages.forEach((item) => {
         let div = document.createElement("div");
         for (let [k, v] of Object.entries(item)) {
           let span = document.createElement("span");
-          if (v != null && v != "" && k != "sender" && k != "receiver") {
-            span.textContent = `  ${v}: `;
+
+          if (k == "aname" || k == "senttime" || k == "content") {
+            span.textContent = `${k == "aname" ? v : ""}  ${
+              k == "content" ? v : ""
+            }  ${k == "senttime" ? v : ""} \n `;
           }
           if (k == "userid") {
             if (v == userid) {
@@ -124,11 +127,10 @@ export default class Chat extends Parent {
           }
           div.append(span);
         }
-        chat.append(div);
+        this.HtmlElems.messageContainer.children["chatbox"].append(div);
       });
       //call func
       let receive = "";
-
       if (messages.length != 0) {
         receive = messages[0]["receiver"];
       }
@@ -137,22 +139,17 @@ export default class Chat extends Parent {
   }
   //dr, 00, msg.receivery
   showChatWindow(scope, receiver) {
-    document.getElementById("chatbox").style.display = "block";
     //dry?
-    let chat = document.querySelector("#chatbox");
-    let textarea = document.createElement("textarea");
-    let sendBtn = document.createElement("button");
-
-    textarea.id = "messageFieldId";
-    sendBtn.id = "sendBtnId";
-    sendBtn.textContent = "send messageq";
-    // console.log(receiver, 11, this)
-    sendBtn.onclick = this.sendMessage.bind(this, receiver);
-    chat.append(textarea);
-    chat.append(sendBtn);
+    this.HtmlElems.messageContainer.children["sendBtnId"].onclick =
+      this.sendMessage.bind(this, receiver);
+    // this.HtmlElems.messageContainer.append(chatbox);
   }
+
   //get senderId, receiverId, msg
   async init() {
+    this.HtmlElems.messageContainer =
+      document.querySelector("#message_container");
+    // this.HtmlElems.chatBox = document.getElementById("chatbox");
     //DRY
     setInterval(() => {
       console.log("call set interva ");
@@ -167,7 +164,6 @@ export default class Chat extends Parent {
     this.ws.onopen = () => this.ws.send(JSON.stringify(newuser));
 
     this.ws.onmessage = (e) => {
-      let chatBox = document.getElementById("chatbox").contentDocument;
       let text = "";
       let msg = JSON.parse(e.data);
       // let time = new Date(msg.date);
@@ -177,30 +173,34 @@ export default class Chat extends Parent {
           this.showOnlineUsers(msg.users);
           break;
         case "listmessages":
-          // document.getElementById("chatbox").innerHTML = ''
-          document.getElementById("chatbox").style.display = "block";
+          this.HtmlElems.messageContainer.style.display = "block";
+
+          document.getElementById("notify").value = "";
           this.showListMessage(msg.messages);
           break;
         case "lastmessage":
-          let chatbox = document.getElementById("chatbox");
           let span = document.createElement("span");
           let div = document.createElement("div");
-          console.log(msg);
-          span.textContent = ` ${msg.message.content} ${msg.message.senttime} ${msg.name} `;
-          div.append(span);
-          if (chatbox.children != undefined) {
-            if (chatbox.children.length > 2) {
-              chatbox.children[chatbox.children.length - 3].append(div);
-            } else {
-              chatbox.children[chatbox.children.length - 2].append(div);
+          //dry
+          for (let [k, v] of Object.entries(this.users)) {
+            if (v["UUID"] === msg.receiver) {
+              msg.aname = v.aname;
             }
           }
-          document.getElementById("messageFieldId").value = "";
+
+          span.textContent = `${msg.aname} : \n ${msg.message.content} ${msg.message.senttime}  `;
+          div.append(span);
+
+          this.HtmlElems.messageContainer.children["chatbox"].append(div);
+          // this.HtmlElems.messageContainer.children[
+          //   "chatbox"
+          // ].children.contentWindow.scrollByPages(1);
+
+          this.HtmlElems.messageContainer.children["messageFieldId"].value = "";
           break;
         case "nomessages":
-          let chat = document.querySelector("#chatbox");
-          chat.innerHTML = "";
-
+          this.HtmlElems.messageContainer.style.display = "none";
+          this.HtmlElems.messageContainer.children["chatbox"].innerHTML = "";
           //now no messages -> fix, show message field
           this.showChatWindow(this, msg.receiver);
           super.showNotify("now no messages", "error");
@@ -208,22 +208,16 @@ export default class Chat extends Parent {
       }
 
       if (text.length) {
-        chatBox.write(text);
+        // chatBox.write(text);
         document.getElementById("chatbox").contentWindow.scrollByPages(1);
       }
       // sjhow sent time, name, fix first create room, added user NOW show another cspanents
-
-      // setInterval(() => {
-      //   this.showOnlineUsers(JSON.parse(e.data));
-      // }, 5000);
-
       this.ws.onclose = function (event) {
         if (event.wasClean) {
           console.log("Обрыв соединения"); // например, "убит" процесс сервера
         }
         console.log("Код: " + event.code + " причина: " + event.reason);
       };
-
       this.ws.onerror = function (error) {
         console.log("Ошибка " + error.message);
       };
@@ -236,10 +230,11 @@ export default class Chat extends Parent {
     //listUser - dynamic, create history window, textarea, and btn -> history dynamic change data
     let body = `
     <div id="userlistbox" > </div>
-      <div style="display:none" id="chatbox" class="chat_container" >  </div>
-      <div id="message_container" >
-      </div>
-    `;
+    <div id="message_container" style='display:none' >  
+    <div id="chatbox" class="chat_container" >      </div>
+    <textarea id="messageFieldId"> </textarea>
+    <button id="sendBtnId"> Send message </button
+      </div>`;
     return super.showHeader() + body;
   }
 }

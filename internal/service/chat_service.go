@@ -32,9 +32,9 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
 	if err != nil {
 		log.Println(err, "empty room get msg")
 	}
+	ChatStorage.Receiver = m.Receiver
 	if room == "" {
 		ChatStorage.Type = "nomessages"
-		ChatStorage.Receiver = m.Receiver
 		m.Conn.WriteJSON(ChatStorage)
 		return nil
 	}
@@ -43,7 +43,6 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
 	if err != nil {
 		log.Println(err, "get msg err")
 	}
-
 	ChatStorage.Type = "listmessages"
 	ChatStorage.ListMessage = seq
 	err = m.Conn.WriteJSON(ChatStorage)
@@ -101,10 +100,11 @@ func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
 		m.Room = room
 	}
 
-	// m.Name, err = cs.repository.GetUserName(m.UserID)
-	// if err != nil {
-	// 	log.Println(err, "get username err")
-	// }
+	m.Name, err = cs.repository.GetUserName(m.UserID)
+	if err != nil {
+		log.Println(err, "get username err")
+	}
+	log.Println(m.Name, "sender naem")
 
 	err = cs.repository.AddNewMessage(m)
 	if err != nil {

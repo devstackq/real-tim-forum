@@ -228,7 +228,7 @@ export default class Parent {
        ${profile}
         ${logout}
     </nav>
-    <span class='notify' > </span> 
+    <span id='notify' class='notify' > </span> 
 `;
   }
 

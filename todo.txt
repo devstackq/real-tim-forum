@@ -9,6 +9,7 @@ dry func - service repo - > insert utils.go DRY
 
 add in global constructor listusers -> then everwhere USE -> delete pus, etc
 //if disconnect user -> delete - this.users & server side delete 
+correct show another data -> chat field
 
 scroll inside - chat textarea
 html elems -> in costructor ? 

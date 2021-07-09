@@ -21,7 +21,7 @@ type Message struct {
 	UserID   int    `json:"userid"`
 	Conn     *websocket.Conn
 	Room     string    `json:"room"`
-	Name     string    `json:"name"`
+	Name     string    `json:"aname"`
 	SentTime time.Time `json:"senttime"`
 }
 

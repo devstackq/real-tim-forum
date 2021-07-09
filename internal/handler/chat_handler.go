@@ -17,14 +17,13 @@ var upgrader = websocket.Upgrader{
 var chat = &models.Chat{
 	ListUsers:   make(map[string]*models.User, 100),
 	NewMessage:  make(chan *models.Message), // 1 time - 10 user can write
+	ListMessage: make(chan *models.Message),
 	GetUsers:    make(chan *models.User),
 	Join:        make(chan *models.User),
 	Leave:       make(chan *models.User),
-	ListMessage: make(chan *models.Message),
 }
 
 func (h *Handler) ChatHandler(w http.ResponseWriter, r *http.Request) {
-
 	// write by channel new user ->   &chat.Join <- newUser
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
