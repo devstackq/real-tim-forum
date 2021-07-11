@@ -159,7 +159,7 @@ label,
 #chatbox {
   height: 400px;
   margin-top: 6px;
-  padding: 60px 20px 0px 0px;
+  padding: 10px 20px 0px 11px;
   width: 100%;
   max-width: 800px;
   overflow-y: scroll;
@@ -187,6 +187,9 @@ label,
 #userlistbox li:hover {
   opacity: 1;
 }
+
 .current {
-  color: red;
+  color:  red;
+  background-color: #fff;
+  font-size: 20px;
 }

@@ -11,8 +11,9 @@ type User interface {
 	SigninUser(*models.User) (int, string, error)
 	Logout(string) error
 	UpdateSession(*models.Session) error
-	GetUserUuid(int) (string, error)
+	GetUserUUID(int) (string, error)
 	GetUserName(string) (string, error)
+	GetUserID(string) (int, error)
 	GetUserById(string) (*models.User, error)
 	GetCreatedUserPosts(int) (*[]models.Post, error)
 	GetUserVotedItems(int) (*[]models.Vote, error)
@@ -23,6 +24,7 @@ type Post interface {
 	GetPostsByCategory(string) (*[]models.Post, error)
 	GetPostById(string) (*models.Post, error)
 	JoinCategoryPost(string, string) error
+	GetUserID(string) (int, error)
 }
 type Vote interface {
 	GetVoteCount(*models.Vote) (*models.Vote, error)
@@ -41,6 +43,13 @@ type Chat interface {
 	IsExistRoom(m *models.Message) (string, error)
 	GetUserName(int) (string, error)
 }
+
+// type Utils interface {
+// 	GetUserUUID(int) (string, error)
+// 	GetUserName(int) (string, error)
+// 	GetUserID(string) (int, error)
+// }
+
 type Repository struct {
 	User
 	Post

@@ -5,10 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
-	"strconv"
 	"time"
-	"unicode"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
@@ -61,7 +58,7 @@ func (us *UserService) Signin(user *models.User) (int, *models.Session, error) {
 func (us *UserService) Create(user *models.User) (int, int, error) {
 	//good practice ?
 	validEmail := IsEmailValid(user)
-	validPassword := us.isPasswordValid(user)
+	validPassword := IsPasswordValid(user)
 
 	if validEmail && validPassword {
 		// if utils.AuthType == "default" {
@@ -97,33 +94,36 @@ func (us *UserService) Logout(session string) error {
 	return nil
 }
 
-func (us *UserService) GetUserById(userId string) (*models.User, error) {
-	// if userId != "" { check if have user by id ?
-	user, err := us.repository.GetUserById(userId)
+func (us *UserService) GetUserById(id string) (*models.User, error) {
+	user, err := us.repository.GetUserById(id)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (us *UserService) GetDataInDb(str string, what string) (string, error) {
-
-	var data string
-	var err error
-
-	if what == "uuid" {
-		uid, _ := strconv.Atoi(str)
-		data, err = us.repository.GetUserUuid(uid)
-		if err != nil {
-			return "", err
-		}
-	} else if what == "name" {
-		data, err = us.repository.GetUserName(str)
-		if err != nil {
-			return "", err
-		}
+func (us *UserService) GetUserUUID(userId int) (string, error) {
+	uuid, err := us.repository.GetUserUUID(userId)
+	if err != nil {
+		return "", err
 	}
-	return data, nil
+	return uuid, nil
+}
+
+func (us *UserService) GetUserID(uuid string) (int, error) {
+	userid, err := us.repository.GetUserID(uuid)
+	if err != nil {
+		return 0, err
+	}
+	return userid, nil
+}
+
+func (us *UserService) GetUserName(uuid string) (string, error) {
+	name, err := us.repository.GetUserName(uuid)
+	if err != nil {
+		return "", err
+	}
+	return name, nil
 }
 
 func (us *UserService) GetCreatedUserPosts(userId int) (*[]models.Post, error) {
@@ -143,33 +143,3 @@ func (us *UserService) GetUserVotedItems(userId int) (*[]models.Vote, error) {
 }
 
 // take out utils ? user_utils.
-func IsEmailValid(user *models.User) bool {
-	Re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,6}$`)
-	return Re.MatchString(user.Email)
-}
-
-func (us *UserService) isPasswordValid(user *models.User) bool {
-	var (
-		hasMinLen  = false
-		hasUpper   = false
-		hasLower   = false
-		hasNumber  = false
-		hasSpecial = false
-	)
-	if len(user.Password) >= 7 {
-		hasMinLen = true
-	}
-	for _, char := range user.Password {
-		switch {
-		case unicode.IsUpper(char):
-			hasUpper = true
-		case unicode.IsLower(char):
-			hasLower = true
-		case unicode.IsNumber(char):
-			hasNumber = true
-		case unicode.IsPunct(char) || unicode.IsSymbol(char):
-			hasSpecial = true
-		}
-	}
-	return hasMinLen && hasUpper && hasLower && hasNumber && hasSpecial
-}

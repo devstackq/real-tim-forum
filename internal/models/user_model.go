@@ -20,8 +20,8 @@ type User struct {
 	Username    string          `json:"username"`
 	LastSeen    string          `json:"lastseen"`
 	Conn        *websocket.Conn `json:"conn"`
-	Global      *Chat
-	UUID        string `json:"UUID"`
+	// Global      *Chat
+	UUID string `json:"UUID"`
 }
 
 type Tezt struct {

@@ -23,13 +23,18 @@ func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		//comapre db & browser cookie
-		uuid, err := h.Services.User.GetDataInDb(userId.Value, "uuid")
+		uid, err := strconv.Atoi(userId.Value)
+		if err != nil {
+			JsonResponse(w, r, http.StatusUnauthorized, "userid expires")
+			return
+		}
+		uuid, err := h.Services.User.GetUserUUID(uid)
 		if err != nil {
 			JsonResponse(w, r, http.StatusUnauthorized, "cant get cookie in db")
 			return
 		}
-		name, err := h.Services.User.GetDataInDb(userId.Value, "name")
-		log.Println(err)
+		name, err := h.Services.User.GetUserName(userId.Value)
+		// log.Println(err)
 		if err != nil {
 			JsonResponse(w, r, http.StatusInternalServerError, "cant get name in db")
 			return
@@ -44,6 +49,7 @@ func (h *Handler) IsCookieValid(f http.HandlerFunc) http.HandlerFunc {
 		} else {
 			log.Println("session is not equal in Db")
 			JsonResponse(w, r, http.StatusUnauthorized, "cookie incorrect")
+			return
 		}
 	}
 }

@@ -15,8 +15,6 @@ scroll inside - chat textarea
 html elems -> in costructor ? 
 click user msg -> another users hidden
 
-listUsers -> current user click -> set className else -> delete class
-
 leave user - delete server conn - if logout or close window or change endpoint ?
 addded user online update in clien side - real time update
 
@@ -60,6 +58,7 @@ chat.js -> if !auth -> redirect
 
 - public/follower - create - 1 logic, page create dynamic, type - other - SN
 
+
 signin -> user_id -> add map[uid : wsconn]
 uid -> sendMessage -> getUid(sender) in backend -> send message -> sender(getSenderId) -> getListUser()
  Например ws1.send(msg, receiverUuid) -> server handleWS() -> getConnByUuid([]mapClients[receiveUUid]),
@@ -83,3 +82,19 @@ use -> begintransact - concurrent query
         // another url path - > server error fix backend
 //time - correct show - backend profile
 // update, delete, etc backend
+
+-- foreign key -> on delete -> if Table A - field V, -> references -> Table B, field(id) 
+if Table B(id =3 ) - deleted -> TableA delete pointer -> field = nil
+
+Left join - 2 table join, Table A, field 2, -> Condition (ON ) TableA.fieldX = TableB.fieldX -> 
+get All Rows -> Cond - Equal
+
+fk - consistent, join, 1 table row FK - relat table2 by PK
+
+
+    // leave service
+    // setInterval -> server side, listuser ?
+          // click - active - current class user - click toodo
+      //if new user add -> server side -> ws.send - case : "newuser"
+      if user online & newmessage -> set class - new message, -> icon Ring -> add class - .msg, if read -> delete everewhere
+      

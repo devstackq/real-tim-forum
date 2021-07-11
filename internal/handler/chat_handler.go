@@ -30,11 +30,11 @@ func (h *Handler) ChatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(conn.RemoteAddr(), conn.Subprotocol(), "conn")
+	log.Println(conn.RemoteAddr(), conn.Subprotocol(), "connss")
 
 	go h.Services.Chat.Run(chat)
 
-	err = h.Services.Chat.ChatBerserker(conn, chat, Authorized.Name)
+	err = h.Services.Chat.ChatBerserker(conn, chat, Authorized.Name, Authorized.UUID)
 	if err != nil {
 		log.Println(err)
 		return

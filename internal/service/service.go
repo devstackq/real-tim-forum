@@ -10,10 +10,12 @@ type User interface {
 	Create(*models.User) (int, int, error)
 	Signin(*models.User) (int, *models.Session, error)
 	Logout(string) error
-	GetDataInDb(string, string) (string, error)
 	GetUserById(string) (*models.User, error)
 	GetCreatedUserPosts(int) (*[]models.Post, error)
 	GetUserVotedItems(int) (*[]models.Vote, error)
+	GetUserUUID(int) (string, error)
+	GetUserName(string) (string, error)
+	GetUserID(string) (int, error)
 }
 type Post interface {
 	Create(*models.Post) (int, error)
@@ -27,7 +29,7 @@ type Vote interface {
 	VoteTerminator(*models.Vote) (*models.Vote, error)
 }
 type Chat interface {
-	ChatBerserker(*websocket.Conn, *models.Chat, string) error
+	ChatBerserker(*websocket.Conn, *models.Chat, string, string) error
 	Run(*models.Chat)
 	// GetMessages(*models.Message) ([]models.Message, error)
 }

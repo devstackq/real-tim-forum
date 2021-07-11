@@ -65,7 +65,8 @@ func (ur *UserRepository) Logout(session string) error {
 func (ur *UserRepository) UpdateSession(session *models.Session) error {
 	//userid, uuid, same UserId -> remove Db, then create New-> row -> session table
 	//logout -> remove cookie by userId, cookie delete browser || expires time
-	_, err := ur.GetUserUuid(session.UserID)
+	_, err := ur.GetUserUUID(session.UserID)
+
 	if err == nil {
 		// return error.New("insert new uuid")
 		query, err := ur.db.Prepare(`UPDATE sessions SET uuid=?, cookie_time=? WHERE user_id=?`)
@@ -105,11 +106,12 @@ func (ur *UserRepository) GetUserById(uid string) (*models.User, error) {
 	return &user, nil
 }
 
-func (ur *UserRepository) GetUserUuid(uid int) (string, error) {
+func (ur *UserRepository) GetUserUUID(uid int) (string, error) {
 	var uuid string
 	query := `SELECT uuid FROM sessions WHERE user_id=?`
 	row := ur.db.QueryRow(query, uid)
 	err := row.Scan(&uuid)
+
 	if err != nil {
 		return "", err
 	}
@@ -126,6 +128,18 @@ func (ur *UserRepository) GetUserName(id string) (string, error) {
 		return "", err
 	}
 	return name, nil
+}
+
+//dry?
+func (ur *UserRepository) GetUserID(uuid string) (int, error) {
+	var userid int
+	query := `SELECT user_id FROM session WHERE uuid=?`
+	row := ur.db.QueryRow(query, uuid)
+	err := row.Scan(&userid)
+	if err != nil {
+		return 0, err
+	}
+	return userid, nil
 }
 
 //DRY func ?

@@ -18,7 +18,7 @@ type Server struct {
 func NewServer(conf *Config) *Server {
 	db, err := repository.CreateDB(conf.DbDriver, conf.DbPath)
 	if err != nil {
-		log.Println(err)
+		log.Println(err, "err create tables")
 	}
 	//prepare config, dependency , then run custom  server, DI
 	//chain interface relation between layer -> repos->services->handlers

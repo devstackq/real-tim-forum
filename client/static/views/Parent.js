@@ -15,6 +15,11 @@ export default class Parent {
       countdislike: 0,
       group: "",
     };
+this.ws = null
+  
+  }
+  getWebsocket() {
+    return this.ws
   }
 
   setPostParams(group, id) {
@@ -189,6 +194,7 @@ export default class Parent {
 
   showHeader() {
     this.getUserId();
+    this.ws = new WebSocket("ws://localhost:6969/api/chat");
 
     this.isAuth = localStorage.getItem("isAuth");
     // this.getAuthState()

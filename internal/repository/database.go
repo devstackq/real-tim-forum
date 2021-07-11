@@ -30,8 +30,7 @@ func createTables(db *sql.DB) error {
 		post_id INTEGER,
 		category_id INTEGER,
 		FOREIGN KEY(category_id) REFERENCES categories(id), 
-		FOREIGN KEY(post_id) REFERENCES posts(id) 
-		ON DELETE CASCADE )`,
+		FOREIGN KEY(post_id) REFERENCES posts(id) ON DELETE CASCADE )`,
 	)
 	if err != nil {
 		return err
@@ -47,12 +46,11 @@ func createTables(db *sql.DB) error {
 		toWho INTEGER DEFAULT 0, 
 		fromWho INTEGER DEFAULT 0, 
 		create_time DATETIME DEFAULT CURRENT_TIMESTAMP,  
-		update_time	DATETIME, 
+		update_time	DATETIME DEFAULT CURRENT_TIMESTAMP, 
 		count_like INTEGER DEFAULT 0, 
 		count_dislike  INTEGER DEFAULT 0, 
 		CONSTRAINT fk_key_post_comment 
-		FOREIGN KEY(post_id) REFERENCES posts(id) 
-		ON DELETE CASCADE )`,
+		FOREIGN KEY(post_id) REFERENCES posts(id) ON DELETE CASCADE )`,
 	)
 	if err != nil {
 		return err
@@ -61,18 +59,20 @@ func createTables(db *sql.DB) error {
 
 	post, err := db.Prepare(`CREATE TABLE IF NOT EXISTS posts(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		thread TEXT,
-		content TEXT,
+		thread TEXT  ,
+		content TEXT ,
 		creator_id INTEGER,
-		category TEXT,
 		create_time DATETIME DEFAULT CURRENT_TIMESTAMP, 
-		update_time DATETIME,
+		update_time DATETIME DEFAULT CURRENT_TIMESTAMP,
 		image BLOB,
 		count_like INTEGER DEFAULT 0,
-		count_dislike INTEGER DEFAULT 0, 
-		FOREIGN KEY(creator_id) REFERENCES users(id) 
-		ON DELETE CASCADE )`,
+		count_dislike INTEGER DEFAULT 0 ,
+		CHECK (length(content >= 20))
+		FOREIGN KEY(creator_id) REFERENCES users(id) ON DELETE CASCADE 
+		)`,
 	)
+	// FOREIGN KEY(creator_id) REFERENCES users(id) 		ON DELETE CASCADE
+
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func createTables(db *sql.DB) error {
 		created_time DATETIME DEFAULT CURRENT_TIMESTAMP, 
 		last_seen DATETIME DEFAULT CURRENT_TIMESTAMP, 
 		city TEXT, 
-		image BLOB)`,
+		image BLOB, CHECK (age >= 16) )`,
 	)
 	if err != nil {
 		return err

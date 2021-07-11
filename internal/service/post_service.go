@@ -23,7 +23,7 @@ func (ps *PostService) Create(post *models.Post) (int, error) {
 		if err != nil {
 			return http.StatusBadRequest, err
 		}
-
+		// send userid not uuid
 		for _, v := range post.Categories {
 			if v == "love" {
 				err = ps.repository.JoinCategoryPost(lastID, "2")
@@ -101,10 +101,12 @@ func (ps *PostService) GetPostsByCategory(category string) (*[]models.Post, erro
 }
 
 func (ps *PostService) GetPostById(postId string) (*models.Post, error) {
-
 	post, err := ps.repository.GetPostById(postId)
 	if err != nil {
+		log.Println(post, "pid", err)
+
 		return nil, err
 	}
+
 	return post, nil
 }
