@@ -1,5 +1,6 @@
 export default class Parent {
   constructor(text, type) {
+    this.ws = null;
     this.text = text;
     this.type = type;
     this.item = [];
@@ -15,11 +16,18 @@ export default class Parent {
       countdislike: 0,
       group: "",
     };
-this.ws = null
-  
   }
+
   getWebsocket() {
-    return this.ws
+    console.log(this.ws, "called");
+    return this.ws;
+  }
+  setOpenWebscoket() {
+    this.ws = new WebSocket("ws://localhost:6969/api/chat");
+    this.ws.open = () => {
+      this.ws.send({ type: "handshake" });
+    };
+    console.log(this.ws, "called open WTF");
   }
 
   setPostParams(group, id) {
@@ -194,8 +202,6 @@ this.ws = null
 
   showHeader() {
     this.getUserId();
-    this.ws = new WebSocket("ws://localhost:6969/api/chat");
-
     this.isAuth = localStorage.getItem("isAuth");
     // this.getAuthState()
     let login = "";

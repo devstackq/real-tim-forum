@@ -3,11 +3,10 @@ import Parent from "./Parent.js";
 export default class Chat extends Parent {
   constructor() {
     super();
-    // this.ws = new WebSocket("ws://localhost:6969/api/chat");
-    this.ws  = super.getWebscoket
+    this.ws = super.getWebsocket();
     this.users = [];
-    this.onlineUsers = new Map()
-    this.historyUsers = []
+    this.onlineUsers = new Map();
+    this.historyUsers = [];
     this.chatbox = document.getElementById("chatbox");
     this.HtmlElems = {
       messageContainer: null,
@@ -37,12 +36,12 @@ export default class Chat extends Parent {
     let parent = document.getElementById("userlistbox");
     let ul = document.getElementById("listusersID");
     ul.innerHTML = "";
-    console.log(Object.entries(object))
-    
+    console.log(Object.entries(object));
+
     // iter obj users
     for (let [k, user] of Object.entries(object)) {
       this.users.push(user);
-     this.onlineUsers.set( key, user) 
+      this.onlineUsers.set(key, user);
       let li = "";
       for (let [key, value] of Object.entries(user)) {
         if (Object.entries(user).length == 1) {
@@ -164,26 +163,24 @@ export default class Chat extends Parent {
     this.HtmlElems.messageContainer =
       document.querySelector("#message_container");
     //DRY
-    console.log(window.location.pathname);
-//parent call ?
-    let interval = null;
-//     window.location.pathname === "/chat"
-//       ? (interval = setInterval(() => {
-//           console.log("call set interva ");
-//           this.ws.send(JSON.stringify({ sender: "", type: "getusers" }));
-//         }, 9000))
-//       : clearInterval(interval);
-// // this.ws.send(JSON.stringify({ sender: super.getUserSession(), type: "leave" }));
-        
     // let newuser = {
     //   sender: super.getUserSession(),
     //   type: "newuser",
     // };
     // //client 1 enter chat service ->
-    user signin - profile -> add user -> /chat -> getListuser
-    this.ws.onopen = () => this.ws.send(JSON.stringify({type:"getusers"}));
-console.log(this.ws)
-    this.ws.onmessage = (e) => {
+    // user signin - profile -> add user -> /chat -> getListuser
+    // this.ws.open = () => {
+    this.ws.send({ type: "handshake" });
+    // };
+    console.log(this.ws.readyState, this.ws);
+    let n = new WebSocket("ws://localhost:6969/api/chat");
+    n.open = () => {
+      n.send(JSON.stringify({ type: "getusers" }));
+    };
+
+    console.log(n.readyState);
+
+    n.onmessage = (e) => {
       let text = "";
       let msg = JSON.parse(e.data);
       // let time = new Date(msg.date);
@@ -222,34 +219,32 @@ console.log(this.ws)
           this.HtmlElems.messageContainer.children["chatbox"].append(div);
           this.HtmlElems.messageContainer.children["messageFieldId"].value = "";
           break;
-          case "leave": 
-          this.onlineUsers.delete(msg.receiver)
-        console.log(this.onlineUsers)  
-          console.log( msg, 'leave user')
-      break
-        }
+        case "leave":
+          this.onlineUsers.delete(msg.receiver);
+          console.log(this.onlineUsers);
+          console.log(msg, "leave user");
+          break;
+      }
 
       if (text.length) {
         // chatBox.write(text);
         document.getElementById("chatbox").contentWindow.scrollByPages(1);
       }
       // sjhow sent time, name, fix first create room, added user NOW show another cspanents
-     
+
       this.ws.onclose = function (event) {
         // if (event.wasClean) {
-          // console.log("Обрыв соединения"); // например, "убит" процесс сервера
-      // }       
-   console.log("Обрыв соединения"); // например, "убит" процесс сервера
-      // this.ws.send(JSON.stringify(obj));
+        // console.log("Обрыв соединения"); // например, "убит" процесс сервера
+        // }
+        console.log("Обрыв соединения"); // например, "убит" процесс сервера
+        // this.ws.send(JSON.stringify(obj));
         console.log("Код: " + event.code + " причина: " + event.reason);
       };
       this.ws.onerror = function (error) {
         console.log("Ошибка " + error.message);
       };
     };
-    
   }
-  
 
   async getHtml() {
     // /?DRY
