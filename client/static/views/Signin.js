@@ -4,8 +4,6 @@ export default class Signin extends Parent {
   constructor(text, type, params) {
     super(text, type);
     this.params = params;
-
-    // this.ws = super.getWebsocket();
   }
 
   setTitle(title) {
@@ -13,7 +11,6 @@ export default class Signin extends Parent {
   }
 
   async signin() {
-    let ok = false;
     let user = {
       email: "",
       password: "",
@@ -23,36 +20,16 @@ export default class Signin extends Parent {
     let result = await super.fetch("signin", user);
     if (result !== null) {
       localStorage.setItem("isAuth", true);
-      //add user in chat system
-      //only send userid in server add new client online
-      //input name, message current user
-      ok = true;
+   //new ws - addnewuser -> work 2 ws - chat.js ?
+      window.location.replace("/profile");
     } else {
       localStorage.setItem("isAuth", false);
       super.showNotify("incorrect login or password", "error");
-    }
-    if (ok) {
-      super.setOpenWebscoket();
-      let ws = super.getWebsocket();
-
-      let newuser = {
-        sender: super.getUserSession(),
-        type: "newuser",
-      };
-      //client 1 enter chat service ->
-      ws.open = () => {
-        ws.send(JSON.stringify(newuser));
-      };
-      console.log(22, ws.readyState);
-      // setTimeout(() => {
-      //   window.location.replace("/profile");
-      // }, 1500);
     }
   }
 
   init() {
     localStorage.setItem("isAuth", false);
-
     document.querySelector("#signin").onclick = this.signin.bind(this);
   }
 

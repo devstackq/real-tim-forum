@@ -41,6 +41,7 @@ const router = async () => {
     { path: "/postcreate", view: CreatePost },
     { path: "/postget", view: ViewPost },
     { path: "/chat", view: Chat },
+    
   ];
 
   // Test each route for potential match

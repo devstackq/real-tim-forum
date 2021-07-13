@@ -1,9 +1,10 @@
-import Parent from "./Parent.js";
+import WebSocket from "./WebSocket.js";
 
-export default class Chat extends Parent {
+export default class Chat extends WebSocket {
   constructor() {
     super();
-    this.ws = super.getWebsocket();
+    this.ws = null;
+    this.wsthis.msgType = "";
     this.users = [];
     this.onlineUsers = new Map();
     this.historyUsers = [];
@@ -36,7 +37,7 @@ export default class Chat extends Parent {
     let parent = document.getElementById("userlistbox");
     let ul = document.getElementById("listusersID");
     ul.innerHTML = "";
-    console.log(Object.entries(object));
+    // console.log(Object.entries(object));
 
     // iter obj users
     for (let [k, user] of Object.entries(object)) {
@@ -70,8 +71,6 @@ export default class Chat extends Parent {
             this.ws.send(JSON.stringify(obj));
           };
         }
-        // console.log(user['UUID'], super.getUserSession())
-
         if (
           user["UUID"] != super.getUserSession() &&
           Object.entries(user).length > 1
@@ -163,24 +162,24 @@ export default class Chat extends Parent {
     this.HtmlElems.messageContainer =
       document.querySelector("#message_container");
     //DRY
-    // let newuser = {
-    //   sender: super.getUserSession(),
-    //   type: "newuser",
-    // };
+    // super.openWebSocket()
+
+    this.ws = super.getWebsocket();
+    this.ws = new WebSocket("ws://localhost:6969/api/chat");
+
+    //client 1 enter chat service ->
+    // user signin - profile -> add user -> /chat -> getListuser
+
     // //client 1 enter chat service ->
     // user signin - profile -> add user -> /chat -> getListuser
-    // this.ws.open = () => {
-    this.ws.send({ type: "handshake" });
-    // };
-    console.log(this.ws.readyState, this.ws);
-    let n = new WebSocket("ws://localhost:6969/api/chat");
-    n.open = () => {
-      n.send(JSON.stringify({ type: "getusers" }));
+    let init = {
+      type: "handshake",
+    };
+    this.ws.open = () => {
+      this.ws.send(JSON.stringify(init));
     };
 
-    console.log(n.readyState);
-
-    n.onmessage = (e) => {
+    this.ws.onmessage = (e) => {
       let text = "";
       let msg = JSON.parse(e.data);
       // let time = new Date(msg.date);
@@ -223,6 +222,10 @@ export default class Chat extends Parent {
           this.onlineUsers.delete(msg.receiver);
           console.log(this.onlineUsers);
           console.log(msg, "leave user");
+          break;
+
+        case "success":
+          console.log("handshake connected");
           break;
       }
 

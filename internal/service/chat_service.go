@@ -147,9 +147,14 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 	body := models.Message{}
 
 	for {
-		fmt.Println(body.Type, "jzon")
 		// err = conn.ReadJSON(&body)
 		_, msg, errk := conn.ReadMessage()
+		err := json.Unmarshal(msg, &body)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(body.Type, "jzon")
 
 		if code, ok := errk.(*websocket.CloseError); ok {
 			// if c.Code == 1000 {
@@ -170,16 +175,9 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 				log.Println("user leave", ok)
 				break
 			}
-
-		}
-		err := json.Unmarshal(msg, &body)
-
-		if err != nil {
-			return err
 		}
 
 		// if strings.TrimSpace(username) == "" {
-
 		if body.Type == "newuser" {
 			user := &models.User{
 				UUID:     body.Sender,

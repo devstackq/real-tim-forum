@@ -1,8 +1,9 @@
-import Parent from "./Parent.js";
+import WebSocket from "./WebSocket.js";
 
-export default class Profile extends Parent {
+export default class Profile extends WebSocket {
   constructor(params) {
     super();
+    this.user={added :false}
     this.params = params;
   }
   setTitle(title) {
@@ -15,6 +16,25 @@ export default class Profile extends Parent {
     if (response.status === 200) {
       let result = await response.json();
       super.renderSequence(result);
+// 1 time call ?
+r&d -> ws class in js -> or use -> helper func 
+
+console.log(this.user.added)
+if(!this.user.added) {
+      let ws = new WebSocket('ws://localhost:6969/api/chat')
+      let newuser = {
+        sender: super.getUserSession(),
+        type: "newuser"
+      };
+      console.log('send req wss', newuser)
+      ws.onopen = () => {
+        ws.send(JSON.stringify(newuser));
+      };
+      this.user.addded = true
+      // wtf ?
+    }
+      // super.openNewWs() //new conn
+      // super.addNewUser() //add new user in system
     } else {
       super.showNotify(response.statusText, "error");
       super.showHeader();
