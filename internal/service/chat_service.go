@@ -59,15 +59,22 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
 //open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
 func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 	//fill user.Name -> in db, by uuid  u.Conn
-	c.ListUsers[u.UUID] = u //add conn ws, & name by [uuid key]
-	ChatStorage.Type = "listusers"
+
+	ChatStorage.Type = "observeusers"
+	//no duplicate add user
+	c.ListUsers[u.UUID] = u
 	ChatStorage.ListUsers = c.ListUsers // get gloabal var, map[uuid]name
 
 	for _, v := range ChatStorage.ListUsers {
 		v.Conn.WriteJSON(ChatStorage)
 	}
 	//add new user in map -> each connected user  send -> newuser
-	// cs.getListUsers(u, c)
+}
+
+func (cs *ChatService) getUsers(u *models.User) {
+	ChatStorage.Type = "getusers"
+	u.Conn.WriteJSON(ChatStorage)
+	log.Println(ChatStorage.ListUsers, "list")
 }
 
 func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
@@ -113,10 +120,15 @@ func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
 		// defer rec.Close()
 	}
 }
-func (cs *ChatService) getUsers(u *models.User) {
-	ChatStorage.Type = "listusers"
-	// ChatStorage.ListUsers
-	u.Conn.WriteJSON(ChatStorage)
+func (cs *ChatService) leaveUser(c *models.Chat, u *models.User) {
+	ChatStorage.Type = "observeusers"
+	// ChatStorage.Type = "leave"
+	ChatStorage.Receiver = u.UUID
+	delete(c.ListUsers, u.UUID)
+	for _, v := range ChatStorage.ListUsers {
+		v.Conn.WriteJSON(ChatStorage)
+	}
+	log.Println("user leave")
 }
 
 //1 main -> Start() ->  createEmptyObjecetChat -> 2 ws Handler, newConn -> 3 go Run() // goruutine each newConn(user)
@@ -132,8 +144,11 @@ func (cs *ChatService) Run(c *models.Chat) {
 			cs.getMessages(list, c)
 		case users := <-c.GetUsers:
 			cs.getUsers(users)
-			// default :
+		case user := <-c.Leave:
+			cs.leaveUser(c, user)
 		}
+		// default :
+
 	}
 }
 
@@ -147,6 +162,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 	body := models.Message{}
 
 	for {
+		log.Println(c.ListUsers, "chatBers")
 		// err = conn.ReadJSON(&body)
 		_, msg, errk := conn.ReadMessage()
 		err := json.Unmarshal(msg, &body)
@@ -165,20 +181,14 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 			//logout, close tab -> leave
 			log.Println(code.Code, "codet")
 			if code.Code == 1001 {
-				ChatStorage.Type = "leave"
-				ChatStorage.Receiver = uuid
-				delete(c.ListUsers, uuid)
-
-				for _, v := range ChatStorage.ListUsers {
-					v.Conn.WriteJSON(ChatStorage)
-				}
-				log.Println("user leave", ok)
+				cs.leaveUser(c, &models.User{UUID: body.Sender})
 				break
 			}
 		}
 
 		// if strings.TrimSpace(username) == "" {
 		if body.Type == "newuser" {
+			log.Println(body, "newuser")
 			user := &models.User{
 				UUID:     body.Sender,
 				Conn:     conn, //set conn current user
@@ -214,6 +224,13 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 				Conn: conn,
 			}
 			c.GetUsers <- users
+		}
+		if body.Type == "leave" {
+			user := &models.User{
+				Conn: conn,
+				UUID: body.Sender,
+			}
+			c.Leave <- user
 		}
 	}
 	defer conn.Close()

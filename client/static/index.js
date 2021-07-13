@@ -6,6 +6,7 @@ import Logout from "./views/Logout.js";
 import CreatePost from "./views/CreatePost.js";
 import ViewPost from "./views/Post.js";
 import Chat from "./views/Chat.js";
+import { wsInit } from "./views/WebSocket.js";
 
 const pathToRegex = (path) =>
   new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
@@ -25,6 +26,8 @@ const getParams = (match) => {
 const navigateTo = (url) => {
   history.pushState(null, null, url);
   console.log(url, "url");
+  //if url == '/chat
+
   router();
 };
 
@@ -41,7 +44,6 @@ const router = async () => {
     { path: "/postcreate", view: CreatePost },
     { path: "/postget", view: ViewPost },
     { path: "/chat", view: Chat },
-    
   ];
 
   // Test each route for potential match
@@ -62,11 +64,9 @@ const router = async () => {
       result: [location.pathname],
     };
   }
-  // console.log(match, 123)
   const view = new match.route.view(getParams(match));
   view.setTitle(match.result[0]);
   document.querySelector("#app").innerHTML = await view.getHtml();
-
   // let date = new Date(Date.now() + 86400);expires=${date.toUTCString()
   document.cookie = `category=${match.result[0]}; path=/; sameSite: "Lax";`;
   view.init();
@@ -83,3 +83,16 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   router();
 });
+
+//getusers
+//open conn, hear events:
+// if (window.location.pathname == "/signin") {
+//   addNewUser()
+// }
+
+// if (window.location.pathname == "/chat") {
+//   // let response = fetch(`${url}/api/listusers`);
+//   wsInit();
+// }
+
+export default router;

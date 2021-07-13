@@ -97,4 +97,7 @@ fk - consistent, join, 1 table row FK - relat table2 by PK
           // click - active - current class user - click toodo
       //if new user add -> server side -> ws.send - case : "newuser"
       if user online & newmessage -> set class - new message, -> icon Ring -> add class - .msg, if read -> delete everewhere
-      
+      //fix - style - position chat users - and chat window, style
+      //uyse debounce - getScrollMessages
+
+      //if server exit -> reload users in system ?, if have session -> restore /chat

@@ -1,4 +1,7 @@
 import Parent from "./Parent.js";
+import { wsConn, uuid } from "./WebSocket.js";
+import { listUsers } from "./HandleUsers.js";
+import router from "../index.js";
 
 export default class extends Parent {
   constructor(params) {
@@ -13,10 +16,17 @@ export default class extends Parent {
     let response = await fetch("http://localhost:6969/api/logout");
     if (response.status === 200) {
       //delete cookie & auth state false
+      wsConn.send(JSON.stringify({ type: "leave", sender: uuid }));
+      // listUsers.remove();
+      listUsers.delete(uuid);
+
       document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
       document.cookie = "user_id=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
       localStorage.setItem("isAuth", false);
-      window.location.replace("/all");
+
+      history.pushState(null, "profile", "http://localhost:6969/all");
+      window.addEventListener("popstate", router());
+      // window.location.replace("/all");
     } else {
       console.log("error logout");
       super.showNotify(response.statusText, "error");

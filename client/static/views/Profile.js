@@ -1,9 +1,8 @@
-import WebSocket from "./WebSocket.js";
+import Parent from "./Parent.js";
 
-export default class Profile extends WebSocket {
+export default class Profile extends Parent {
   constructor(params) {
     super();
-    this.user={added :false}
     this.params = params;
   }
   setTitle(title) {
@@ -12,32 +11,14 @@ export default class Profile extends WebSocket {
 
   async init() {
     let response = await fetch("http://localhost:6969/api/profile");
-    // console.log(response, "porifle");
     if (response.status === 200) {
       let result = await response.json();
       super.renderSequence(result);
-// 1 time call ?
-r&d -> ws class in js -> or use -> helper func 
-
-console.log(this.user.added)
-if(!this.user.added) {
-      let ws = new WebSocket('ws://localhost:6969/api/chat')
-      let newuser = {
-        sender: super.getUserSession(),
-        type: "newuser"
-      };
-      console.log('send req wss', newuser)
-      ws.onopen = () => {
-        ws.send(JSON.stringify(newuser));
-      };
-      this.user.addded = true
-      // wtf ?
-    }
-      // super.openNewWs() //new conn
-      // super.addNewUser() //add new user in system
+      // super.getAuthState();
     } else {
       super.showNotify(response.statusText, "error");
       super.showHeader();
+      //popstate
       window.location.replace("/signin");
     }
     document.querySelector("#editBio").onclick = () => {

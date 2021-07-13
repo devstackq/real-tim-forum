@@ -1,8 +1,10 @@
+import router from "../index.js";
 import Parent from "./Parent.js";
+import { wsInit } from "./WebSocket.js";
 
 export default class Signin extends Parent {
-  constructor(text, type, params) {
-    super(text, type);
+  constructor(params) {
+    super();
     this.params = params;
   }
 
@@ -20,8 +22,10 @@ export default class Signin extends Parent {
     let result = await super.fetch("signin", user);
     if (result !== null) {
       localStorage.setItem("isAuth", true);
-   //new ws - addnewuser -> work 2 ws - chat.js ?
-      window.location.replace("/profile");
+      wsInit("signin", result.uuid);
+      // addNewUser(result.uuid); //or call index?
+      history.pushState(null, "profile", "http://localhost:6969/profile");
+      window.addEventListener("popstate", router());
     } else {
       localStorage.setItem("isAuth", false);
       super.showNotify("incorrect login or password", "error");
@@ -29,7 +33,7 @@ export default class Signin extends Parent {
   }
 
   init() {
-    localStorage.setItem("isAuth", false);
+    // localStorage.setItem("isAuth", false);
     document.querySelector("#signin").onclick = this.signin.bind(this);
   }
 

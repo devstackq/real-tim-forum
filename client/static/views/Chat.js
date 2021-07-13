@@ -1,10 +1,11 @@
-import WebSocket from "./WebSocket.js";
+import Parent from "./Parent.js";
+import { wsInit, wsConn } from "./WebSocket.js";
 
-export default class Chat extends WebSocket {
+export default class Chat extends Parent {
   constructor() {
     super();
-    this.ws = null;
-    this.wsthis.msgType = "";
+    this.ws = wsConn;
+    this.msgType = "";
     this.users = [];
     this.onlineUsers = new Map();
     this.historyUsers = [];
@@ -151,8 +152,6 @@ export default class Chat extends WebSocket {
   }
   //dr, 00, msg.receivery
   showChatWindow(scope, receiver) {
-    //dry?
-
     this.HtmlElems.messageContainer.children["sendBtnId"].onclick =
       this.sendMessage.bind(this, receiver);
   }
@@ -162,91 +161,86 @@ export default class Chat extends WebSocket {
     this.HtmlElems.messageContainer =
       document.querySelector("#message_container");
     //DRY
-    // super.openWebSocket()
+    console.log(wsConn, "conn in chat");
 
-    this.ws = super.getWebsocket();
-    this.ws = new WebSocket("ws://localhost:6969/api/chat");
+    wsInit("chat", null);
 
-    //client 1 enter chat service ->
-    // user signin - profile -> add user -> /chat -> getListuser
+    //chat funcs here todo to
+    //   let ws = super.getWebsocket();
 
-    // //client 1 enter chat service ->
-    // user signin - profile -> add user -> /chat -> getListuser
-    let init = {
-      type: "handshake",
-    };
-    this.ws.open = () => {
-      this.ws.send(JSON.stringify(init));
-    };
+    //   console.log(ws, 9);
+    //   ws.send(JSON.stringify({ type: "handshake" }));
+    //   // //client 1 enter chat service ->
+    //   // user signin - profile -> add user -> /chat -> getListuser
 
-    this.ws.onmessage = (e) => {
-      let text = "";
-      let msg = JSON.parse(e.data);
-      // let time = new Date(msg.date);
-      // let timeStr = time.toLocaleTimeString();
-      switch (msg.type) {
-        case "listusers":
-          this.showOnlineUsers(msg.users);
-          break;
-        case "listmessages":
-          document.getElementById("notify").value = "";
-          this.HtmlElems.messageContainer.children["chatbox"].style.display =
-            "block";
-          this.showListMessage(msg.messages);
-          break;
-        case "nomessages":
-          this.HtmlElems.messageContainer.children["chatbox"].style.display =
-            "none";
-          this.HtmlElems.messageContainer.style.display = "block";
-          this.HtmlElems.messageContainer.children["chatbox"].innerHTML = "";
-          //now no messages -> fix, show message field
-          this.showChatWindow(this, msg.receiver);
-          super.showNotify("now no messages", "error");
-          break;
+    //   this.ws.onmessage = (e) => {
+    //     let text = "";
+    //     let msg = JSON.parse(e.data);
+    //     // let time = new Date(msg.date);
+    //     // let timeStr = time.toLocaleTimeString();
+    //     switch (msg.type) {
+    //       case "listusers":
+    //         this.showOnlineUsers(msg.users);
+    //         break;
+    //       case "listmessages":
+    //         document.getElementById("notify").value = "";
+    //         this.HtmlElems.messageContainer.children["chatbox"].style.display =
+    //           "block";
+    //         this.showListMessage(msg.messages);
+    //         break;
+    //       case "nomessages":
+    //         this.HtmlElems.messageContainer.children["chatbox"].style.display =
+    //           "none";
+    //         this.HtmlElems.messageContainer.style.display = "block";
+    //         this.HtmlElems.messageContainer.children["chatbox"].innerHTML = "";
+    //         //now no messages -> fix, show message field
+    //         this.showChatWindow(this, msg.receiver);
+    //         super.showNotify("now no messages", "error");
+    //         break;
 
-        case "lastmessage":
-          let span = document.createElement("span");
-          let div = document.createElement("div");
-          //dry
-          // fix receive - sender -> message -> correct show name
-          //chat setInterval work only if -> /router -> caht
-          //           left join - refactor
-          // fix - another user choice 1 ->hide / show
-          //how much time call create db ?
-          span.textContent = `${msg.message.aname} : \n ${msg.message.content} ${msg.message.senttime}  `;
-          div.append(span);
-          this.HtmlElems.messageContainer.children["chatbox"].append(div);
-          this.HtmlElems.messageContainer.children["messageFieldId"].value = "";
-          break;
-        case "leave":
-          this.onlineUsers.delete(msg.receiver);
-          console.log(this.onlineUsers);
-          console.log(msg, "leave user");
-          break;
+    //       case "lastmessage":
+    //         let span = document.createElement("span");
+    //         let div = document.createElement("div");
+    //         //dry
+    //         // fix receive - sender -> message -> correct show name
+    //         //chat setInterval work only if -> /router -> caht
+    //         //           left join - refactor
+    //         // fix - another user choice 1 ->hide / show
+    //         //how much time call create db ?
+    //         span.textContent = `${msg.message.aname} : \n ${msg.message.content} ${msg.message.senttime}  `;
+    //         div.append(span);
+    //         this.HtmlElems.messageContainer.children["chatbox"].append(div);
+    //         this.HtmlElems.messageContainer.children["messageFieldId"].value = "";
+    //         break;
+    //       case "leave":
+    //         this.onlineUsers.delete(msg.receiver);
+    //         console.log(this.onlineUsers);
+    //         console.log(msg, "leave user");
+    //         break;
 
-        case "success":
-          console.log("handshake connected");
-          break;
-      }
+    //       case "success":
+    //         console.log("handshake connected");
+    //         break;
+    //     }
 
-      if (text.length) {
-        // chatBox.write(text);
-        document.getElementById("chatbox").contentWindow.scrollByPages(1);
-      }
-      // sjhow sent time, name, fix first create room, added user NOW show another cspanents
+    //     if (text.length) {
+    //       // chatBox.write(text);
+    //       document.getElementById("chatbox").contentWindow.scrollByPages(1);
+    //     }
+    //     // sjhow sent time, name, fix first create room, added user NOW show another cspanents
 
-      this.ws.onclose = function (event) {
-        // if (event.wasClean) {
-        // console.log("Обрыв соединения"); // например, "убит" процесс сервера
-        // }
-        console.log("Обрыв соединения"); // например, "убит" процесс сервера
-        // this.ws.send(JSON.stringify(obj));
-        console.log("Код: " + event.code + " причина: " + event.reason);
-      };
-      this.ws.onerror = function (error) {
-        console.log("Ошибка " + error.message);
-      };
-    };
+    //     this.ws.onclose = function (event) {
+    //       // if (event.wasClean) {
+    //       // console.log("Обрыв соединения"); // например, "убит" процесс сервера
+    //       // }
+    //       console.log("Обрыв соединения"); // например, "убит" процесс сервера
+    //       // this.ws.send(JSON.stringify(obj));
+    //       console.log("Код: " + event.code + " причина: " + event.reason);
+    //     };
+    //     this.ws.onerror = function (error) {
+    //       console.log("Ошибка " + error.message);
+    //     };
+    //   };
   }
 
   async getHtml() {

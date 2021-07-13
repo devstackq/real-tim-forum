@@ -1,3 +1,4 @@
+let singletonInstance = null;
 export default class Parent {
   constructor(text, type) {
     this.text = text;
@@ -6,6 +7,7 @@ export default class Parent {
     this.userId = 0;
     this.session = "";
     this.isAuth = "";
+    this.auth = { state: false };
     // this.category =  document.cookie.split(";")[2].slice(11)
     this.vote = {
       id: 0,
@@ -15,8 +17,14 @@ export default class Parent {
       countdislike: 0,
       group: "",
     };
-  }
+    // if (!singletonInstance) {
+    //   console.log("init");
 
+    //   singletonInstance = this;
+    // }
+    // console.log(singletonInstance, "Parent");
+    // return singletonInstance;
+  }
 
   setPostParams(group, id) {
     this.vote.group = group;
@@ -35,6 +43,10 @@ export default class Parent {
     }
   }
 
+  setAuthState() {
+    this.auth.state = true;
+    this.isAuth = "true";
+  }
   getAuthState() {
     if (document.cookie.split(";").length > 1) {
       return (this.isAuth = localStorage.getItem("isAuth"));
@@ -63,28 +75,30 @@ export default class Parent {
   }
 
   renderSequence(object, ...type) {
-    if (type == "#postById") {
-      this.render([object], `${type}`, "");
-    }
-    if (object.User != null) {
-      this.render([object.User], ".bioUser", "User data ");
-    }
-    if (object.Posts != null) {
-      this.render(object.Posts, ".postsUser", "Created posts");
-    }
-
-    if (object.VotedItems != null) {
-      this.render(object.VotedItems, ".votedPost", "Voted posts");
-    }
-    if (object != null && type == "posts") {
-      let category = "";
-      if (this.isAuth == "true") {
-        //use regex?
-        category = document.cookie.split(";")[2].slice(11);
-      } else if (this.isAuth == "false") {
-        category = document.cookie.split(";")[0].slice(10);
+    if (object != null) {
+      if (type == "#postById") {
+        this.render([object], `${type}`, "");
       }
-      this.render(object, ".postContainer", `${category} posts`);
+      if (object.User != null) {
+        this.render([object.User], ".bioUser", "User data ");
+      }
+      if (object.Posts != null) {
+        this.render(object.Posts, ".postsUser", "Created posts");
+      }
+
+      if (object.VotedItems != null) {
+        this.render(object.VotedItems, ".votedPost", "Voted posts");
+      }
+      if (object != null && type == "posts") {
+        let category = "";
+        if (this.isAuth == "true") {
+          //use regex?
+          category = document.cookie.split(";")[2].slice(11);
+        } else if (this.isAuth == "false") {
+          category = document.cookie.split(";")[0].slice(10);
+        }
+        this.render(object, ".postContainer", `${category} posts`);
+      }
     }
   }
 
@@ -241,5 +255,4 @@ export default class Parent {
       notify.style.display = "none";
     }
   }
-  
 }
