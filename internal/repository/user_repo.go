@@ -66,6 +66,7 @@ func (ur *UserRepository) UpdateSession(session *models.Session) error {
 	//userid, uuid, same UserId -> remove Db, then create New-> row -> session table
 	//logout -> remove cookie by userId, cookie delete browser || expires time
 	_, err := ur.GetUserUUID(session.UserID)
+	// delete in global variable
 
 	if err == nil {
 		// return error.New("insert new uuid")

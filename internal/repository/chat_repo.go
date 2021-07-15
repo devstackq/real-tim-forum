@@ -118,9 +118,6 @@ func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 			return "", err
 		}
 	}
-
-	log.Println(room, 2)
-
 	return room, nil
 }
 

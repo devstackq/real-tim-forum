@@ -42,6 +42,7 @@ type Chat interface {
 	AddNewRoom(m *models.Message) error
 	IsExistRoom(m *models.Message) (string, error)
 	GetUserName(int) (string, error)
+	GetUserID(string) (int, error)
 }
 
 // type Utils interface {

@@ -59,26 +59,54 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
 //open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
 func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 	//fill user.Name -> in db, by uuid  u.Conn
-
 	ChatStorage.Type = "observeusers"
 	//no duplicate add user
+	// 	userid, err := cs.repository.GetUserID(u.UUID)
+	// 	if err != nil {
+	// 		log.Println(err)
+	// 	}
+	//2 cookie valid ? loop -if not - delete
+	//2 signin -> session update -> update in Map Users
+	//ach add new user -> check if have in db ?
+	log.Println(len(c.ListUsers), len(ChatStorage.ListUsers), 1, u.UUID)
+
+	// if len(c.ListUsers) > 1 {
+	// 	for k, v := range c.ListUsers {
+	// 		log.Println(k, 2, v)
+	// 		//ifhave session
+	// 		userid, err := cs.repository.GetUserID(k)
+	// 		if err != nil {
+	// 			log.Println(err, "err uid")
+	// 		}
+	// 		log.Println(userid, "uid")
+	// 		if userid > 0 {
+	// 			c.ListUsers[u.UUID] = u
+	// 		} else {
+	// 			delete(c.ListUsers, k)
+	// 		}
+	// 	}
+	// } else {
+	// 	c.ListUsers[u.UUID] = u
+	// }
 	c.ListUsers[u.UUID] = u
 	ChatStorage.ListUsers = c.ListUsers // get gloabal var, map[uuid]name
-
 	for _, v := range ChatStorage.ListUsers {
 		v.Conn.WriteJSON(ChatStorage)
 	}
+	log.Println(ChatStorage.ListUsers, "add list user")
 	//add new user in map -> each connected user  send -> newuser
 }
 
 func (cs *ChatService) getUsers(u *models.User) {
+	//check if users have in session
+
 	ChatStorage.Type = "getusers"
 	u.Conn.WriteJSON(ChatStorage)
-	log.Println(ChatStorage.ListUsers, "list")
+
+	log.Println(ChatStorage.ListUsers, "get user list")
 }
 
 func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
-
 	// if c.Users[m.Receiver] == uuidReceiverInDB?
 	//save db in message, caht table & message, add author, date message
 	//send msg - to  conn - receiver if have in server
@@ -120,15 +148,16 @@ func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
 		// defer rec.Close()
 	}
 }
+
 func (cs *ChatService) leaveUser(c *models.Chat, u *models.User) {
-	ChatStorage.Type = "observeusers"
-	// ChatStorage.Type = "leave"
-	ChatStorage.Receiver = u.UUID
+	// ChatStorage.Type = "observeusers"
+	ChatStorage.Type = "leave"
+	// ChatStorage.Receiver = u.UUID
 	delete(c.ListUsers, u.UUID)
 	for _, v := range ChatStorage.ListUsers {
 		v.Conn.WriteJSON(ChatStorage)
 	}
-	log.Println("user leave")
+	log.Println("user leave", ChatStorage.ListUsers)
 }
 
 //1 main -> Start() ->  createEmptyObjecetChat -> 2 ws Handler, newConn -> 3 go Run() // goruutine each newConn(user)
@@ -162,7 +191,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 	body := models.Message{}
 
 	for {
-		log.Println(c.ListUsers, "chatBers")
+		// log.Println(c.ListUsers, "chatBers")
 		// err = conn.ReadJSON(&body)
 		_, msg, errk := conn.ReadMessage()
 		err := json.Unmarshal(msg, &body)
@@ -186,17 +215,6 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 			}
 		}
 
-		// if strings.TrimSpace(username) == "" {
-		if body.Type == "newuser" {
-			log.Println(body, "newuser")
-			user := &models.User{
-				UUID:     body.Sender,
-				Conn:     conn, //set conn current user
-				FullName: name,
-			}
-			c.Join <- user
-		}
-
 		if body.Type == "getmessages" {
 			messages := &models.Message{
 				Conn:     conn,
@@ -218,7 +236,16 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 			}
 			c.NewMessage <- message
 		}
-
+		// if strings.TrimSpace(username) == "" {
+		if body.Type == "newuser" {
+			// log.Println(body, "newuser")
+			user := &models.User{
+				UUID:     body.Sender,
+				Conn:     conn, //set conn current user
+				FullName: name,
+			}
+			c.Join <- user
+		}
 		if body.Type == "getusers" {
 			users := &models.User{
 				Conn: conn,
@@ -234,7 +261,6 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 		}
 	}
 	defer conn.Close()
-
 	// cs.Reader(conn)
 	return nil
 

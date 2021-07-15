@@ -1,18 +1,18 @@
 import { showListUser, addNewUser } from "./HandleUsers.js";
 
 export let wsConn = null;
-export let uuid = null;
 
-export const wsInit = (type, ...args) => {
-  if (uuid == null) {
-    uuid = args[0];
-    //set uuid
-    if (uuid == null) {
-      if (document.cookie.split(";").length > 1) {
-        uuid = document.cookie.split(";")[0].slice(8).toString();
-      }
-    }
+export const getSession = () => {
+  if (document.cookie.split(";").length > 1) {
+    return document.cookie.split(";")[0].slice(8).toString();
   }
+};
+
+// add user - send uuid
+export const wsInit = (type, ...args) => {
+  // if (uuid == null) {
+  // let uuid = args[0];
+  // }
 
   if (wsConn == null) {
     console.log(wsConn, "val, singleton?");
@@ -21,30 +21,27 @@ export const wsInit = (type, ...args) => {
   if (type == "signin" && wsConn != null) {
     addNewUser(args[0]);
   } else if (type == "chat" && wsConn != null) {
-    if (wsConn != null) {
-      if (wsConn.readyState == 1) {
-        wsConn.send(JSON.stringify({ type: "getusers" }));
-      }
+    if (wsConn != null && wsConn.readyState == 1) {
+      wsConn.send(JSON.stringify({ type: "getusers" }));
     }
   }
 
   // if (super.getAuthState() == "true") {
   wsConn.onmessage = (e) => {
+    // let uuid = getSession();
+    console.log("getuser sess");
     let message = JSON.parse(e.data);
     // let time = new Date(message.date);
     switch (message.type) {
       case "observeusers":
-        if (type == "chat") {
-          //show Uniq users Map /
-          console.log(" for all users", message.users);
-          showListUser(message.users, uuid);
-        }
+        //update user list -> all conns
+        //show Uniq users Map /
+        console.log("for all users", message.users);
+        showListUser(message.users);
         break;
       case "getusers":
-        if (type == "chat") {
-          console.log("get users", uuid);
-          showListUser(message.users, uuid);
-        }
+        //get user own client
+        showListUser(message.users);
         break;
       // case "listmessages":
       //   document.getElementById("notify").value = "";
@@ -78,8 +75,10 @@ export const wsInit = (type, ...args) => {
       //   break;
       case "leave":
         // this.onlineUsers.delete(message.receiver);
-        // console.log(this.onlineUsers);
+        // console.log(this.onlineUsers, uuid);
         console.log(message, "leave user");
+        showListUser(message.users);
+        //delete here user from listUsers[uuid], rerender
         break;
     }
 
