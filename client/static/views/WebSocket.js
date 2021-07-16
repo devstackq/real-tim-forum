@@ -1,41 +1,34 @@
 import { showListUser, addNewUser } from "./HandleUsers.js";
+import { showListMessages } from "./Chat.js";
 
 export let wsConn = null;
 
 export const getSession = () => {
-  if (document.cookie.split(";").length > 1) {
+  // console.log(document.cookie.split(";").length, " len");
+  if (document.cookie.split(";").length === 3) {
     return document.cookie.split(";")[0].slice(8).toString();
   }
 };
 
-// add user - send uuid
-export const wsInit = (type, ...args) => {
-  // if (uuid == null) {
-  // let uuid = args[0];
-  // }
+export const getUserId = () => {
+  if (document.cookie.split(";").length == 3) {
+    return document.cookie.split(";")[1].slice(9).toString();
+  }
+};
 
+// add user - send uuid
+export const wsInit = (...args) => {
   if (wsConn == null) {
     console.log(wsConn, "val, singleton?");
     wsConn = new WebSocket("ws://localhost:6969/api/chat");
-  }
-  if (type == "signin" && wsConn != null) {
     addNewUser(args[0]);
-  } else if (type == "chat" && wsConn != null) {
-    if (wsConn != null && wsConn.readyState == 1) {
-      wsConn.send(JSON.stringify({ type: "getusers" }));
-    }
   }
-
-  // if (super.getAuthState() == "true") {
   wsConn.onmessage = (e) => {
-    // let uuid = getSession();
     console.log("getuser sess");
     let message = JSON.parse(e.data);
-    // let time = new Date(message.date);
     switch (message.type) {
       case "observeusers":
         //update user list -> all conns
-        //show Uniq users Map /
         console.log("for all users", message.users);
         showListUser(message.users);
         break;
@@ -43,12 +36,17 @@ export const wsInit = (type, ...args) => {
         //get user own client
         showListUser(message.users);
         break;
-      // case "listmessages":
-      //   document.getElementById("notify").value = "";
-      //   this.HtmlElems.messageContainer.children["chatbox"].style.display =
-      //     "block";
-      //   this.showListMessage(message.messages);
-      //   break;
+      case "listmessages":
+        document.getElementById("notify").value = "";
+        // this.HtmlElems.messageContainer.children["chatbox"].style.display =
+        //   "block";
+        showListMessages(
+          message.messages,
+          getUserId(),
+          getSession(),
+          message.users
+        );
+        break;
       // case "nomessages":
       //   this.HtmlElems.messageContainer.children["chatbox"].style.display =
       //     "none";
@@ -75,7 +73,6 @@ export const wsInit = (type, ...args) => {
       //   break;
       case "leave":
         // this.onlineUsers.delete(message.receiver);
-        // console.log(this.onlineUsers, uuid);
         console.log(message, "leave user");
         showListUser(message.users);
         //delete here user from listUsers[uuid], rerender
@@ -83,8 +80,12 @@ export const wsInit = (type, ...args) => {
     }
 
     wsConn.onclose = function (event) {
-      console.log("Обрыв соединения");
-      console.log("Код: " + event.code + " причина: " + event.reason);
+      console.log(
+        " Обрыв соединения, Код: " + event.code + " причина: " + event.reason
+      );
+      //   wsConn.send(JSON.stringify({ type: "leave", sender: getSession() }));
+      wsConn.close();
+      // wsConn.send(JSON.stringify({ type: "close" }));
     };
     wsConn.onerror = function (error) {
       console.log("Ошибка " + error.message);

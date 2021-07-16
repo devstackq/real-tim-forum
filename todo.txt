@@ -101,3 +101,11 @@ fk - consistent, join, 1 table row FK - relat table2 by PK
       //uyse debounce - getScrollMessages
 
       //if server exit -> reload users in system ?, if have session -> restore /chat
+
+      //  f5 click -> new request -> get users()
+
+      fix correct show list user, leave user, reSession case added, server shutdown -> reconnect () but have refresh page
+
+      fix : signin -> redirect profile - crorrect ? fix, fix -> chat click -> update page
+      fix2: chatWindows -> click -> profile -> again click Chat - mot work or its ok ??
+

@@ -34,213 +34,23 @@ export default class Chat extends Parent {
   //uuid receiver & send my uuid
   //show all user - except yourself todo:
 
-  showOnlineUsers(object) {
-    let parent = document.getElementById("userlistbox");
-    let ul = document.getElementById("listusersID");
-    ul.innerHTML = "";
-    // console.log(Object.entries(object));
-
-    // iter obj users
-    for (let [k, user] of Object.entries(object)) {
-      this.users.push(user);
-      this.onlineUsers.set(key, user);
-      let li = "";
-      for (let [key, value] of Object.entries(user)) {
-        if (Object.entries(user).length == 1) {
-          super.showNotify("Now, no has online user", "error");
-          return;
-        }
-        if (key == "fullname") {
-          li = document.createElement("li");
-          li.textContent = value;
-          li.onclick = (e) => {
-            //remove prev clicked elem class
-            for (let i = 0; i < ul.children.length; i++) {
-              if (ul.children[i].className == "current") {
-                ul.children[i].classList.remove("current");
-              }
-            }
-            li.className = "current";
-            // this.HtmlElems.messageContainer.children["chatbox"].style.display =
-            //   "none";
-            // chatbox.innerHTML = "";
-            let obj = {
-              receiver: user["UUID"],
-              sender: super.getUserSession(),
-              type: "getmessages",
-            };
-            this.ws.send(JSON.stringify(obj));
-          };
-        }
-        if (
-          user["UUID"] != super.getUserSession() &&
-          Object.entries(user).length > 1
-        ) {
-          ul.append(li);
-        }
-      }
-    }
-    parent.append(ul);
-  }
-
-  sendMessage(receiver) {
-    let uid = super.getUserId();
-    let content =
-      this.HtmlElems.messageContainer.children["messageFieldId"].value;
-    this.HtmlElems.messageContainer.children["chatbox"].style.display = "block";
-    let senderUUID = super.getUserSession();
-    let message = {
-      content: content,
-      sender: senderUUID,
-      receiver: receiver,
-      userid: parseInt(uid),
-      type: "newmessage",
-    };
-    let senderName = "";
-    for (let [k, v] of Object.entries(this.users)) {
-      if (v["UUID"] === senderUUID) {
-        senderName = v.fullname;
-      }
-    }
-    let div = document.createElement("div");
-    let span = document.createElement("span");
-    span.className = "chat_sender";
-
-    span.textContent = `${senderName} :  \n
-     ${message.content}   ${new Date().toLocaleTimeString()}  `;
-
-    div.append(span);
-    this.HtmlElems.messageContainer.children["chatbox"].append(div);
-    this.HtmlElems.messageContainer.children["messageFieldId"].value = "";
-    this.ws.send(JSON.stringify(message));
-  }
   //DRY ?
-  showListMessage(messages) {
-    let userid = super.getUserId();
-    if (messages != null) {
-      this.HtmlElems.messageContainer.style.display = "block";
-      this.HtmlElems.messageContainer.children["chatbox"].style.display =
-        "block";
-      this.HtmlElems.messageContainer.children["chatbox"].innerHTML = "";
 
-      messages.forEach((item) => {
-        let div = document.createElement("div");
-        for (let [k, v] of Object.entries(item)) {
-          let span = document.createElement("span");
-
-          if (k == "aname" || k == "senttime" || k == "content") {
-            span.textContent = `${k == "aname" ? v : ""}  ${
-              k == "content" ? v : ""
-            }  ${k == "senttime" ? v : ""} \n `;
-          }
-          if (k == "userid") {
-            if (v == userid) {
-              div.classList.add("chat_sender");
-            }
-          }
-          div.append(span);
-        }
-        this.HtmlElems.messageContainer.children["chatbox"].append(div);
-      });
-      //call func
-      let receive = "";
-      if (messages.length != 0) {
-        receive = messages[0]["receiver"];
-      }
-      this.showChatWindow(this, receive);
-    }
-  }
   //dr, 00, msg.receivery
   showChatWindow(scope, receiver) {
     this.HtmlElems.messageContainer.children["sendBtnId"].onclick =
       this.sendMessage.bind(this, receiver);
   }
-
   //get senderId, receiverId, msg
   async init() {
     this.HtmlElems.messageContainer =
       document.querySelector("#message_container");
-    //DRY
-    console.log(wsConn, "conn in chat");
-
-    wsInit("chat", null);
-
-    //chat funcs here todo to
-    //   let ws = super.getWebsocket();
-
-    //   console.log(ws, 9);
-    //   ws.send(JSON.stringify({ type: "handshake" }));
-    //   // //client 1 enter chat service ->
-    //   // user signin - profile -> add user -> /chat -> getListuser
-
-    //   this.ws.onmessage = (e) => {
-    //     let text = "";
-    //     let msg = JSON.parse(e.data);
-    //     // let time = new Date(msg.date);
-    //     // let timeStr = time.toLocaleTimeString();
-    //     switch (msg.type) {
-    //       case "listusers":
-    //         this.showOnlineUsers(msg.users);
-    //         break;
-    //       case "listmessages":
-    //         document.getElementById("notify").value = "";
-    //         this.HtmlElems.messageContainer.children["chatbox"].style.display =
-    //           "block";
-    //         this.showListMessage(msg.messages);
-    //         break;
-    //       case "nomessages":
-    //         this.HtmlElems.messageContainer.children["chatbox"].style.display =
-    //           "none";
-    //         this.HtmlElems.messageContainer.style.display = "block";
-    //         this.HtmlElems.messageContainer.children["chatbox"].innerHTML = "";
-    //         //now no messages -> fix, show message field
-    //         this.showChatWindow(this, msg.receiver);
-    //         super.showNotify("now no messages", "error");
-    //         break;
-
-    //       case "lastmessage":
-    //         let span = document.createElement("span");
-    //         let div = document.createElement("div");
-    //         //dry
-    //         // fix receive - sender -> message -> correct show name
-    //         //chat setInterval work only if -> /router -> caht
-    //         //           left join - refactor
-    //         // fix - another user choice 1 ->hide / show
-    //         //how much time call create db ?
-    //         span.textContent = `${msg.message.aname} : \n ${msg.message.content} ${msg.message.senttime}  `;
-    //         div.append(span);
-    //         this.HtmlElems.messageContainer.children["chatbox"].append(div);
-    //         this.HtmlElems.messageContainer.children["messageFieldId"].value = "";
-    //         break;
-    //       case "leave":
-    //         this.onlineUsers.delete(msg.receiver);
-    //         console.log(this.onlineUsers);
-    //         console.log(msg, "leave user");
-    //         break;
-
-    //       case "success":
-    //         console.log("handshake connected");
-    //         break;
-    //     }
-
-    //     if (text.length) {
-    //       // chatBox.write(text);
-    //       document.getElementById("chatbox").contentWindow.scrollByPages(1);
-    //     }
-    //     // sjhow sent time, name, fix first create room, added user NOW show another cspanents
-
-    //     this.ws.onclose = function (event) {
-    //       // if (event.wasClean) {
-    //       // console.log("Обрыв соединения"); // например, "убит" процесс сервера
-    //       // }
-    //       console.log("Обрыв соединения"); // например, "убит" процесс сервера
-    //       // this.ws.send(JSON.stringify(obj));
-    //       console.log("Код: " + event.code + " причина: " + event.reason);
-    //     };
-    //     this.ws.onerror = function (error) {
-    //       console.log("Ошибка " + error.message);
-    //     };
-    //   };
+    //each time add user
+    wsInit();
+    //getlistusers
+    if (wsConn != null && wsConn.readyState == 1) {
+      wsConn.send(JSON.stringify({ type: "getusers" }));
+    }
   }
 
   async getHtml() {
@@ -257,3 +67,80 @@ export default class Chat extends Parent {
     return super.showHeader() + body;
   }
 }
+
+export const showListMessages = (messages, userid, session, users) => {
+  let chatContainer = document.querySelector("#message_container");
+  if (messages != null && chatContainer != null) {
+    // let userid = super.getUserId();
+    chatContainer.style.display = "block";
+    chatContainer.children["chatbox"].style.display = "block";
+    chatContainer.children["chatbox"].innerHTML = "";
+
+    messages.forEach((item) => {
+      let div = document.createElement("div");
+      for (let [k, v] of Object.entries(item)) {
+        let span = document.createElement("span");
+
+        if (k == "aname" || k == "senttime" || k == "content") {
+          span.textContent = `${k == "aname" ? v : ""}  ${
+            k == "content" ? v : ""
+          }  ${k == "senttime" ? v : ""} \n `;
+        }
+        if (k == "userid") {
+          if (v == userid) {
+            div.classList.add("chat_sender");
+          }
+        }
+        div.append(span);
+      }
+      chatContainer.children["chatbox"].append(div);
+    });
+    //call func
+    let receive = "";
+    if (messages.length != 0) {
+      receive = messages[0]["receiver"];
+    }
+    fix : signin -> redirect profile - crorrect ? fix, fix -> chat click -> update page
+sender, receiver send uuid correct
+    // this.showChatWindow(this, receive);
+    chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
+      receive,
+      userid,
+      session,
+      users
+    );
+  }
+};
+
+const sendMessage = (receiver, userid, senderUUID, users) => {
+  console.log("send msg click", receiver, "---------", senderUUID);
+  let chatContainer = document.querySelector("#message_container");
+  // let uid = super.getUserId();
+  let content = chatContainer.children["messageFieldId"].value;
+  chatContainer.children["chatbox"].style.display = "block";
+  console.log(senderUUID, typeof senderUUID);
+  let message = {
+    content: content,
+    sender: senderUUID,
+    receiver: receiver,
+    userid: parseInt(userid),
+    type: "newmessage",
+  };
+  let senderName = "";
+  for (let [k, v] of Object.entries(users)) {
+    if (v["UUID"] === senderUUID) {
+      senderName = v.fullname;
+    }
+  }
+  let div = document.createElement("div");
+  let span = document.createElement("span");
+  span.className = "chat_sender";
+
+  span.textContent = `${senderName} :  \n
+   ${message.content}   ${new Date().toLocaleTimeString()}  `;
+
+  div.append(span);
+  chatContainer.children["chatbox"].append(div);
+  chatContainer.children["messageFieldId"].value = "";
+  wsConn.send(JSON.stringify(message));
+};

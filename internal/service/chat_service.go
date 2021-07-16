@@ -55,45 +55,33 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
 }
 
 //or global each time send client - use client side this var ?``
-
 //open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
 func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 	//fill user.Name -> in db, by uuid  u.Conn
 	ChatStorage.Type = "observeusers"
 	//no duplicate add user
-	// 	userid, err := cs.repository.GetUserID(u.UUID)
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 	}
-	//2 cookie valid ? loop -if not - delete
-	//2 signin -> session update -> update in Map Users
-	//ach add new user -> check if have in db ?
-	log.Println(len(c.ListUsers), len(ChatStorage.ListUsers), 1, u.UUID)
+	if len(c.ListUsers) > 1 {
+		for k, v := range c.ListUsers {
+			log.Println(k, 2, v)
+			_, err := cs.repository.GetUserID(k)
+			if err != nil {
+				delete(c.ListUsers, k)
+			} else {
+				//delete prev user -> resession case
+				//if userid > 0 {
+				c.ListUsers[u.UUID] = u
+			}
+		}
+	} else {
+		//add first user
+		c.ListUsers[u.UUID] = u
+	}
 
-	// if len(c.ListUsers) > 1 {
-	// 	for k, v := range c.ListUsers {
-	// 		log.Println(k, 2, v)
-	// 		//ifhave session
-	// 		userid, err := cs.repository.GetUserID(k)
-	// 		if err != nil {
-	// 			log.Println(err, "err uid")
-	// 		}
-	// 		log.Println(userid, "uid")
-	// 		if userid > 0 {
-	// 			c.ListUsers[u.UUID] = u
-	// 		} else {
-	// 			delete(c.ListUsers, k)
-	// 		}
-	// 	}
-	// } else {
-	// 	c.ListUsers[u.UUID] = u
-	// }
-	c.ListUsers[u.UUID] = u
 	ChatStorage.ListUsers = c.ListUsers // get gloabal var, map[uuid]name
 	for _, v := range ChatStorage.ListUsers {
 		v.Conn.WriteJSON(ChatStorage)
 	}
-	log.Println(ChatStorage.ListUsers, "add list user")
+	// log.Println(ChatStorage.ListUsers, "add list user")
 	//add new user in map -> each connected user  send -> newuser
 }
 
@@ -150,14 +138,13 @@ func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
 }
 
 func (cs *ChatService) leaveUser(c *models.Chat, u *models.User) {
-	// ChatStorage.Type = "observeusers"
 	ChatStorage.Type = "leave"
-	// ChatStorage.Receiver = u.UUID
 	delete(c.ListUsers, u.UUID)
+	ChatStorage.ListUsers = c.ListUsers
 	for _, v := range ChatStorage.ListUsers {
 		v.Conn.WriteJSON(ChatStorage)
 	}
-	log.Println("user leave", ChatStorage.ListUsers)
+	// log.Println("user leave", ChatStorage.ListUsers)
 }
 
 //1 main -> Start() ->  createEmptyObjecetChat -> 2 ws Handler, newConn -> 3 go Run() // goruutine each newConn(user)

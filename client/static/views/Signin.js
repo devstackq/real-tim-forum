@@ -1,5 +1,5 @@
-import router from "../index.js";
 import Parent from "./Parent.js";
+import { redirect } from "../index.js";
 import { wsInit } from "./WebSocket.js";
 
 export default class Signin extends Parent {
@@ -22,10 +22,9 @@ export default class Signin extends Parent {
     let result = await super.fetch("signin", user);
     if (result !== null) {
       localStorage.setItem("isAuth", true);
-      wsInit("signin", result.uuid);
+      wsInit(result.uuid);
       // addNewUser(result.uuid); //or call index?
-      history.pushState(null, "profile", "http://localhost:6969/profile");
-      window.addEventListener("popstate", router());
+      redirect("/profile");
     } else {
       localStorage.setItem("isAuth", false);
       super.showNotify("incorrect login or password", "error");

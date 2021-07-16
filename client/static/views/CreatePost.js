@@ -1,5 +1,5 @@
 import Parent from "./Parent.js";
-
+import { redirect } from "../index.js";
 export default class CreatePost extends Parent {
   constructor(params) {
     super();
@@ -34,7 +34,7 @@ export default class CreatePost extends Parent {
 
       let status = await super.fetch("post/create", post);
       if (status == "success") {
-        window.location.replace("/all");
+        redirect("all");
         //redirect -> created post, /post/id
       } else {
         console.log(status);

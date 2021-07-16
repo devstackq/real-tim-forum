@@ -6,7 +6,12 @@ import Logout from "./views/Logout.js";
 import CreatePost from "./views/CreatePost.js";
 import ViewPost from "./views/Post.js";
 import Chat from "./views/Chat.js";
-import { wsInit } from "./views/WebSocket.js";
+
+export const redirect = (endpoint) => {
+  console.log(endpoint, "redirect");
+  history.pushState(null, "", `http://localhost:6969/${endpoint}`);
+  window.addEventListener("popstate", router());
+};
 
 const pathToRegex = (path) =>
   new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
@@ -70,6 +75,9 @@ const router = async () => {
   // let date = new Date(Date.now() + 86400);expires=${date.toUTCString()
   document.cookie = `category=${match.result[0]}; path=/; sameSite: "Lax";`;
   view.init();
+  // if (window.location.pathname == "/chat") {
+  //   window.location.reload();
+  // }
 };
 
 window.addEventListener("popstate", router);
@@ -83,16 +91,3 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   router();
 });
-
-//getusers
-//open conn, hear events:
-// if (window.location.pathname == "/signin") {
-//   addNewUser()
-// }
-
-// if (window.location.pathname == "/chat") {
-//   // let response = fetch(`${url}/api/listusers`);
-//   wsInit();
-// }
-
-export default router;

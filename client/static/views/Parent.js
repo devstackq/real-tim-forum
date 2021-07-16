@@ -1,4 +1,7 @@
+import { redirect } from "../index.js";
+// import { getUserId } from "./WebSocket.js";
 let singletonInstance = null;
+
 export default class Parent {
   constructor(text, type) {
     this.text = text;
@@ -18,11 +21,8 @@ export default class Parent {
       group: "",
     };
     // if (!singletonInstance) {
-    //   console.log("init");
-
     //   singletonInstance = this;
     // }
-    // console.log(singletonInstance, "Parent");
     // return singletonInstance;
   }
 
@@ -121,8 +121,7 @@ export default class Parent {
       //case User data & postById - not onlclick
       if (!item["email"] && where != "#postById") {
         div.value = item["id"];
-        div.onclick = () =>
-          window.location.replace(`/postget?id=${item["id"]}`);
+        div.onclick = () => redirect(`postget?id=${item["id"]}`);
       }
       parent.append(div);
     });

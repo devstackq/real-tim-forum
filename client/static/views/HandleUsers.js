@@ -1,4 +1,4 @@
-import { wsConn } from "./WebSocket.js";
+import { wsConn, getSession } from "./WebSocket.js";
 
 export const listUsers = new Map();
 
@@ -7,60 +7,68 @@ export const listUsers = new Map();
 // if server restart -> all user reconnect
 
 export const showListUser = (users) => {
-  let senderUuid = "";
-  if (document.cookie.split(";").length > 1) {
-    senderUuid = document.cookie.split(";")[0].slice(8).toString();
-  }
-  console.log(Object.entries(users), 1);
-  let parent = document.getElementById("userlistbox");
-  let ul = document.getElementById("listusersID");
-  ul.innerHTML = "";
+  if (window.location.pathname == "/chat") {
+    let senderUuid = "";
+    // if (document.cookie.split(";").length > 1) {
+    //   senderUuid = document.cookie.split(";")[0].slice(8).toString();
+    // }
+    senderUuid = getSession();
+    let parent = document.getElementById("userlistbox");
+    let ul = document.getElementById("listusersID");
 
-  if (users != null && ul != null && parent != null) {
-    //   listUsers.set(user.UUID, user);
-    for (let [uuid, user] of Object.entries(users)) {
-      let li = document.createElement("li");
-      for (let [key, value] of Object.entries(user)) {
-        if (Object.entries(users).length == 1) {
-          // super.showNotify("Now, no has online user", "error");
-          alert("Now, no has online user");
-          return;
-        }
-        if (key == "fullname" && value != "") {
-          li.textContent = value;
-          li.onclick = (e) => {
-            //remove prev clicked elem class
-            for (let i = 0; i < ul.children.length; i++) {
-              if (ul.children[i].className == "current") {
-                ul.children[i].classList.remove("current");
+    if (users != null && ul != null && parent != null) {
+      console.log(Object.entries(users), 1);
+
+      ul.innerHTML = "";
+      //   listUsers.set(user.UUID, user);
+      for (let [uuid, user] of Object.entries(users)) {
+        let li = document.createElement("li");
+        for (let [key, value] of Object.entries(user)) {
+          if (Object.entries(users).length == 1) {
+            // super.showNotify("Now, no has online user", "error");
+            alert("Now, no has online user");
+            return;
+          }
+          if (key == "fullname" && value != "") {
+            li.textContent = value;
+            li.onclick = (e) => {
+              //remove prev clicked elem class
+              for (let i = 0; i < ul.children.length; i++) {
+                if (ul.children[i].className == "current") {
+                  ul.children[i].classList.remove("current");
+                }
               }
-            }
-            li.className = "current";
-            let obj = {
-              receiver: uuid,
-              sender: senderUuid,
-              type: "getmessages",
+              li.className = "current";
+              let obj = {
+                receiver: uuid,
+                sender: senderUuid,
+                type: "getmessages",
+              };
+              wsConn.send(JSON.stringify(obj));
             };
-            wsConn.send(JSON.stringify(obj));
-          };
+          }
+          //append without yourself
+          if (uuid != senderUuid) {
+            ul.append(li);
+          }
         }
-        //append without yourself
-        if (uuid != senderUuid) {
-          ul.append(li);
-        }
+        parent.append(ul);
       }
-      parent.append(ul);
+    } else {
+      alert("no has online user");
     }
-  } else {
-    alert("no has online user");
+    console.log(listUsers, ":list user in <Map");
   }
-  console.log(listUsers, ":list гыукы");
 };
-
+//mail. pwd, 1 auth,1 open
 export const addNewUser = (uuid) => {
-  console.log("new user1");
+  if (uuid == undefined) {
+    uuid = getSession();
+    console.log(uuid, uuid, "undef");
+  }
+  console.log(uuid, uuid.length, "norm");
   if (getAuthState() == "true") {
-    console.log("new user", uuid, wsConn);
+    // console.log("new user", uuid, wsConn);
     wsConn.onopen = () =>
       wsConn.send(
         JSON.stringify({
