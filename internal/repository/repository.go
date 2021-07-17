@@ -43,6 +43,7 @@ type Chat interface {
 	IsExistRoom(m *models.Message) (string, error)
 	GetUserName(int) (string, error)
 	GetUserID(string) (int, error)
+	GetLastMessageIndex(string, int) (int, error)
 }
 
 // type Utils interface {

@@ -1,23 +1,17 @@
 import { wsConn, getSession } from "./WebSocket.js";
 
-export const listUsers = new Map();
-
-// show join, leave - realtime update users
-// session update -> user prev close conn user - delete Backend
-// if server restart -> all user reconnect
+// export const listUsers = new Map();
+export const listUsers = [];
 
 export const showListUser = (users) => {
   if (window.location.pathname == "/chat") {
     let senderUuid = "";
-    // if (document.cookie.split(";").length > 1) {
-    //   senderUuid = document.cookie.split(";")[0].slice(8).toString();
-    // }
+
     senderUuid = getSession();
     let parent = document.getElementById("userlistbox");
     let ul = document.getElementById("listusersID");
 
     if (users != null && ul != null && parent != null) {
-      // console.log(Object.entries(users), 1);
       ul.innerHTML = "";
       //   listUsers.set(user.UUID, user);
       for (let [uuid, user] of Object.entries(users)) {

@@ -93,6 +93,21 @@ func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, erro
 	return messages, nil
 }
 
+func (cr *ChatRepository) GetLastMessageIndex(room string, userid int) (lastindex int, err error) {
+
+	row, err := cr.db.Query("SELECT id FROM messages  WHERE room=? AND  user_id=?", room, userid)
+	if err != nil {
+		return 0, err
+	}
+	for row.Next() {
+		if err := row.Scan(&lastindex); err != nil {
+			return 0, err
+		}
+	}
+
+	return lastindex, nil
+}
+
 func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 
 	senderUserID, err := cr.GetUserID(m.Sender)
@@ -108,9 +123,6 @@ func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 	row := cr.db.QueryRow("SELECT room FROM chats WHERE user_id1=? AND user_id2=?", senderUserID, receiverUserID)
 	err = row.Scan(&room)
 	//2,1 -> swap query ?
-
-	log.Println(room, 1)
-
 	if err != nil {
 		row = cr.db.QueryRow("SELECT room FROM chats WHERE user_id1=? AND user_id2=?", receiverUserID, senderUserID)
 		err = row.Scan(&room)

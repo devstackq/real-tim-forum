@@ -23,7 +23,10 @@ type Message struct {
 	Room     string    `json:"room"`
 	Name     string    `json:"aname"`
 	SentTime time.Time `json:"senttime"`
+	Indexs   []int
 }
+
+// 20 time,
 
 // func NewMessage(body string, sender int) *Message {
 // 	return &Message{

@@ -1,4 +1,4 @@
-import { showListUser, addNewUser } from "./HandleUsers.js";
+import { showListUser, addNewUser, listUsers } from "./HandleUsers.js";
 import { showListMessages, sendMessage } from "./Chat.js";
 
 export let wsConn = null;
@@ -26,14 +26,27 @@ export const wsInit = (...args) => {
 
   wsConn.onmessage = (e) => {
     let message = JSON.parse(e.data);
-    console.log(message.type);
+    console.log(message.type, typeof message.users, message.users);
+    // listUsers = message.users;
     switch (message.type) {
       case "observeusers":
-        console.log("getuser list");
+        console.log(message.timeusers, message.alphausers);
+        //show divs class users, inside each user - - div
+        //  show by reverse
+        //update all conn -> added new user
+        // for (let i = 0; i < message.users.length; i++) {}
         showListUser(message.users);
         break;
       case "getusers":
-        showListUser(message.users);
+        //add in arrayUsers
+        for (let i = 0; i < message.users.length; i++) {}
+        if (listUsers.length == 0) {
+          listUsers.push(message.users);
+        }
+        //work this var
+
+        console.log(listUsers, "listtt");
+        showListUser(message.users, "getusers");
         break;
       case "listmessages":
         document.getElementById("notify").value = "";
@@ -73,7 +86,6 @@ export const wsInit = (...args) => {
         break;
       case "leave":
         // this.onlineUsers.delete(message.receiver);
-        console.log(message, "leave user");
         showListUser(message.users);
         break;
     }
@@ -82,34 +94,12 @@ export const wsInit = (...args) => {
       console.log(
         " Обрыв соединения, Код: " + event.code + " причина: " + event.reason
       );
-      //   wsConn.send(JSON.stringify({ type: "leave", sender: getSession() }));
       wsConn.close();
       // wsConn.send(JSON.stringify({ type: "close" }));
     };
     wsConn.onerror = function (error) {
       console.log("Ошибка " + error.message);
+      wsConn.close();
     };
   };
 };
-// ws.js
-//import chathandler from ..
-// export let conn;
-// wsStart(){
-//   conn = new WS()
-//   onmsessage() {
-// case 1://
-//  chathandler.ShowUser(data)
-// case 2 :
-// chathandler.getMessage(data)
-//   }
-// }
-
-// index.js
-// wsStart()
-
-// chat.js
-// new Chat(user, conn)
-
-// class {
-
-// }

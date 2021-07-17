@@ -112,19 +112,24 @@ done:
 fix : signin -> redirect profile, sendMessage(), getHistoryUser(), case :   no msessage, lastmessage, resession -> update conn
 now : same user signin - logout ->  no add listUsers -> window.reload() - if resession
 ref:? all route -> if auth -> addnewuser?
+ref:? getMessage? http ? !ws
 
 UsersList:
 1case : users sortUsersByTime  -> asc
 2case : another users -> not have chat -> alhpa sort
 3case : receiver -> onmessage : lastMessage -> sortUsersByTime; sender(sendNewMEssage) -> sortUsersByTime()
+4case: chatted users -> onfocus - by userid = url params
 server getAllUser -> checkIfHasChat sender == another; add GroupHistory else GroupOther
 
 UL case1: /chat : ListsUsers.History[] - if have rooms (receiver, sender) ->
+
 
 Online case:
 addNewUser -> findByUUID in ListUsers[].status = online
 else  if Logout, etc case -> offline;
 Client side: case listusers -> if User[i].status =='online -> addClass(online)
 
+
+listmessages: sql when, debounce
 
 notify:
