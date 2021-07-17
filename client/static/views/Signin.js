@@ -23,8 +23,9 @@ export default class Signin extends Parent {
     if (result !== null) {
       localStorage.setItem("isAuth", true);
       wsInit(result.uuid);
-      // addNewUser(result.uuid); //or call index?
-      redirect("/profile");
+      setTimeout(() => {
+        redirect("profile");
+      });
     } else {
       localStorage.setItem("isAuth", false);
       super.showNotify("incorrect login or password", "error");

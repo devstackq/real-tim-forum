@@ -31,36 +31,22 @@ export default class Chat extends Parent {
       parent.append(div);
     });
   }
-  //uuid receiver & send my uuid
-  //show all user - except yourself todo:
-
-  //DRY ?
-
-  //dr, 00, msg.receivery
-  showChatWindow(scope, receiver) {
-    this.HtmlElems.messageContainer.children["sendBtnId"].onclick =
-      this.sendMessage.bind(this, receiver);
-  }
-  //get senderId, receiverId, msg
   async init() {
     this.HtmlElems.messageContainer =
       document.querySelector("#message_container");
-    //each time add user
-    wsInit();
-    //getlistusers
+
+    wsInit(); //each time add user
     if (wsConn != null && wsConn.readyState == 1) {
       wsConn.send(JSON.stringify({ type: "getusers" }));
     }
   }
 
   async getHtml() {
-    // /?DRY
-    //show online user & sended message - like history users
-    //listUser - dynamic, create history window, textarea, and btn -> history dynamic change data
+    //?DRY
     let body = `
     <div id="userlistbox" > <ul id="listusersID" > </ul> </div>
     <div style='display:none' id="message_container"  >  
-    <div style='display:none' id="chatbox" class="chat_container" >      </div>
+    <div id="chatbox" class="chat_container" >      </div>
     <textarea id="messageFieldId"> </textarea>
     <button id="sendBtnId"> Send message </button
       </div>`;
@@ -71,7 +57,6 @@ export default class Chat extends Parent {
 export const showListMessages = (messages, userid, session, users) => {
   let chatContainer = document.querySelector("#message_container");
   if (messages != null && chatContainer != null) {
-    // let userid = super.getUserId();
     chatContainer.style.display = "block";
     chatContainer.children["chatbox"].style.display = "block";
     chatContainer.children["chatbox"].innerHTML = "";
@@ -100,10 +85,9 @@ export const showListMessages = (messages, userid, session, users) => {
     if (messages.length != 0) {
       receive = messages[0]["receiver"];
     }
-    fix : signin -> redirect profile - crorrect ? fix, fix -> chat click -> update page
-sender, receiver send uuid correct
     // this.showChatWindow(this, receive);
     chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
+      this,
       receive,
       userid,
       session,
@@ -112,13 +96,11 @@ sender, receiver send uuid correct
   }
 };
 
-const sendMessage = (receiver, userid, senderUUID, users) => {
-  console.log("send msg click", receiver, "---------", senderUUID);
+export const sendMessage = (receiver, userid, senderUUID, users) => {
   let chatContainer = document.querySelector("#message_container");
-  // let uid = super.getUserId();
   let content = chatContainer.children["messageFieldId"].value;
   chatContainer.children["chatbox"].style.display = "block";
-  console.log(senderUUID, typeof senderUUID);
+  console.log(content, "cont");
   let message = {
     content: content,
     sender: senderUUID,

@@ -189,7 +189,10 @@ label,
 }
 
 .current {
-  color:  red;
+  color: red;
   background-color: #fff;
   font-size: 20px;
 }
+/* #app {
+  display: flex;
+} */

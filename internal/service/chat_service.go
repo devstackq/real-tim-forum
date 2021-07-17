@@ -60,13 +60,15 @@ func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 	//fill user.Name -> in db, by uuid  u.Conn
 	ChatStorage.Type = "observeusers"
 	//no duplicate add user
+	log.Println("add user", u.UUID)
 	if len(c.ListUsers) > 1 {
-		for k, v := range c.ListUsers {
-			log.Println(k, 2, v)
+		for k := range c.ListUsers {
 			_, err := cs.repository.GetUserID(k)
 			if err != nil {
+				log.Println("del user", k)
 				delete(c.ListUsers, k)
 			} else {
+				log.Println("add user", k)
 				//delete prev user -> resession case
 				//if userid > 0 {
 				c.ListUsers[u.UUID] = u
@@ -87,10 +89,8 @@ func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 
 func (cs *ChatService) getUsers(u *models.User) {
 	//check if users have in session
-
 	ChatStorage.Type = "getusers"
 	u.Conn.WriteJSON(ChatStorage)
-
 	log.Println(ChatStorage.ListUsers, "get user list")
 }
 
@@ -139,6 +139,7 @@ func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
 
 func (cs *ChatService) leaveUser(c *models.Chat, u *models.User) {
 	ChatStorage.Type = "leave"
+	u.Conn.Close()
 	delete(c.ListUsers, u.UUID)
 	ChatStorage.ListUsers = c.ListUsers
 	for _, v := range ChatStorage.ListUsers {
@@ -213,6 +214,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 		}
 
 		if body.Type == "newmessage" {
+
 			message := &models.Message{
 				Conn:     conn, //set conn current user
 				Receiver: body.Receiver,

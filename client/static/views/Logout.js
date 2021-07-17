@@ -20,9 +20,8 @@ export default class extends Parent {
       document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
       document.cookie = "user_id=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
       localStorage.setItem("isAuth", false);
-
       redirect("all");
-      // window.location.replace("/all");
+      window.location.reload();
     } else {
       console.log("error logout");
       super.showNotify(response.statusText, "error");

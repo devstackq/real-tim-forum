@@ -17,8 +17,7 @@ export const showListUser = (users) => {
     let ul = document.getElementById("listusersID");
 
     if (users != null && ul != null && parent != null) {
-      console.log(Object.entries(users), 1);
-
+      // console.log(Object.entries(users), 1);
       ul.innerHTML = "";
       //   listUsers.set(user.UUID, user);
       for (let [uuid, user] of Object.entries(users)) {
@@ -64,9 +63,7 @@ export const showListUser = (users) => {
 export const addNewUser = (uuid) => {
   if (uuid == undefined) {
     uuid = getSession();
-    console.log(uuid, uuid, "undef");
   }
-  console.log(uuid, uuid.length, "norm");
   if (getAuthState() == "true") {
     // console.log("new user", uuid, wsConn);
     wsConn.onopen = () =>

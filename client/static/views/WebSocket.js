@@ -1,10 +1,9 @@
 import { showListUser, addNewUser } from "./HandleUsers.js";
-import { showListMessages } from "./Chat.js";
+import { showListMessages, sendMessage } from "./Chat.js";
 
 export let wsConn = null;
 
 export const getSession = () => {
-  // console.log(document.cookie.split(";").length, " len");
   if (document.cookie.split(";").length === 3) {
     return document.cookie.split(";")[0].slice(8).toString();
   }
@@ -23,22 +22,22 @@ export const wsInit = (...args) => {
     wsConn = new WebSocket("ws://localhost:6969/api/chat");
     addNewUser(args[0]);
   }
+  let chatContainer = document.querySelector("#message_container");
+
   wsConn.onmessage = (e) => {
-    console.log("getuser sess");
     let message = JSON.parse(e.data);
+    console.log(message.type);
     switch (message.type) {
       case "observeusers":
-        //update user list -> all conns
-        console.log("for all users", message.users);
+        console.log("getuser list");
         showListUser(message.users);
         break;
       case "getusers":
-        //get user own client
         showListUser(message.users);
         break;
       case "listmessages":
         document.getElementById("notify").value = "";
-        // this.HtmlElems.messageContainer.children["chatbox"].style.display =
+        // chatContainer.children["chatbox"].style.display =
         //   "block";
         showListMessages(
           message.messages,
@@ -47,35 +46,35 @@ export const wsInit = (...args) => {
           message.users
         );
         break;
-      // case "nomessages":
-      //   this.HtmlElems.messageContainer.children["chatbox"].style.display =
-      //     "none";
-      //   this.HtmlElems.messageContainer.style.display = "block";
-      //   this.HtmlElems.messageContainer.children["chatbox"].innerHTML = "";
-      //   //now no messages -> fix, show message field
-      //   this.showChatWindow(this, message.receiver);
-      //   super.showNotify("now no messages", "error");
-      //   break;
-
-      // case "lastmessage":
-      //   let span = document.createElement("span");
-      //   let div = document.createElement("div");
-      //   //dry
-      //   // fix receive - sender -> message -> correct show name
-      //   //chat setInterval work only if -> /router -> caht
-      //   //           left join - refactor
-      //   // fix - another user choice 1 ->hide / show
-      //   //how much time call create db ?
-      //   span.textContent = `${message.message.aname} : \n ${message.message.content} ${message.message.senttime}  `;
-      //   div.append(span);
-      //   this.HtmlElems.messageContainer.children["chatbox"].append(div);
-      //   this.HtmlElems.messageContainer.children["messageFieldId"].value = "";
-      //   break;
+      case "nomessages":
+        alert("no messages now..");
+        document.getElementById("notify").value = "no message now...";
+        // chatContainer.children["chatbox"].style.display = "none";
+        chatContainer.style.display = "block";
+        chatContainer.children["chatbox"].innerHTML = "";
+        //now no messages -> fix, show message field
+        chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
+          this,
+          message.receiver,
+          getUserId(),
+          getSession(),
+          message.users
+        );
+        // super.showNotify("now no messages", "error");
+        break;
+      case "lastmessage":
+        let span = document.createElement("span");
+        let div = document.createElement("div");
+        chatContainer.children["chatbox"].style.display = "block";
+        span.textContent = `${message.message.aname} : \n ${message.message.content} ${message.message.senttime}  `;
+        div.append(span);
+        chatContainer.children["chatbox"].append(div);
+        chatContainer.children["messageFieldId"].value = "";
+        break;
       case "leave":
         // this.onlineUsers.delete(message.receiver);
         console.log(message, "leave user");
         showListUser(message.users);
-        //delete here user from listUsers[uuid], rerender
         break;
     }
 

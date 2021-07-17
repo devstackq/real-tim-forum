@@ -106,6 +106,25 @@ fk - consistent, join, 1 table row FK - relat table2 by PK
 
       fix correct show list user, leave user, reSession case added, server shutdown -> reconnect () but have refresh page
 
-      fix : signin -> redirect profile - crorrect ? fix, fix -> chat click -> update page
       fix2: chatWindows -> click -> profile -> again click Chat - mot work or its ok ??
 
+done:
+fix : signin -> redirect profile, sendMessage(), getHistoryUser(), case :   no msessage, lastmessage, resession -> update conn
+now : same user signin - logout ->  no add listUsers -> window.reload() - if resession
+ref:? all route -> if auth -> addnewuser?
+
+UsersList:
+1case : users sortUsersByTime  -> asc
+2case : another users -> not have chat -> alhpa sort
+3case : receiver -> onmessage : lastMessage -> sortUsersByTime; sender(sendNewMEssage) -> sortUsersByTime()
+server getAllUser -> checkIfHasChat sender == another; add GroupHistory else GroupOther
+
+UL case1: /chat : ListsUsers.History[] - if have rooms (receiver, sender) ->
+
+Online case:
+addNewUser -> findByUUID in ListUsers[].status = online
+else  if Logout, etc case -> offline;
+Client side: case listusers -> if User[i].status =='online -> addClass(online)
+
+
+notify:
