@@ -16,6 +16,19 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 	return &ChatRepository{db}
 }
 
+func (cr *ChatRepository) GetUsersChat() ([]models.User, error) {
+	//save in db message in chat,
+	// todo
+	// queryStmt, err := cr.db.Query("SELECT users.id, users.full_name FROM users LEFT JOIN messages ON messages.user_id = users.id  WHERE room=? ORDER BY messages.id alias_last_index_message DESC, users.id ASC", m.Room)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// for queryStmt.Next() {
+	// }
+	return nil, nil
+}
+
 func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
 	//save in db message in chat, messages table
 	senderUserID, err := cr.GetUserID(m.Sender)
@@ -43,14 +56,16 @@ func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
 //addnewMessage - save name, no need fix
 //add message in db
 func (cr *ChatRepository) AddNewMessage(m *models.Message) error {
-	log.Println(m.Name, "name, room", m.Room)
+	log.Println(m.Name, " Name , add new message  Room", m.Room)
 	//save in db message in chat, messages table
 	queryMsg, err := cr.db.Prepare(`INSERT INTO messages(content, room, user_id, name, sent_time) VALUES(?,?,?, ?, ?)`)
 	if err != nil {
+		log.Println(err, 1)
 		return err
 	}
 	_, err = queryMsg.Exec(m.Content, m.Room, m.UserID, m.Name, time.Now())
 	if err != nil {
+		log.Println(err, 2)
 		return err
 	}
 	defer queryMsg.Close()
@@ -93,9 +108,27 @@ func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, erro
 	return messages, nil
 }
 
+func (cr *ChatRepository) GetAllUsers() ([]models.User, error) {
+
+	users := []models.User{}
+	row, err := cr.db.Query("SELECT id, full_name FROM users")
+	if err != nil {
+		return nil, err
+	}
+	for row.Next() {
+		user := models.User{}
+		if err := row.Scan(&user.UserID, &user.FullName); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
 func (cr *ChatRepository) GetLastMessageIndex(room string, userid int) (lastindex int, err error) {
 
-	row, err := cr.db.Query("SELECT id FROM messages  WHERE room=? AND  user_id=?", room, userid)
+	//	row, err := cr.db.Query("SELECT messages.id FROM messages LEFT JOIN chats ON chats.room=messages.room WHERE user_id=? AND messages.room=? ORDER BY sent_time ASC", userid, room)
+	row, err := cr.db.Query("SELECT id FROM messages WHERE  room=?", room)
 	if err != nil {
 		return 0, err
 	}
@@ -104,20 +137,34 @@ func (cr *ChatRepository) GetLastMessageIndex(room string, userid int) (lastinde
 			return 0, err
 		}
 	}
-
+	// log.Println("last indx", lastindex)
 	return lastindex, nil
 }
 
 func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 
-	senderUserID, err := cr.GetUserID(m.Sender)
-	if err != nil {
-		return "", err
+	senderUserID := m.ID
+	receiverUserID := m.UserID
+
+	log.Println(receiverUserID, m.Receiver, m.Sender, senderUserID, "users ids check exist room")
+
+	var err error
+
+	if senderUserID == 0 || receiverUserID == 0 {
+
+		receiverUserID, err = cr.GetUserID(m.Receiver)
+		if err != nil {
+			return "", err
+		}
+		senderUserID, err = cr.GetUserID(m.Sender)
+		if err != nil {
+			return "", err
+		}
+
 	}
-	receiverUserID, err := cr.GetUserID(m.Receiver)
-	if err != nil {
-		return "", err
-	}
+
+	log.Println(receiverUserID, senderUserID, "after")
+
 	var room string
 
 	row := cr.db.QueryRow("SELECT room FROM chats WHERE user_id1=? AND user_id2=?", senderUserID, receiverUserID)

@@ -1,5 +1,5 @@
 import Parent from "./Parent.js";
-import { wsInit, wsConn } from "./WebSocket.js";
+import { wsInit, wsConn, getCookie } from "./WebSocket.js";
 
 export default class Chat extends Parent {
   constructor() {
@@ -37,7 +37,9 @@ export default class Chat extends Parent {
 
     wsInit(); //each time add user
     if (wsConn != null && wsConn.readyState == 1) {
-      wsConn.send(JSON.stringify({ type: "getusers" }));
+      wsConn.send(
+        JSON.stringify({ sender: getCookie("session"), type: "getusers" })
+      );
     }
   }
 
@@ -100,7 +102,6 @@ export const sendMessage = (receiver, userid, senderUUID, users) => {
   let chatContainer = document.querySelector("#message_container");
   let content = chatContainer.children["messageFieldId"].value;
   chatContainer.children["chatbox"].style.display = "block";
-  console.log(content, "cont");
   let message = {
     content: content,
     sender: senderUUID,

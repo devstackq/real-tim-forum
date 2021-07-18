@@ -3,11 +3,16 @@ import { showListMessages, sendMessage } from "./Chat.js";
 
 export let wsConn = null;
 
-export const getSession = () => {
-  if (document.cookie.split(";").length === 3) {
-    return document.cookie.split(";")[0].slice(8).toString();
-  }
-};
+export function getCookie(cName) {
+  const name = cName + "=";
+  const cDecoded = decodeURIComponent(document.cookie); //to be careful
+  const cArr = cDecoded.split("; ");
+  let res;
+  cArr.forEach((val) => {
+    if (val.indexOf(name) === 0) res = val.substring(name.length);
+  });
+  return res;
+}
 
 export const getUserId = () => {
   if (document.cookie.split(";").length == 3) {
@@ -44,7 +49,6 @@ export const wsInit = (...args) => {
           listUsers.push(message.users);
         }
         //work this var
-
         console.log(listUsers, "listtt");
         showListUser(message.users, "getusers");
         break;
@@ -55,7 +59,7 @@ export const wsInit = (...args) => {
         showListMessages(
           message.messages,
           getUserId(),
-          getSession(),
+          getCookie("session"),
           message.users
         );
         break;
@@ -70,7 +74,7 @@ export const wsInit = (...args) => {
           this,
           message.receiver,
           getUserId(),
-          getSession(),
+          getCookie("session"),
           message.users
         );
         // super.showNotify("now no messages", "error");

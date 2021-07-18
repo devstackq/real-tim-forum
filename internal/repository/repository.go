@@ -44,6 +44,8 @@ type Chat interface {
 	GetUserName(int) (string, error)
 	GetUserID(string) (int, error)
 	GetLastMessageIndex(string, int) (int, error)
+	GetAllUsers() ([]models.User, error)
+	GetUsersChat() ([]models.User, error)
 }
 
 // type Utils interface {

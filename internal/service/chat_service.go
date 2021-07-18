@@ -66,10 +66,14 @@ func sortUsers(seq []*models.Message, sortType string, indexs []int) error {
 	}
 
 	if sortType == "time" {
+
 		for _, message := range seq {
-			for _, i := range indexs {
-				if message.ID == i {
-					sortedUser := models.User{UUID: message.Receiver, FullName: message.Name}
+			log.Println(message, "have msg users")
+			// for _, i := range indexs {
+			for i := len(indexs) - 1; i >= 0; i-- {
+				if message.LastIndexMessage == indexs[i] { // find receiver user
+					log.Println(message.Name, "sort name user")
+					sortedUser := models.User{UserID: message.UserID, FullName: message.Name}
 					sortedUserByTime[message.Receiver] = &sortedUser
 					// ChatStorage.ByTime = append(ChatStorage.ByTime, *models.User{UUID: message.Receiver, FullName: message.Name})
 				}
@@ -77,7 +81,7 @@ func sortUsers(seq []*models.Message, sortType string, indexs []int) error {
 		}
 	} else if sortType == "alpha" {
 		// for _, m := range seq {
-			sort string alpha
+		// sort string alpha
 		sort.Slice(seq, func(i1, i2 int) bool {
 			return len(seq[i1].Name) < len(seq[i2].Name)
 		})
@@ -87,46 +91,54 @@ func sortUsers(seq []*models.Message, sortType string, indexs []int) error {
 	ChatStorage.ByAlpha = sortedUserByAlpha
 	ChatStorage.ByTime = sortedUserByTime
 
-	log.Println(sortedUserByAlpha, "by alpha empty user")
+	log.Println(sortedUserByAlpha, "by alpha empty user", sortedUserByTime, "time")
 	return nil
 }
 
-func (cs *ChatService) prepareListUsers(sender string) (err error) {
+func (cs *ChatService) prepareListUsers(senderId int) (err error) {
+	//get User & keft join -> user chat message then sort
+	//TODO: sorted, err := cs.repository.GetUsersChat()
+	users, err := cs.repository.GetAllUsers()
+	if err != nil {
+		return err
+	}
 
-	seqLastMessageTime := []*models.Message{}
+	seqLastMessageIndex := []*models.Message{}
 	seqAlpha := []*models.Message{}
 	indexs := []int{}
-
-	for k, v := range ChatStorage.ListUsers {
-		if k != sender {
+	//get all users system -> check if have chat - room, get last index (append index)-> compare index
+	for _, user := range users {
+		if user.UserID != senderId {
 			temp := models.Message{}
 			// log.Println(k, receiver, v.UUID, 1234)
-			m := models.Message{Sender: sender, Receiver: k}
+			m := models.Message{ID: senderId, UserID: user.UserID} //sender, receiver
+			log.Println("sender", senderId, "rece", user.UserID)
 			room, err := cs.repository.IsExistRoom(&m)
+			temp.ID = senderId        //sender
+			temp.UserID = user.UserID //receiver
+			temp.Name = user.FullName
+			// if have msg.index > 0 -> sort else sort by name
+			//ByTime = user send uuid if have else add userid, client check if have uuid and correct -> add class online
+			//else -> offline
 			if err != nil {
-				log.Println(err, " room err")
-				log.Println(v.FullName, "no has message")
-				temp.Name = v.FullName
+				log.Println(err, " room err", user.FullName, "no has message")
 				seqAlpha = append(seqAlpha, &temp)
 			} else {
-				temp.Sender = sender
-				temp.Receiver = k
-
-				index, err := cs.repository.GetLastMessageIndex(room, v.UserID)
+				index, err := cs.repository.GetLastMessageIndex(room, user.UserID)
 				if err != nil {
-					log.Println(err)
 					return err
 				}
-				temp.ID = index
-				temp.Name = v.FullName
-				seqLastMessageTime = append(seqLastMessageTime, &temp)
-				indexs = append(indexs, index)
+				//add each user - intersect chat, by last index message, append seqSortByTime
+				temp.LastIndexMessage = index
+				seqLastMessageIndex = append(seqLastMessageIndex, &temp)
+				if index > 0 {
+					indexs = append(indexs, index) // need sort ?
+				}
 			}
 		}
 	}
-	// indexs = sort.Ints(indexs)
 
-	err = sortUsers(seqLastMessageTime, "time", indexs)
+	err = sortUsers(seqLastMessageIndex, "time", indexs)
 	if err != nil {
 		return err
 	}
@@ -142,38 +154,26 @@ func (cs *ChatService) prepareListUsers(sender string) (err error) {
 func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 	//fill user.Name -> in db, by uuid  u.Conn
 	ChatStorage.Type = "observeusers"
-	//no duplicate add user
+	log.Println("add user prev", u.UUID, u.UserID)
 
-	log.Println("add user", u.UUID, u.UserID)
+	//case - relogin, delete prev user in map, no duplicate
 	if len(c.ListUsers) > 1 {
-
 		for k := range c.ListUsers {
-			id, err := cs.repository.GetUserID(k)
+			_, err := cs.repository.GetUserID(k)
 			if err != nil {
-				log.Println("del user", k)
 				delete(c.ListUsers, k)
-			} else {
-				log.Println("add user", k, "idK", id)
-				//delete prev user -> resession case
-				//if userid > 0 {
-				u.UserID = id
-				c.ListUsers[u.UUID] = u
 			}
 		}
-	} else {
-		//add first user
-		id, err := cs.repository.GetUserID(u.UUID)
+	}
+	c.ListUsers[u.UUID] = u
+	ChatStorage.ListUsers = c.ListUsers // get gloabal var, map[uuid]name
+
+	//added new user -> sort -> send update ByTime, ByHistory Users
+	if len(c.ListUsers) > 1 {
+		err := cs.prepareListUsers(u.UserID)
 		if err != nil {
 			log.Println(err)
 		}
-		u.UserID = id
-		c.ListUsers[u.UUID] = u
-	}
-	ChatStorage.ListUsers = c.ListUsers // get gloabal var, map[uuid]name
-	//added new user -> sort -> send update ByTime, ByHistory Users
-	if len(c.ListUsers) > 1 {
-		cs.prepareListUsers(u.UUID)
-		// prepareUsers(u.UUID) here ?
 	}
 	for _, v := range ChatStorage.ListUsers {
 		v.Conn.WriteJSON(ChatStorage)
@@ -185,7 +185,10 @@ func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 func (cs *ChatService) getUsers(u *models.User) {
 	//check if users have in session
 	ChatStorage.Type = "getusers"
-	cs.prepareListUsers(u.UUID)
+	err := cs.prepareListUsers(u.UserID)
+	if err != nil {
+		log.Println(err)
+	}
 	u.Conn.WriteJSON(ChatStorage)
 }
 
@@ -202,7 +205,7 @@ func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
 
 	if room == "" {
 		m.Room = randomRoom
-		log.Println(m.Room, "send new room in db fucn")
+		log.Println(m.Room, "send new room in db func")
 		err = cs.repository.AddNewRoom(m)
 		if err != nil {
 			log.Println(err, "add room err")
@@ -210,7 +213,7 @@ func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
 	} else {
 		m.Room = room
 	}
-
+	// log.Println(m.Sender, m.Receiver)
 	err = cs.repository.AddNewMessage(m)
 	if err != nil {
 		log.Println(err, "err add new msg")
@@ -321,20 +324,23 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 			c.NewMessage <- message
 		}
 		// if strings.TrimSpace(username) == "" {
-		if body.Type == "newuser" {
-			// log.Println(body, "newuser")
+		if body.Type == "newuser" || body.Type == "getusers" {
+			id, err := cs.repository.GetUserID(body.Sender)
+			if err != nil {
+				log.Println(err)
+			}
 			user := &models.User{
+				UserID:   id,
 				UUID:     body.Sender,
 				Conn:     conn, //set conn current user
 				FullName: name,
 			}
-			c.Join <- user
-		}
-		if body.Type == "getusers" {
-			users := &models.User{
-				Conn: conn,
+			if body.Type == "getusers" {
+				c.GetUsers <- user
 			}
-			c.GetUsers <- users
+			if body.Type == "newuser" {
+				c.Join <- user
+			}
 		}
 		if body.Type == "leave" {
 			user := &models.User{

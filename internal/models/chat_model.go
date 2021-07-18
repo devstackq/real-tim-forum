@@ -12,18 +12,19 @@ import (
 //hi; how r u? uid1
 //- hello, fine and u ? uid2
 type Message struct {
-	ID       int    `json:"id"`
-	Content  string `json:"content"`
-	ChatID   int    `json:"chatid"`
-	Sender   string `json:"sender"`
-	Receiver string `json:"receiver"`
-	Type     string `json:"type"`
-	UserID   int    `json:"userid"`
-	Conn     *websocket.Conn
-	Room     string    `json:"room"`
-	Name     string    `json:"aname"`
-	SentTime time.Time `json:"senttime"`
-	Indexs   []int
+	ID               int    `json:"id"`
+	Content          string `json:"content"`
+	ChatID           int    `json:"chatid"`
+	Sender           string `json:"sender"`
+	Receiver         string `json:"receiver"`
+	Type             string `json:"type"`
+	UserID           int    `json:"userid"`
+	Conn             *websocket.Conn
+	Room             string    `json:"room"`
+	Name             string    `json:"aname"`
+	SentTime         time.Time `json:"senttime"`
+	LastIndexMessage int
+	Indexs           []int
 }
 
 // 20 time,

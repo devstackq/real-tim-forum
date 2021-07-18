@@ -122,18 +122,18 @@ func createTables(db *sql.DB) error {
 	}
 	votes.Exec()
 
-	notify, err := db.Prepare(`CREATE TABLE IF NOT EXISTS notifies(
-		id INTEGER PRIMARY KEY AUTOINCREMENT, 
-		post_id INTEGER,  
-		current_user_id INTEGER, 
-		voteState INTEGER DEFAULT 0, 
-		created_time DATETIME DEFAULT CURRENT_TIMESTAMP, 
-		to_whom INTEGER, 
-		comment_id INTEGER )`)
-	if err != nil {
-		return err
-	}
-	notify.Exec()
+	// notify, err := db.Prepare(`CREATE TABLE IF NOT EXISTS notifies(
+	// 	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	// 	post_id INTEGER,
+	// 	current_user_id INTEGER,
+	// 	voteState INTEGER DEFAULT 0,
+	// 	created_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+	// 	to_whom INTEGER,
+	// 	comment_id INTEGER )`)
+	// if err != nil {
+	// 	return err
+	// }
+	// notify.Exec()
 
 	category, err := db.Prepare(`CREATE TABLE IF NOT EXISTS categories(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -148,7 +148,9 @@ func createTables(db *sql.DB) error {
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		user_id1 INTEGER,
 		user_id2 INTEGER,
-		room TEXT NOT NULL UNIQUE
+		room TEXT NOT NULL UNIQUE,
+		FOREIGN KEY(user_id1) REFERENCES users(id),
+		FOREIGN KEY(user_id2) REFERENCES users(id)
 		)`,
 	)
 	if err != nil {
@@ -156,16 +158,33 @@ func createTables(db *sql.DB) error {
 	}
 	chat.Exec()
 
+	chatusers, err := db.Prepare(`CREATE TABLE IF NOT EXISTS chatusers(
+		id INTEGER PRIMARY KEY AUTOINCREMENT, 
+		sender_id INTEGER,
+		receiver_id INTEGER,
+		chat_id INTEGER,
+		FOREIGN KEY(sender_id) REFERENCES users(id), 
+		FOREIGN KEY(receiver_id) REFERENCES users(id), 
+		FOREIGN KEY(chat_id) REFERENCES chats(id)
+	)`)
+	if err != nil {
+		return err
+	}
+	chatusers.Exec()
+
 	message, err := db.Prepare(`CREATE TABLE IF NOT EXISTS messages(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		content TEXT,
 		room TEXT,
 		user_id INTEGER,
+		sender_id INTEGER,
+		receiver_id INTEGER,
 		name TEXT,
-		sent_time DATETIME
+		sent_time DATETIME,
+		FOREIGN KEY(user_id) REFERENCES users(id)
+		 
 		)`,
 	)
-	// FOREIGN KEY(room) REFERENCES chats(room)
 	if err != nil {
 		return err
 	}

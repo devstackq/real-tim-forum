@@ -1,4 +1,4 @@
-import { wsConn, getSession } from "./WebSocket.js";
+import { wsConn, getCookie } from "./WebSocket.js";
 
 // export const listUsers = new Map();
 export const listUsers = [];
@@ -7,7 +7,7 @@ export const showListUser = (users) => {
   if (window.location.pathname == "/chat") {
     let senderUuid = "";
 
-    senderUuid = getSession();
+    senderUuid = getCookie("session");
     let parent = document.getElementById("userlistbox");
     let ul = document.getElementById("listusersID");
 
@@ -56,7 +56,7 @@ export const showListUser = (users) => {
 //mail. pwd, 1 auth,1 open
 export const addNewUser = (uuid) => {
   if (uuid == undefined) {
-    uuid = getSession();
+    uuid = getCookie("session");
   }
   if (getAuthState() == "true") {
     // console.log("new user", uuid, wsConn);

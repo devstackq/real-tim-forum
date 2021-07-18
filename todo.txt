@@ -111,8 +111,15 @@ fk - consistent, join, 1 table row FK - relat table2 by PK
 done:
 fix : signin -> redirect profile, sendMessage(), getHistoryUser(), case :   no msessage, lastmessage, resession -> update conn
 now : same user signin - logout ->  no add listUsers -> window.reload() - if resession
+
+
+---------
 ref:? all route -> if auth -> addnewuser?
 ref:? getMessage? http ? !ws
+
+
+ //TODO: sorted, err := cs.repository.GetUsersChat() optimize sqlQuery
+
 
 UsersList:
 1case : users sortUsersByTime  -> asc
@@ -124,6 +131,7 @@ server getAllUser -> checkIfHasChat sender == another; add GroupHistory else Gro
 UL case1: /chat : ListsUsers.History[] - if have rooms (receiver, sender) ->
 
 
+
 Online case:
 addNewUser -> findByUUID in ListUsers[].status = online
 else  if Logout, etc case -> offline;
@@ -133,3 +141,17 @@ Client side: case listusers -> if User[i].status =='online -> addClass(online)
 listmessages: sql when, debounce
 
 notify:
+
+
+insight
+//ByTime = user send uuid if have else add userid, client check if have uuid and correct -> add class onlin -else -> offline
+
+//  compare CS.Listuser == ByTime & ByAlpha -> if equalUser -> user.state = online
+
+1sql query -> left join use, perfomance low, ref 1 query
+
+
+
+Social network
+1 ref table, chat, chatusers, messages, - relations
+2 ref arch  - addUser, sendMsg, - for new db
