@@ -41,11 +41,11 @@ type Chat interface {
 	AddNewMessage(m *models.Message) error
 	AddNewRoom(m *models.Message) error
 	IsExistRoom(m *models.Message) (string, error)
-	GetUserName(int) (string, error)
+	// GetUserName(int) (string, error)
 	GetUserID(string) (int, error)
-	GetLastMessageIndex(string, int) (int, error)
-	GetAllUsers() ([]models.User, error)
-	GetUsersChat() ([]models.User, error)
+	// GetLastMessageIndex(string, int) (int, error)
+	// GetAllUsers() ([]models.User, error)
+	GetSortedUsers(int) ([]models.Chat, error)
 }
 
 // type Utils interface {

@@ -7,6 +7,8 @@ export const showListUser = (users) => {
   if (window.location.pathname == "/chat") {
     let senderUuid = "";
 
+    console.log(users);
+
     senderUuid = getCookie("session");
     let parent = document.getElementById("userlistbox");
     let ul = document.getElementById("listusersID");

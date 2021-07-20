@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"sort"
+	"strconv"
 	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
@@ -13,14 +13,15 @@ import (
 )
 
 var ChatStorage struct {
-	ListMessage []models.Message        `json:"messages"`
-	ListUsers   map[string]*models.User `json:"users"`
-	NewUser     *models.User            `json:"newuser"`
-	ByAlpha     map[string]*models.User `json:"alphausers"`
-	ByTime      map[string]*models.User `json:"timeusers"`
-	Message     models.Message          `json:"message"`
-	Type        string                  `json:"type"`
-	Receiver    string                  `json:"receiver"`
+	ListMessage []models.Message `json:"messages"`
+	// ListUsers   map[string]*models.User `json:"users"`
+	ListUsers map[string]*models.Chat `json:"users"`
+	NewUser   *models.User            `json:"newuser"`
+	ByAlpha   map[string]*models.User `json:"alphausers"`
+	ByTime    map[string]*models.User `json:"timeusers"`
+	Message   models.Message          `json:"message"`
+	Type      string                  `json:"type"`
+	Receiver  string                  `json:"receiver"`
 }
 
 type ChatService struct {
@@ -31,7 +32,7 @@ func NewChatService(repo repository.Chat) *ChatService {
 	return &ChatService{repo}
 }
 
-func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
+func (cs *ChatService) getMessages(m *models.Message, c *models.ChatStorage) error {
 	//find users room, if zero
 	room, err := cs.repository.IsExistRoom(m)
 	if err != nil {
@@ -58,103 +59,34 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.Chat) error {
 	return nil
 }
 
-func sortUsers(seq []*models.Message, sortType string, indexs []int) error {
-	sortedUserByTime := make(map[string]*models.User)
-	sortedUserByAlpha := make(map[string]*models.User)
-	if len(indexs) > 1 {
-		sort.Ints(indexs)
-	}
-
-	if sortType == "time" {
-
-		for _, message := range seq {
-			log.Println(message, "have msg users")
-			// for _, i := range indexs {
-			for i := len(indexs) - 1; i >= 0; i-- {
-				if message.LastIndexMessage == indexs[i] { // find receiver user
-					log.Println(message.Name, "sort name user")
-					sortedUser := models.User{UserID: message.UserID, FullName: message.Name}
-					sortedUserByTime[message.Receiver] = &sortedUser
-					// ChatStorage.ByTime = append(ChatStorage.ByTime, *models.User{UUID: message.Receiver, FullName: message.Name})
-				}
-			}
-		}
-	} else if sortType == "alpha" {
-		// for _, m := range seq {
-		// sort string alpha
-		sort.Slice(seq, func(i1, i2 int) bool {
-			return len(seq[i1].Name) < len(seq[i2].Name)
-		})
-		// sort.Sort(sort.StringSlice(m.Name))
-	}
-
-	ChatStorage.ByAlpha = sortedUserByAlpha
-	ChatStorage.ByTime = sortedUserByTime
-
-	log.Println(sortedUserByAlpha, "by alpha empty user", sortedUserByTime, "time")
-	return nil
-}
-
-func (cs *ChatService) prepareListUsers(senderId int) (err error) {
-	//get User & keft join -> user chat message then sort
-	//TODO: sorted, err := cs.repository.GetUsersChat()
-	users, err := cs.repository.GetAllUsers()
-	if err != nil {
-		return err
-	}
-
-	seqLastMessageIndex := []*models.Message{}
-	seqAlpha := []*models.Message{}
-	indexs := []int{}
-	//get all users system -> check if have chat - room, get last index (append index)-> compare index
-	for _, user := range users {
-		if user.UserID != senderId {
-			temp := models.Message{}
-			// log.Println(k, receiver, v.UUID, 1234)
-			m := models.Message{ID: senderId, UserID: user.UserID} //sender, receiver
-			log.Println("sender", senderId, "rece", user.UserID)
-			room, err := cs.repository.IsExistRoom(&m)
-			temp.ID = senderId        //sender
-			temp.UserID = user.UserID //receiver
-			temp.Name = user.FullName
-			// if have msg.index > 0 -> sort else sort by name
-			//ByTime = user send uuid if have else add userid, client check if have uuid and correct -> add class online
-			//else -> offline
-			if err != nil {
-				log.Println(err, " room err", user.FullName, "no has message")
-				seqAlpha = append(seqAlpha, &temp)
+func (cs *ChatService) onlineUsers(users []models.Chat) {
+	//compare current map user - sorted
+	for uuid, onlineUser := range ChatStorage.ListUsers {
+		for _, user := range users { //sorted users
+			if user.ID == onlineUser.ID && len(uuid) > 10 {
+				onlineUser.UserName = user.UserName
+				onlineUser.LastMessage = user.LastMessage
+				onlineUser.Online = true
 			} else {
-				index, err := cs.repository.GetLastMessageIndex(room, user.UserID)
-				if err != nil {
-					return err
-				}
-				//add each user - intersect chat, by last index message, append seqSortByTime
-				temp.LastIndexMessage = index
-				seqLastMessageIndex = append(seqLastMessageIndex, &temp)
-				if index > 0 {
-					indexs = append(indexs, index) // need sort ?
-				}
+				//duplciate each time
+				c := models.Chat{}
+				c.ID = user.ID
+				c.UserName = user.UserName
+				c.LastMessage = user.LastMessage
+				c.Online = false
+				ChatStorage.ListUsers[strconv.Itoa(c.ID)] = &c
 			}
 		}
 	}
-
-	err = sortUsers(seqLastMessageIndex, "time", indexs)
-	if err != nil {
-		return err
-	}
-	err = sortUsers(seqAlpha, "alpha", nil)
-	if err != nil {
-		return err
-	}
-	return nil
+	// v.Conn.WriteJSON(ChatStorage)
 }
 
 //or global each time send client - use client side this var ?``
 //open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
-func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
+func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) {
 	//fill user.Name -> in db, by uuid  u.Conn
 	ChatStorage.Type = "observeusers"
-	log.Println("add user prev", u.UUID, u.UserID)
+	log.Println("add user prev", u.UUID, u.ID)
 
 	//case - relogin, delete prev user in map, no duplicate
 	if len(c.ListUsers) > 1 {
@@ -164,17 +96,16 @@ func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 				delete(c.ListUsers, k)
 			}
 		}
+		//server have 6 user,
+		sorted, err := cs.repository.GetSortedUsers(u.ID)
+		if err != nil {
+			log.Println(err)
+		}
+		go cs.onlineUsers(sorted)
 	}
 	c.ListUsers[u.UUID] = u
 	ChatStorage.ListUsers = c.ListUsers // get gloabal var, map[uuid]name
 
-	//added new user -> sort -> send update ByTime, ByHistory Users
-	if len(c.ListUsers) > 1 {
-		err := cs.prepareListUsers(u.UserID)
-		if err != nil {
-			log.Println(err)
-		}
-	}
 	for _, v := range ChatStorage.ListUsers {
 		v.Conn.WriteJSON(ChatStorage)
 	}
@@ -182,17 +113,19 @@ func (cs *ChatService) addNewUser(u *models.User, c *models.Chat) {
 	// ChatStorage.NewUser = u
 }
 
-func (cs *ChatService) getUsers(u *models.User) {
+func (cs *ChatService) getUsers(u *models.Chat) {
 	//check if users have in session
 	ChatStorage.Type = "getusers"
-	err := cs.prepareListUsers(u.UserID)
+	sorted, err := cs.repository.GetSortedUsers(u.ID)
 	if err != nil {
 		log.Println(err)
 	}
+	go cs.onlineUsers(sorted)
+
 	u.Conn.WriteJSON(ChatStorage)
 }
 
-func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
+func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
 	// if c.Users[m.Receiver] == uuidReceiverInDB?
 	//save db in message, caht table & message, add author, date message
 	//send msg - to  conn - receiver if have in server
@@ -235,7 +168,7 @@ func (cs *ChatService) sendMessage(c *models.Chat, m *models.Message) {
 	}
 }
 
-func (cs *ChatService) leaveUser(c *models.Chat, u *models.User) {
+func (cs *ChatService) leaveUser(c *models.ChatStorage, u *models.Chat) {
 	ChatStorage.Type = "leave"
 	u.Conn.Close()
 	delete(c.ListUsers, u.UUID)
@@ -248,7 +181,7 @@ func (cs *ChatService) leaveUser(c *models.Chat, u *models.User) {
 
 //1 main -> Start() ->  createEmptyObjecetChat -> 2 ws Handler, newConn -> 3 go Run() // goruutine each newConn(user)
 //handle if receive new user (from new conn(user) -> join), get new user -> by chan(goroutine)
-func (cs *ChatService) Run(c *models.Chat) {
+func (cs *ChatService) Run(c *models.ChatStorage) {
 	for {
 		select {
 		case newuser := <-c.Join:
@@ -272,7 +205,7 @@ func (cs *ChatService) Run(c *models.Chat) {
 //Service - check type from client -> if newmessage -> create obj Message, fill field -> run gorutine
 //run func broadcast(), conn,WriteJson(data), find by uuid
 
-func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name string, uuid string) error {
+func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChatStorage, name string, uuid string) error {
 
 	body := models.Message{}
 
@@ -296,7 +229,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 			//logout, close tab -> leave
 			log.Println(code.Code, "codet")
 			if code.Code == 1001 {
-				cs.leaveUser(c, &models.User{UUID: body.Sender})
+				cs.leaveUser(c, &models.Chat{UUID: body.Sender})
 				break
 			}
 		}
@@ -329,11 +262,11 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 			if err != nil {
 				log.Println(err)
 			}
-			user := &models.User{
-				UserID:   id,
+			user := &models.Chat{
+				ID:       id,
 				UUID:     body.Sender,
 				Conn:     conn, //set conn current user
-				FullName: name,
+				UserName: name,
 			}
 			if body.Type == "getusers" {
 				c.GetUsers <- user
@@ -343,7 +276,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.Chat, name 
 			}
 		}
 		if body.Type == "leave" {
-			user := &models.User{
+			user := &models.Chat{
 				Conn: conn,
 				UUID: body.Sender,
 			}

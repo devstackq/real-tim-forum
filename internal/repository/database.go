@@ -174,7 +174,7 @@ func createTables(db *sql.DB) error {
 
 	message, err := db.Prepare(`CREATE TABLE IF NOT EXISTS messages(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
-		content TEXT,
+		content TEXT NOT NULL DEFAULT "",
 		room TEXT,
 		user_id INTEGER,
 		sender_id INTEGER,
@@ -182,7 +182,6 @@ func createTables(db *sql.DB) error {
 		name TEXT,
 		sent_time DATETIME,
 		FOREIGN KEY(user_id) REFERENCES users(id)
-		 
 		)`,
 	)
 	if err != nil {

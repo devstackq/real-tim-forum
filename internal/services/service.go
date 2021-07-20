@@ -29,8 +29,8 @@ type Vote interface {
 	VoteTerminator(*models.Vote) (*models.Vote, error)
 }
 type Chat interface {
-	ChatBerserker(*websocket.Conn, *models.Chat, string, string) error
-	Run(*models.Chat)
+	ChatBerserker(*websocket.Conn, *models.ChatStorage, string, string) error
+	Run(*models.ChatStorage)
 	// GetMessages(*models.Message) ([]models.Message, error)
 }
 

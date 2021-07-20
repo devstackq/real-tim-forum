@@ -8,7 +8,7 @@ import (
 
 	"github.com/devstackq/real-time-forum/internal/handler"
 	"github.com/devstackq/real-time-forum/internal/repository"
-	"github.com/devstackq/real-time-forum/internal/service"
+	service "github.com/devstackq/real-time-forum/internal/services"
 )
 
 type Server struct {

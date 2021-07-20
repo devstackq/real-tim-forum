@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/devstackq/real-time-forum/internal/service"
+	service "github.com/devstackq/real-time-forum/internal/services"
 )
 
 type Handler struct {

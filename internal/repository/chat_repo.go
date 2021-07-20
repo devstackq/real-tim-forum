@@ -16,17 +16,24 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 	return &ChatRepository{db}
 }
 
-func (cr *ChatRepository) GetUsersChat() ([]models.User, error) {
-	//save in db message in chat,
-	// todo
-	// queryStmt, err := cr.db.Query("SELECT users.id, users.full_name FROM users LEFT JOIN messages ON messages.user_id = users.id  WHERE room=? ORDER BY messages.id alias_last_index_message DESC, users.id ASC", m.Room)
-	// if err != nil {
-	// 	return nil, err
-	// }
+func (cr *ChatRepository) GetSortedUsers(userid int) ([]models.Chat, error) {
+	//save in db message in chat, c.room,  m.user_id, m.id,
+	queryStmt, err := cr.db.Query(`select u.id, u.full_name, m.content,  m.name as lastMessageSenderName,  m.sent_time, MAX(m.id) FROM users u  
+	left join chats c on c.user_id1 = $1  AND c.user_id2 = u.id  or  c.user_id2 = $1 AND c.user_id1 = u.id
+	left join messages m on m.room = c.room GROUP BY u.id ORDER by m.sent_time DESC, u.full_name ASC`, userid)
+	if err != nil {
+		return nil, err
+	}
 
-	// for queryStmt.Next() {
-	// }
-	return nil, nil
+	chatUsers := []models.Chat{}
+	for queryStmt.Next() {
+		c := models.Chat{}
+		if err := queryStmt.Scan(&c.ID, &c.UserName, &c.LastMessage, &c.LastMessageSenderName, &c.SentTime, &c.MesageID); err != nil {
+			return nil, err
+		}
+		chatUsers = append(chatUsers, c)
+	}
+	return chatUsers, nil
 }
 
 func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
