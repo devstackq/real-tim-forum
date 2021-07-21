@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
@@ -16,7 +15,7 @@ var ChatStorage struct {
 	ListMessage []models.Message `json:"messages"`
 	// OnlineUsers   map[string]*models.User `json:"users"`
 	OnlineUsers map[string]*models.Chat `json:"online"`
-	AllUsers    map[string]*models.Chat `json:"users"`
+	AllUsers    []models.Chat           `json:"users"`
 	Message     models.Message          `json:"message"`
 	Type        string                  `json:"type"`
 	Receiver    string                  `json:"receiver"`
@@ -57,59 +56,42 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChatStorage) err
 	return nil
 }
 
-//map[string]*models.Chat
-func (cs *ChatService) mergeUsers(dbUsers []models.Chat, onlineUsers map[string]*models.Chat) {
-	log.Println(ChatStorage.OnlineUsers, 0)
-	//1 init - 1 user then add in CS.OnlineUsers
-	//2 userX sigin -> update OnlineUsers or /chat js -> getusers -> already preapared data work
-	//case offline -> online, [14]user,
-	//[qwerty]=user,
-	//11 in 4,
-	//add new user, append -> in dbUsers, updatefield - send client
-
-	//1 get sorted user, 2 getOnlineUser -> add field -> and online = true -> send client obj
-	//sortusers Cs.ChatUsers
-	//join or leave -> change state -> ChatUsers
-
-	sort, condition, append in dbUsers, then - send AllUsers -> send client
-	for uuid, onlineUser := range onlineUsers { //server users
-		for _, dbUser := range dbUsers { //sorted users from db
-			log.Println(ChatStorage.OnlineUsers[strconv.Itoa(dbUser.ID)], "key map", strconv.Itoa(dbUser.ID))
-			//2 strcut - merge 1 ?
-			if _, ok := ChatStorage.OnlineUsers[uuid]; !ok && len(uuid) == 36 {
-				if dbUser.ID == onlineUser.ID {
-					onlineUser.UserName = dbUser.UserName
-					onlineUser.LastMessage = dbUser.LastMessage
-					onlineUser.Online = true
-					ChatStorage.OnlineUsers[uuid] = onlineUser
-				}
+func (cs *ChatService) mergeUsers(dbUsers []models.Chat, onlineUsers map[string]*models.Chat) []models.Chat {
+	for index, dbUser := range dbUsers { //sorted users from db
+		for uuid, onlineUser := range onlineUsers { //server users
+			if onlineUser.ID == dbUser.ID {
+				dbUsers[index].UUID = uuid
+				dbUsers[index].Online = true
 			}
-			if _, ok := ChatStorage.OnlineUsers[strconv.Itoa(dbUser.ID)]; !ok && dbUser.ID != onlineUser.ID {
-				// if ChatStorage.OnlineUsers[strconv.Itoa(user.ID)] == nil {
-				// log.Println(user.ID, "add offline users", user.UserName)
-				c := models.Chat{}
-				c.ID = dbUser.ID
-				c.UserName = dbUser.UserName
-				c.LastMessage = dbUser.LastMessage
-				c.Online = false
-				ChatStorage.OnlineUsers[strconv.Itoa(c.ID)] = &c
-			}
+			// exlude -> ourselve
 		}
 	}
+	return dbUsers
+	// ChatStorage.AllUsers = dbUsers
 }
 
 //if find userid -> update CS.OnlineUsers[id]=u, uuid, u.LastMessage, etc
-func (cs *ChatService) updateStateUser(user *models.Chat) {
-
-}
 
 //or global each time send client - use client side this var ?``
 //open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
+type ChatStore struct {
+	ListMessage []models.Message        `json:"messages"`
+	OnlineUsers map[string]*models.Chat `json:"online"`
+	AllUsers    []models.Chat           `json:"users"`
+	Message     models.Message          `json:"message"`
+	Type        string                  `json:"type"`
+	Receiver    string                  `json:"receiver"`
+}
+type NewUser struct {
+	User *models.Chat `json:"user"`
+	Type string       `json:"type"`
+}
+
 func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) {
 	//fill user.Name -> in db, by uuid  u.Conn
-	ChatStorage.Type = "observeusers"
-	// log.Println("add user prev", u.UUID, u.ID)
+	store := ChatStore{}
 
+	store.Type = "observeusers"
 	//case - relogin, delete prev user in map, no duplicate
 	if len(c.OnlineUsers) > 1 {
 		for k := range c.OnlineUsers {
@@ -119,38 +101,47 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) {
 			}
 		}
 	}
-	//not find by userid, exit
-	//
-	// if updated, user := cs.updateStateUser(u); !updated {
 
 	c.OnlineUsers[u.UUID] = u
-	ChatStorage.OnlineUsers = c.OnlineUsers // get gloabal var, map[uuid]name
-
+	store.OnlineUsers = c.OnlineUsers // get gloabal var, map[uuid]name
 	//off -> on, findById, -> update data
 
 	sorted, err := cs.repository.GetSortedUsers(u.ID)
 	if err != nil {
 		log.Println(err)
 	}
-	go cs.mergeUsers(sorted, c.OnlineUsers)
+	users := cs.mergeUsers(sorted, store.OnlineUsers)
+	//all user observe
+	store.AllUsers = users
 
-	log.Println(len(ChatStorage.OnlineUsers), "res", ChatStorage.OnlineUsers)
+	//ourselves
+	u.Conn.WriteJSON(store)
 
-	// for _, v := range ChatStorage.OnlineUsers {
-	// 	v.Conn.WriteJSON(ChatStorage)
-	// }
-	// }
+	// fix - realtime update online, offline user
+	// fix send message,
+
+	//send all conn, who now online -> onmessage case
+	//id20, js, go global this.users, findId -> add class - online else logout -> remove online
+
+	//send another users
+	//type online userobserve
+	u.Online = true
+	newUser := NewUser{}
+	newUser.Type = "online"
+	newUser.User = u
+
+	for _, v := range store.OnlineUsers {
+		v.Conn.WriteJSON(newUser)
+	}
 }
 
 func (cs *ChatService) getUsers(u *models.Chat) {
 	//check if users have in session
 	ChatStorage.Type = "getusers"
-	// cs.onlineUsers(sorted)
 	u.Conn.WriteJSON(ChatStorage)
 }
 
 func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
-	// if c.Users[m.Receiver] == uuidReceiverInDB?
 	//save db in message, caht table & message, add author, date message
 	//send msg - to  conn - receiver if have in server
 	room, err := cs.repository.IsExistRoom(m)
@@ -158,7 +149,6 @@ func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
 		log.Println(err, " room New msg3")
 	}
 	randomRoom := Randomaizer()
-	// fmt.Println(room, "reciece", m.Receiver, "sen", m.Sender, "pre add message")
 
 	if room == "" {
 		m.Room = randomRoom
@@ -170,7 +160,6 @@ func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
 	} else {
 		m.Room = room
 	}
-	// log.Println(m.Sender, m.Receiver)
 	err = cs.repository.AddNewMessage(m)
 	if err != nil {
 		log.Println(err, "err add new msg")

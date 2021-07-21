@@ -31,16 +31,28 @@ export const wsInit = (...args) => {
 
   wsConn.onmessage = (e) => {
     let message = JSON.parse(e.data);
-    console.log(message.type, typeof message.users, message.users);
+    console.log(Object.entries(message).length, message, message.type, typeof message.users, message.users);
     // listUsers = message.users;
     switch (message.type) {
-      case "observeusers":
-        console.log(message.timeusers, message.alphausers);
+      case  "online": 
+// message.user
+break
+"online, change dom tree, find by name -> set class online, change listUser - field uuid")
+or again call ShowListuser()?
+
+case "observeusers":
         //show divs class users, inside each user - - div
         //  show by reverse
         //update all conn -> added new user
         // for (let i = 0; i < message.users.length; i++) {}
-        showListUser(message.users);
+      //  console.log(Object.entries(message.users).length)
+        if(Object.entries(message.users).length > 1) {
+          showListUser(message.users);
+        }else if(Object.entries(message).length ==1 ){
+          console.log(message)
+          showListUser(message);
+        }
+        //update online state 
         break;
       case "getusers":
         //add in arrayUsers

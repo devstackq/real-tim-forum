@@ -187,7 +187,10 @@ label,
 #userlistbox li:hover {
   opacity: 1;
 }
-
+.online {
+  color: red;
+  background: lime;
+}
 .current {
   color: red;
   background-color: #fff;

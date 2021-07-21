@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
@@ -17,10 +18,10 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 }
 
 func (cr *ChatRepository) GetSortedUsers(userid int) ([]models.Chat, error) {
-	//save in db message in chat, c.room,  m.user_id, m.id,
+	//save in db message in chat, c.room,  m.user_id, m.id,, WHERE u.id NOT IN($1)
 	queryStmt, err := cr.db.Query(`SELECT u.id, u.full_name, m.content,  m.name as lastMessageSenderName,  m.sent_time, MAX(m.id) FROM users u  
 	left join chats c ON c.user_id1 = $1  AND c.user_id2 = u.id  OR  c.user_id2 = $1 AND c.user_id1 = u.id
-	left join messages m ON m.room = c.room  WHERE u.id NOT IN($1) GROUP BY u.id ORDER by m.sent_time DESC, u.full_name ASC`, userid)
+	left join messages m ON m.room = c.room   GROUP BY u.id ORDER by m.sent_time DESC, u.full_name ASC`, userid)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +64,6 @@ func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
 //addnewMessage - save name, no need fix
 //add message in db
 func (cr *ChatRepository) AddNewMessage(m *models.Message) error {
-	log.Println(m.Name, " Name , add new message  Room", m.Room)
 	//save in db message in chat, messages table
 	queryMsg, err := cr.db.Prepare(`INSERT INTO messages(content, room, user_id, name, sent_time) VALUES(?,?,?, ?, ?)`)
 	if err != nil {
@@ -149,15 +149,26 @@ func (cr *ChatRepository) GetLastMessageIndex(room string, userid int) (lastinde
 }
 
 func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
+	//case 1 uuid sender, uuid receiver
+	//case 2
 
 	senderUserID := m.ID
 	receiverUserID := m.UserID
 
-	log.Println(receiverUserID, m.Receiver, m.Sender, senderUserID, "users ids check exist room")
+	// log.Println(receiverUserID, m.Receiver, m.Sender, senderUserID, "users ids check exist room")
 
 	var err error
 
-	if senderUserID == 0 || receiverUserID == 0 {
+	if len(m.Receiver) == 1 {
+		receiverUserID, err = strconv.Atoi(m.Receiver)
+		if err != nil {
+			return "", err
+		}
+		senderUserID, err = cr.GetUserID(m.Sender)
+		if err != nil {
+			return "", err
+		}
+	} else if (senderUserID == 0 || receiverUserID == 0) && len(m.Receiver) == 36 {
 
 		receiverUserID, err = cr.GetUserID(m.Receiver)
 		if err != nil {
@@ -167,7 +178,6 @@ func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 		if err != nil {
 			return "", err
 		}
-
 	}
 
 	log.Println(receiverUserID, senderUserID, "after")
