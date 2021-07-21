@@ -38,7 +38,7 @@ type Message struct {
 // }
 
 type ChatStorage struct {
-	ListUsers   map[string]*Chat `json:"uzers"` // key =
+	OnlineUsers map[string]*Chat
 	NewMessage  chan *Message
 	Join        chan *Chat
 	Leave       chan *Chat

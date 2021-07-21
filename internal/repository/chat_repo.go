@@ -18,9 +18,9 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 
 func (cr *ChatRepository) GetSortedUsers(userid int) ([]models.Chat, error) {
 	//save in db message in chat, c.room,  m.user_id, m.id,
-	queryStmt, err := cr.db.Query(`select u.id, u.full_name, m.content,  m.name as lastMessageSenderName,  m.sent_time, MAX(m.id) FROM users u  
-	left join chats c on c.user_id1 = $1  AND c.user_id2 = u.id  or  c.user_id2 = $1 AND c.user_id1 = u.id
-	left join messages m on m.room = c.room GROUP BY u.id ORDER by m.sent_time DESC, u.full_name ASC`, userid)
+	queryStmt, err := cr.db.Query(`SELECT u.id, u.full_name, m.content,  m.name as lastMessageSenderName,  m.sent_time, MAX(m.id) FROM users u  
+	left join chats c ON c.user_id1 = $1  AND c.user_id2 = u.id  OR  c.user_id2 = $1 AND c.user_id1 = u.id
+	left join messages m ON m.room = c.room  WHERE u.id NOT IN($1) GROUP BY u.id ORDER by m.sent_time DESC, u.full_name ASC`, userid)
 	if err != nil {
 		return nil, err
 	}
