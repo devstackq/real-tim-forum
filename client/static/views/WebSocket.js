@@ -31,28 +31,31 @@ export const wsInit = (...args) => {
 
   wsConn.onmessage = (e) => {
     let message = JSON.parse(e.data);
-    console.log(Object.entries(message).length, message, message.type, typeof message.users, message.users);
+   console.log(message)
+    // console.log(Object.entries(message).length, message, message.type, typeof message.users, message.users);
     // listUsers = message.users;
-    switch (message.type) {
-      case  "online": 
-// message.user
-break
-"online, change dom tree, find by name -> set class online, change listUser - field uuid")
-or again call ShowListuser()?
+    let el = null;
+    if (message != null && message.user != undefined) {
+      el = document.getElementById(message.user.id);
+    }
 
-case "observeusers":
+    switch (message.type) {
+      case "online":
+        el.className = "online";
+        // showListUser(message.user);
+        break;
+        //fix - 2 time click - getUsers - work
+        //fix send message
+//fix logout msg
+
+        case "observeusers":
         //show divs class users, inside each user - - div
         //  show by reverse
         //update all conn -> added new user
         // for (let i = 0; i < message.users.length; i++) {}
-      //  console.log(Object.entries(message.users).length)
-        if(Object.entries(message.users).length > 1) {
-          showListUser(message.users);
-        }else if(Object.entries(message).length ==1 ){
-          console.log(message)
-          showListUser(message);
-        }
-        //update online state 
+        //  console.log(Object.entries(message.users).length)
+        showListUser(message.users);
+        //update online state
         break;
       case "getusers":
         //add in arrayUsers
@@ -102,7 +105,8 @@ case "observeusers":
         break;
       case "leave":
         // this.onlineUsers.delete(message.receiver);
-        showListUser(message.users);
+        el.classList.remove("online");
+        // showListUser(message.users);
         break;
     }
 

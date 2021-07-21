@@ -4,15 +4,14 @@ import { wsConn, getCookie } from "./WebSocket.js";
 export let listUsers = {};
 
 export const showListUser = (users) => {
- 
-  if(users.length > 1 ) {
-  listUsers=  users
- }
- console.log(users)
+  if (users.length > 1) {
+    listUsers = users;
+  }
+
+  console.log(users);
 
   if (window.location.pathname == "/chat") {
     let senderUuid = "";
-
 
     senderUuid = getCookie("session");
     let parent = document.getElementById("userlistbox");
@@ -21,23 +20,26 @@ export const showListUser = (users) => {
     if (users != null && ul != null && parent != null) {
       ul.innerHTML = "";
       //   listUsers.set(user.UUID, user);
-      for (let [uuid, user] of Object.entries(listUsers)) {
+      for (let [keyUser, user] of Object.entries(listUsers)) {
         let li = document.createElement("li");
         for (let [key, value] of Object.entries(user)) {
           if (Object.entries(listUsers).length == 1) {
-            // super.showNotify("Now, no has online user", "error");
             alert("Now, no has online user");
             return;
           }
+
+          if (key == "id") {
+            li.id = value;
+          }
+          if (key == "online") {
+            if (value) {
+              li.className = "online";
+            }
+          }
+
           if (key == "fullname" && value != "") {
             //dry
-            if (key =="online") {
-              if (value) {
-                li.className = 'online'
-              }
-            }else {
-              li.className = 'offline'
-            }
+
             li.textContent = value;
             li.onclick = (e) => {
               //remove prev clicked elem class
@@ -56,8 +58,10 @@ export const showListUser = (users) => {
             };
           }
           //append without yourself
-          if (uuid != senderUuid) {
-            ul.append(li);
+          if (key == "uuid") {
+            if (value != senderUuid) {
+              ul.append(li);
+            }
           }
         }
         parent.append(ul);

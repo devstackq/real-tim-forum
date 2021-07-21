@@ -87,7 +87,7 @@ type NewUser struct {
 	Type string       `json:"type"`
 }
 
-func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) {
+func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) *ChatStore {
 	//fill user.Name -> in db, by uuid  u.Conn
 	store := ChatStore{}
 
@@ -101,7 +101,6 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) {
 			}
 		}
 	}
-
 	c.OnlineUsers[u.UUID] = u
 	store.OnlineUsers = c.OnlineUsers // get gloabal var, map[uuid]name
 	//off -> on, findById, -> update data
@@ -110,35 +109,31 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) {
 	if err != nil {
 		log.Println(err)
 	}
-	users := cs.mergeUsers(sorted, store.OnlineUsers)
-	//all user observe
-	store.AllUsers = users
+
+	store.AllUsers = cs.mergeUsers(sorted, store.OnlineUsers)
 
 	//ourselves
 	u.Conn.WriteJSON(store)
 
-	// fix - realtime update online, offline user
-	// fix send message,
-
-	//send all conn, who now online -> onmessage case
-	//id20, js, go global this.users, findId -> add class - online else logout -> remove online
-
-	//send another users
-	//type online userobserve
+	//another user send
 	u.Online = true
 	newUser := NewUser{}
 	newUser.Type = "online"
 	newUser.User = u
 
 	for _, v := range store.OnlineUsers {
-		v.Conn.WriteJSON(newUser)
+		if v.UUID != newUser.User.UUID {
+			v.Conn.WriteJSON(newUser)
+		}
 	}
+	return &store
 }
 
-func (cs *ChatService) getUsers(u *models.Chat) {
+func (cs *ChatService) getUsers(store *ChatStore, u *models.Chat) {
 	//check if users have in session
 	ChatStorage.Type = "getusers"
-	u.Conn.WriteJSON(ChatStorage)
+	log.Println(store, "store")
+	u.Conn.WriteJSON(store)
 }
 
 func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
@@ -183,6 +178,10 @@ func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
 
 func (cs *ChatService) leaveUser(c *models.ChatStorage, u *models.Chat) {
 	ChatStorage.Type = "leave"
+	// NewUser = u
+	// NewUser.Type = "leave"
+	// NewUser.ID = u.ID
+
 	u.Conn.Close()
 	delete(c.OnlineUsers, u.UUID)
 	ChatStorage.OnlineUsers = c.OnlineUsers
@@ -195,16 +194,18 @@ func (cs *ChatService) leaveUser(c *models.ChatStorage, u *models.Chat) {
 //1 main -> Start() ->  createEmptyObjecetChat -> 2 ws Handler, newConn -> 3 go Run() // goruutine each newConn(user)
 //handle if receive new user (from new conn(user) -> join), get new user -> by chan(goroutine)
 func (cs *ChatService) Run(c *models.ChatStorage) {
+	var listUsers *ChatStore
 	for {
 		select {
 		case newuser := <-c.Join:
-			cs.addNewUser(newuser, c)
+			listUsers = cs.addNewUser(newuser, c)
 		case message := <-c.NewMessage:
 			cs.sendMessage(c, message)
 		case list := <-c.ListMessage:
 			cs.getMessages(list, c)
 		case users := <-c.GetUsers:
-			cs.getUsers(users)
+			log.Println(listUsers, 8765)
+			cs.getUsers(listUsers, users)
 		case user := <-c.Leave:
 			cs.leaveUser(c, user)
 		}

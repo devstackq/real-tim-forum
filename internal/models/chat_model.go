@@ -49,7 +49,6 @@ type ChatStorage struct {
 type Chat struct {
 	ID                    int             `json:"id"`
 	UserName              string          `json:"fullname"`
-	State                 bool            `json:"state"`
 	LastMessage           sql.NullString  `json:"lastmessage"`
 	LastMessageSenderName sql.NullString  `json:"lastsender"`
 	SentTime              sql.NullTime    `json:"senttime"`

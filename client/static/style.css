@@ -188,8 +188,8 @@ label,
   opacity: 1;
 }
 .online {
-  color: red;
-  background: lime;
+  color: red !important;
+  background: lime !important;
 }
 .current {
   color: red;
