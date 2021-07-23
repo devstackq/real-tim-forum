@@ -119,7 +119,8 @@ ref:? getMessage? http ? !ws
 
 
  //TODO: sorted, err := cs.repository.GetUsersChat() optimize sqlQuery
-
+1wtf no work - goroutine - 1 seq[]struct*
+2
 
 UsersList:
 1case : users sortUsersByTime  -> asc
@@ -131,17 +132,13 @@ server getAllUser -> checkIfHasChat sender == another; add GroupHistory else Gro
 UL case1: /chat : ListsUsers.History[] - if have rooms (receiver, sender) ->
 
 
-
 Online case:
 addNewUser -> findByUUID in ListUsers[].status = online
 else  if Logout, etc case -> offline;
 Client side: case listusers -> if User[i].status =='online -> addClass(online)
 
-
 listmessages: sql when, debounce
-
 notify:
-
 
 insight
 //ByTime = user send uuid if have else add userid, client check if have uuid and correct -> add class onlin -else -> offline
@@ -150,8 +147,10 @@ insight
 
 1sql query -> left join use, perfomance low, ref 1 query
 
-
+//comment service todo
 
 Social network
+left join use, interface use, oop use, gorouitine use
 1 ref table, chat, chatusers, messages, - relations
 2 ref arch  - addUser, sendMsg, - for new db
+

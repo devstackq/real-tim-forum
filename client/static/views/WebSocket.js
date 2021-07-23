@@ -31,7 +31,7 @@ export const wsInit = (...args) => {
 
   wsConn.onmessage = (e) => {
     let message = JSON.parse(e.data);
-   console.log(message)
+    console.log(message);
     // console.log(Object.entries(message).length, message, message.type, typeof message.users, message.users);
     // listUsers = message.users;
     let el = null;
@@ -44,30 +44,28 @@ export const wsInit = (...args) => {
         el.className = "online";
         // showListUser(message.user);
         break;
-        //fix - 2 time click - getUsers - work
-        //fix send message
-//fix logout msg
-
-        case "observeusers":
+      // fix - 2 time click - getUsers - work
+      //fix send message
+      //fix logout msg
+      case "observeusers":
         //show divs class users, inside each user - - div
         //  show by reverse
         //update all conn -> added new user
         // for (let i = 0; i < message.users.length; i++) {}
         //  console.log(Object.entries(message.users).length)
-        showListUser(message.users);
+        showListUser(message.users, e);
         //update online state
         break;
       case "getusers":
-        //add in arrayUsers
-        for (let i = 0; i < message.users.length; i++) {}
-        if (listUsers.length == 0) {
-          listUsers.push(message.users);
-        }
-        //work this var
-        console.log(listUsers, "listtt");
-        showListUser(message.users, "getusers");
+    use ListUser - global var 
+
+      //add in arrayUsers
+        // get sorted data from server -> show
+        showListUser(message.users);
         break;
       case "listmessages":
+        use ListUser - global var
+
         document.getElementById("notify").value = "";
         // chatContainer.children["chatbox"].style.display =
         //   "block";
@@ -79,12 +77,16 @@ export const wsInit = (...args) => {
         );
         break;
       case "nomessages":
+
+        use ListUser - global var
+
         alert("no messages now..");
         document.getElementById("notify").value = "no message now...";
         // chatContainer.children["chatbox"].style.display = "none";
         chatContainer.style.display = "block";
         chatContainer.children["chatbox"].innerHTML = "";
         //now no messages -> fix, show message field
+
         chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
           this,
           message.receiver,
@@ -95,6 +97,7 @@ export const wsInit = (...args) => {
         // super.showNotify("now no messages", "error");
         break;
       case "lastmessage":
+        //prepend user - first
         let span = document.createElement("span");
         let div = document.createElement("div");
         chatContainer.children["chatbox"].style.display = "block";
@@ -104,7 +107,8 @@ export const wsInit = (...args) => {
         chatContainer.children["messageFieldId"].value = "";
         break;
       case "leave":
-        // this.onlineUsers.delete(message.receiver);
+        ListUsers.delete(message.receiver);
+        console.log(el);
         el.classList.remove("online");
         // showListUser(message.users);
         break;

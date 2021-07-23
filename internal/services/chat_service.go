@@ -35,14 +35,19 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChatStorage) err
 	if err != nil {
 		log.Println(err, "empty room getMsg()")
 	}
+	// store:= ChatStore{Messages}
+	//return store.ListMessages
+
 	ChatStorage.Receiver = m.Receiver
 	if room == "" {
 		ChatStorage.Type = "nomessages"
+		// send []user - by concrete conn, lel
+		// cs.addNewUser(u, c)
 		m.Conn.WriteJSON(ChatStorage)
 		return nil
 	}
 	m.Room = room
-	log.Println(m, err)
+	// log.Println(m, err)
 	seq, err := cs.repository.GetMessages(m)
 	if err != nil {
 		log.Println(err, "get msg err")
@@ -56,7 +61,14 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChatStorage) err
 	return nil
 }
 
-func (cs *ChatService) mergeUsers(dbUsers []models.Chat, onlineUsers map[string]*models.Chat) []models.Chat {
+type Tezt struct {
+	int
+	string
+}
+
+func (cs *ChatService) mergeUsers(dbUsers []models.Chat, onlineUsers map[string]*models.Chat) *[]models.Chat {
+	// l := Tezt{1, "sd"}
+	// log.Println(l)
 	for index, dbUser := range dbUsers { //sorted users from db
 		for uuid, onlineUser := range onlineUsers { //server users
 			if onlineUser.ID == dbUser.ID {
@@ -66,7 +78,7 @@ func (cs *ChatService) mergeUsers(dbUsers []models.Chat, onlineUsers map[string]
 			// exlude -> ourselve
 		}
 	}
-	return dbUsers
+	return &dbUsers
 	// ChatStorage.AllUsers = dbUsers
 }
 
@@ -77,7 +89,7 @@ func (cs *ChatService) mergeUsers(dbUsers []models.Chat, onlineUsers map[string]
 type ChatStore struct {
 	ListMessage []models.Message        `json:"messages"`
 	OnlineUsers map[string]*models.Chat `json:"online"`
-	AllUsers    []models.Chat           `json:"users"`
+	AllUsers    *[]models.Chat          `json:"users"`
 	Message     models.Message          `json:"message"`
 	Type        string                  `json:"type"`
 	Receiver    string                  `json:"receiver"`
@@ -87,7 +99,7 @@ type NewUser struct {
 	Type string       `json:"type"`
 }
 
-func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) *ChatStore {
+func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) *[]models.Chat {
 	//fill user.Name -> in db, by uuid  u.Conn
 	store := ChatStore{}
 
@@ -112,10 +124,10 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) *ChatSt
 
 	store.AllUsers = cs.mergeUsers(sorted, store.OnlineUsers)
 
-	//ourselves
+	//ourselves -send list users
 	u.Conn.WriteJSON(store)
 
-	//another user send
+	//another user send send list users & user which signin
 	u.Online = true
 	newUser := NewUser{}
 	newUser.Type = "online"
@@ -126,14 +138,8 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) *ChatSt
 			v.Conn.WriteJSON(newUser)
 		}
 	}
-	return &store
-}
-
-func (cs *ChatService) getUsers(store *ChatStore, u *models.Chat) {
-	//check if users have in session
-	ChatStorage.Type = "getusers"
-	log.Println(store, "store")
-	u.Conn.WriteJSON(store)
+	//save store own conn || call each time - g
+	return store.AllUsers
 }
 
 func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
@@ -177,54 +183,77 @@ func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
 }
 
 func (cs *ChatService) leaveUser(c *models.ChatStorage, u *models.Chat) {
-	ChatStorage.Type = "leave"
-	// NewUser = u
-	// NewUser.Type = "leave"
-	// NewUser.ID = u.ID
+	// data := ChatStore{}
+	//1delete from CS.Mapusers - global variable
+	//2send leaved user, state = offline
 
-	u.Conn.Close()
+	// data.Type = "leave"
+
+	log.Println(len(ChatStorage.OnlineUsers), "prev")
+
+	leaveUser := NewUser{}
+	leaveUser.Type = "leave"
+	leaveUser.User = u
+
 	delete(c.OnlineUsers, u.UUID)
+	u.Conn.Close()
+
+	log.Println(len(ChatStorage.OnlineUsers), "after")
+	//update users
 	ChatStorage.OnlineUsers = c.OnlineUsers
 	for _, v := range ChatStorage.OnlineUsers {
-		v.Conn.WriteJSON(ChatStorage)
+		v.Conn.WriteJSON(leaveUser)
 	}
 	// log.Println("user leave", ChatStorage.OnlineUsers)
+}
+
+//get adduser data - then use
+func (cs *ChatService) getUsers(store *[]models.Chat, u *models.Chat) {
+	//no use global  var
+	//check if users have in session
+	users := ChatStore{Type: "getusers", AllUsers: store}
+	println("memory address of => store", &store)
+	if store != nil {
+		u.Conn.WriteJSON(users)
+	}
 }
 
 //1 main -> Start() ->  createEmptyObjecetChat -> 2 ws Handler, newConn -> 3 go Run() // goruutine each newConn(user)
 //handle if receive new user (from new conn(user) -> join), get new user -> by chan(goroutine)
 func (cs *ChatService) Run(c *models.ChatStorage) {
-	var listUsers *ChatStore
+	//run every, wait data from chan
+	store := ChatStore{}
 	for {
 		select {
 		case newuser := <-c.Join:
-			listUsers = cs.addNewUser(newuser, c)
+			store.AllUsers = cs.addNewUser(newuser, c)
+		case user := <-c.GetUsers:
+			cs.addNewUser(user, c)
+			// cs.getUsers(store.AllUsers, user) //suk( wtf ??
+		case user := <-c.Leave:
+			cs.leaveUser(c, user)
 		case message := <-c.NewMessage:
 			cs.sendMessage(c, message)
 		case list := <-c.ListMessage:
 			cs.getMessages(list, c)
-		case users := <-c.GetUsers:
-			log.Println(listUsers, 8765)
-			cs.getUsers(listUsers, users)
-		case user := <-c.Leave:
-			cs.leaveUser(c, user)
+		default:
+			// log.Println("nill chan", c.Leave)
 		}
-		// default :
-
 	}
 }
 
-//out handler ?
 // Handler -> each new client connect server, create handshake - save data - send service
 //Service - check type from client -> if newmessage -> create obj Message, fill field -> run gorutine
 //run func broadcast(), conn,WriteJson(data), find by uuid
 
+//conn - hsndshake, client - server, server for loop: listen ws.send message -f if have -> another thread Run goroutine
+//and slect case : wait data from channel
 func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChatStorage, name string, uuid string) error {
 
 	body := models.Message{}
 
 	for {
-		// log.Println(c.OnlineUsers, "chatBers")
+		log.Println("accept more 1 ws.send from cleint")
 		// err = conn.ReadJSON(&body)
 		_, msg, errk := conn.ReadMessage()
 		err := json.Unmarshal(msg, &body)
@@ -232,7 +261,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChatStorage
 			return err
 		}
 
-		fmt.Println(body.Type, "jzon")
+		fmt.Println(body.Type, "ws type")
 
 		if code, ok := errk.(*websocket.CloseError); ok {
 			// if c.Code == 1000 {
@@ -243,6 +272,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChatStorage
 			//logout, close tab -> leave
 			log.Println(code.Code, "codet")
 			if code.Code == 1001 {
+				log.Println(code.Code, "code 1001")
 				cs.leaveUser(c, &models.Chat{UUID: body.Sender})
 				break
 			}
@@ -259,7 +289,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChatStorage
 		}
 
 		if body.Type == "newmessage" {
-
+			//maybe set user id ?
 			message := &models.Message{
 				Conn:     conn, //set conn current user
 				Receiver: body.Receiver,
@@ -271,10 +301,10 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChatStorage
 			c.NewMessage <- message
 		}
 		// if strings.TrimSpace(username) == "" {
-		if body.Type == "newuser" || body.Type == "getusers" {
+		if body.Type == "newuser" || body.Type == "getusers" || body.Type == "leave" {
 			id, err := cs.repository.GetUserID(body.Sender)
 			if err != nil {
-				log.Println(err)
+				log.Println(err, "erka")
 			}
 			user := &models.Chat{
 				ID:       id,
@@ -288,19 +318,15 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChatStorage
 			if body.Type == "newuser" {
 				c.Join <- user
 			}
-		}
-		if body.Type == "leave" {
-			user := &models.Chat{
-				Conn: conn,
-				UUID: body.Sender,
+			if body.Type == "leave" {
+				user.ID = body.UserID
+				c.Leave <- user
 			}
-			c.Leave <- user
 		}
 	}
 	defer conn.Close()
 	// cs.Reader(conn)
 	return nil
-
 }
 
 // signin -> Authorization.UUID -> /api/chat -> ChatHandler->

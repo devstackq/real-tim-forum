@@ -31,7 +31,6 @@ type Vote interface {
 type Chat interface {
 	ChatBerserker(*websocket.Conn, *models.ChatStorage, string, string) error
 	Run(*models.ChatStorage)
-	// GetMessages(*models.Message) ([]models.Message, error)
 }
 
 type Service struct {

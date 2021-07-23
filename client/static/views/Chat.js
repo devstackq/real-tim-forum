@@ -110,6 +110,7 @@ export const sendMessage = (receiver, userid, senderUUID, users) => {
     type: "newmessage",
   };
   let senderName = "";
+  console.log(Object.entries(users));
   for (let [k, v] of Object.entries(users)) {
     if (v["UUID"] === senderUUID) {
       senderName = v.fullname;

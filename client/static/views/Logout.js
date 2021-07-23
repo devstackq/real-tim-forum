@@ -16,7 +16,11 @@ export default class extends Parent {
     if (response.status === 200) {
       //delete cookie & auth state false
       wsConn.send(
-        JSON.stringify({ type: "leave", sender: getCookie("session") })
+        JSON.stringify({
+          type: "leave",
+          sender: getCookie("session"),
+          userid: parseInt(getCookie("user_id")),
+        })
       );
       // listUsers.delete(uuid);
       document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";

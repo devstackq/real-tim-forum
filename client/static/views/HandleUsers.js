@@ -1,5 +1,4 @@
 import { wsConn, getCookie } from "./WebSocket.js";
-
 // export const listUsers = new Map();
 export let listUsers = {};
 
@@ -7,8 +6,8 @@ export const showListUser = (users) => {
   if (users.length > 1) {
     listUsers = users;
   }
-
-  console.log(users);
+  //
+  console.log(listUsers);
 
   if (window.location.pathname == "/chat") {
     let senderUuid = "";
@@ -28,18 +27,15 @@ export const showListUser = (users) => {
             return;
           }
 
-          if (key == "id") {
-            li.id = value;
+          li.id = user.id;
+
+          if (user.online) {
+            li.className = "online";
           }
-          if (key == "online") {
-            if (value) {
-              li.className = "online";
-            }
-          }
+
+          let uuid = user.uuid;
 
           if (key == "fullname" && value != "") {
-            //dry
-
             li.textContent = value;
             li.onclick = (e) => {
               //remove prev clicked elem class
@@ -48,7 +44,12 @@ export const showListUser = (users) => {
                   ul.children[i].classList.remove("current");
                 }
               }
-              li.className = "current";
+              li.classList.add("current");
+
+              if (uuid == "") {
+                uuid = user.id.toString();
+              }
+
               let obj = {
                 receiver: uuid,
                 sender: senderUuid,

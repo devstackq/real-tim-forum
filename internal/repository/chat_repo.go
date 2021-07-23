@@ -151,7 +151,7 @@ func (cr *ChatRepository) GetLastMessageIndex(room string, userid int) (lastinde
 func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 	//case 1 uuid sender, uuid receiver
 	//case 2
-
+	log.Println(m.ID, m.UserID, m.Receiver, "rec", m.Sender, "send")
 	senderUserID := m.ID
 	receiverUserID := m.UserID
 
