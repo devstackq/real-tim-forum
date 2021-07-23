@@ -1,5 +1,6 @@
 import Parent from "./Parent.js";
-import { wsInit, wsConn, getCookie } from "./WebSocket.js";
+import { wsInit, wsConn, getCookie, ListUsers } from "./WebSocket.js";
+import { showListUser, addNewUser } from "./HandleUsers.js";
 
 export default class Chat extends Parent {
   constructor() {
@@ -36,11 +37,13 @@ export default class Chat extends Parent {
       document.querySelector("#message_container");
 
     wsInit(); //each time add user
-    if (wsConn != null && wsConn.readyState == 1) {
-      wsConn.send(
-        JSON.stringify({ sender: getCookie("session"), type: "getusers" })
-      );
-    }
+    // if (wsConn != null && wsConn.readyState == 1) {
+    //   wsConn.send(
+    //     JSON.stringify({ sender: getCookie("session"), type: "getusers" })
+    //   );
+    // }
+    console.log(ListUsers, "prev");
+    showListUser(ListUsers);
   }
 
   async getHtml() {
@@ -55,7 +58,7 @@ export default class Chat extends Parent {
     return super.showHeader() + body;
   }
 }
-
+peredelat pod struct -store
 export const showListMessages = (messages, userid, session, users) => {
   let chatContainer = document.querySelector("#message_container");
   if (messages != null && chatContainer != null) {
@@ -65,21 +68,14 @@ export const showListMessages = (messages, userid, session, users) => {
 
     messages.forEach((item) => {
       let div = document.createElement("div");
-      for (let [k, v] of Object.entries(item)) {
-        let span = document.createElement("span");
+      let span = document.createElement("span");
 
-        if (k == "aname" || k == "senttime" || k == "content") {
-          span.textContent = `${k == "aname" ? v : ""}  ${
-            k == "content" ? v : ""
-          }  ${k == "senttime" ? v : ""} \n `;
-        }
-        if (k == "userid") {
-          if (v == userid) {
-            div.classList.add("chat_sender");
-          }
-        }
-        div.append(span);
+      span.textContent = `${item.aname}  ${item.content}  ${item.senttime} \n `;
+
+      if (item.userid == userid) {
+        div.classList.add("chat_sender");
       }
+      div.append(span);
       chatContainer.children["chatbox"].append(div);
     });
     //call func
@@ -87,6 +83,9 @@ export const showListMessages = (messages, userid, session, users) => {
     if (messages.length != 0) {
       receive = messages[0]["receiver"];
     }
+    // if (receive == "") {
+    //   receive = messages[0]["userid"];
+    // }
     // this.showChatWindow(this, receive);
     chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
       this,
@@ -102,6 +101,10 @@ export const sendMessage = (receiver, userid, senderUUID, users) => {
   let chatContainer = document.querySelector("#message_container");
   let content = chatContainer.children["messageFieldId"].value;
   chatContainer.children["chatbox"].style.display = "block";
+  console.log(receiver, userid, 86);
+  // if (receiver == "") {
+  //   receiver = userid;
+  // }
   let message = {
     content: content,
     sender: senderUUID,
@@ -110,9 +113,8 @@ export const sendMessage = (receiver, userid, senderUUID, users) => {
     type: "newmessage",
   };
   let senderName = "";
-  console.log(Object.entries(users));
   for (let [k, v] of Object.entries(users)) {
-    if (v["UUID"] === senderUUID) {
+    if (v["uuid"] === senderUUID) {
       senderName = v.fullname;
     }
   }
@@ -120,11 +122,15 @@ export const sendMessage = (receiver, userid, senderUUID, users) => {
   let span = document.createElement("span");
   span.className = "chat_sender";
 
-  span.textContent = `${senderName} :  \n
-   ${message.content}   ${new Date().toLocaleTimeString()}  `;
+  span.textContent = `${senderName} :  \n${
+    message.content
+  }   ${new Date().toLocaleTimeString()}  `;
 
   div.append(span);
   chatContainer.children["chatbox"].append(div);
   chatContainer.children["messageFieldId"].value = "";
+
+  // console.log(message, "msg obj");
+
   wsConn.send(JSON.stringify(message));
 };

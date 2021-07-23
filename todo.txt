@@ -120,6 +120,10 @@ ref:? getMessage? http ? !ws
 
  //TODO: sorted, err := cs.repository.GetUsersChat() optimize sqlQuery
 1wtf no work - goroutine - 1 seq[]struct*
+      //fix send message
+      chrome - fix hide prev messages - if nomessage
+      fix- show senderName
+      fix - > newuser - signin -> all message duplciate ? userid? - maybe need change Listuser -> ? 
 2
 
 UsersList:

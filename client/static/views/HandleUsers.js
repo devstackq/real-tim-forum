@@ -1,28 +1,19 @@
 import { wsConn, getCookie } from "./WebSocket.js";
 // export const listUsers = new Map();
-export let listUsers = {};
 
 export const showListUser = (users) => {
-  if (users.length > 1) {
-    listUsers = users;
-  }
-  //
-  console.log(listUsers);
-
   if (window.location.pathname == "/chat") {
-    let senderUuid = "";
-
-    senderUuid = getCookie("session");
+    let senderUuid = getCookie("session");
     let parent = document.getElementById("userlistbox");
     let ul = document.getElementById("listusersID");
 
     if (users != null && ul != null && parent != null) {
       ul.innerHTML = "";
       //   listUsers.set(user.UUID, user);
-      for (let [keyUser, user] of Object.entries(listUsers)) {
+      for (let [keyUser, user] of Object.entries(users)) {
         let li = document.createElement("li");
         for (let [key, value] of Object.entries(user)) {
-          if (Object.entries(listUsers).length == 1) {
+          if (Object.entries(users).length == 1) {
             alert("Now, no has online user");
             return;
           }
@@ -70,7 +61,6 @@ export const showListUser = (users) => {
     } else {
       alert("no has online user");
     }
-    console.log(listUsers, ":list user in <Map");
   }
 };
 //mail. pwd, 1 auth,1 open

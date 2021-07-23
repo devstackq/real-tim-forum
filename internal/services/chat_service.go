@@ -21,6 +21,22 @@ var ChatStorage struct {
 	Receiver    string                  `json:"receiver"`
 }
 
+//or global each time send client - use client side this var ?``
+//open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
+type ChatStore struct {
+	ListMessage []models.Message        `json:"messages"`
+	OnlineUsers map[string]*models.Chat `json:"online"`
+	AllUsers    *[]models.Chat          `json:"users"`
+	Message     models.Message          `json:"message"`
+	Type        string                  `json:"type"`
+	Receiver    string                  `json:"receiver"`
+}
+
+type NewUser struct {
+	User *models.Chat `json:"user"`
+	Type string       `json:"type"`
+}
+
 type ChatService struct {
 	repository repository.Chat
 }
@@ -31,19 +47,18 @@ func NewChatService(repo repository.Chat) *ChatService {
 
 func (cs *ChatService) getMessages(m *models.Message, c *models.ChatStorage) error {
 	//find users room, if zero
+	store := ChatStore{}
+
 	room, err := cs.repository.IsExistRoom(m)
 	if err != nil {
-		log.Println(err, "empty room getMsg()")
+		log.Println(err, "empty room")
 	}
-	// store:= ChatStore{Messages}
-	//return store.ListMessages
 
-	ChatStorage.Receiver = m.Receiver
 	if room == "" {
-		ChatStorage.Type = "nomessages"
+		store.Type = "nomessages"
 		// send []user - by concrete conn, lel
 		// cs.addNewUser(u, c)
-		m.Conn.WriteJSON(ChatStorage)
+		m.Conn.WriteJSON(store)
 		return nil
 	}
 	m.Room = room
@@ -52,18 +67,16 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChatStorage) err
 	if err != nil {
 		log.Println(err, "get msg err")
 	}
-	ChatStorage.Type = "listmessages"
-	ChatStorage.ListMessage = seq
-	err = m.Conn.WriteJSON(ChatStorage)
+
+	store.Receiver = m.Receiver
+	store.ListMessage = seq
+	store.Type = "listmessages"
+
+	err = m.Conn.WriteJSON(store)
 	if err != nil {
 		return err
 	}
 	return nil
-}
-
-type Tezt struct {
-	int
-	string
 }
 
 func (cs *ChatService) mergeUsers(dbUsers []models.Chat, onlineUsers map[string]*models.Chat) *[]models.Chat {
@@ -83,21 +96,6 @@ func (cs *ChatService) mergeUsers(dbUsers []models.Chat, onlineUsers map[string]
 }
 
 //if find userid -> update CS.OnlineUsers[id]=u, uuid, u.LastMessage, etc
-
-//or global each time send client - use client side this var ?``
-//open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
-type ChatStore struct {
-	ListMessage []models.Message        `json:"messages"`
-	OnlineUsers map[string]*models.Chat `json:"online"`
-	AllUsers    *[]models.Chat          `json:"users"`
-	Message     models.Message          `json:"message"`
-	Type        string                  `json:"type"`
-	Receiver    string                  `json:"receiver"`
-}
-type NewUser struct {
-	User *models.Chat `json:"user"`
-	Type string       `json:"type"`
-}
 
 func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) *[]models.Chat {
 	//fill user.Name -> in db, by uuid  u.Conn
@@ -150,7 +148,7 @@ func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
 		log.Println(err, " room New msg3")
 	}
 	randomRoom := Randomaizer()
-
+	store := ChatStore{}
 	if room == "" {
 		m.Room = randomRoom
 		log.Println(m.Room, "send new room in db func")
@@ -167,13 +165,13 @@ func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
 	}
 	if c.OnlineUsers[m.Receiver] != nil {
 		receiver := c.OnlineUsers[m.Receiver]
-		ChatStorage.Message.Content = m.Content
-		ChatStorage.Message.SentTime = time.Now()
-		ChatStorage.Message.Name = m.Name
-		ChatStorage.Type = "lastmessage"
-		ChatStorage.Message.Receiver = m.Sender
+		store.Message.Content = m.Content
+		store.Message.SentTime = time.Now()
+		store.Message.Name = m.Name
+		store.Type = "lastmessage"
+		store.Message.Receiver = m.Sender
 
-		err = receiver.Conn.WriteJSON(ChatStorage)
+		err = receiver.Conn.WriteJSON(store)
 		if err != nil {
 			log.Println(err, "err json add new msg")
 		}
@@ -233,6 +231,7 @@ func (cs *ChatService) Run(c *models.ChatStorage) {
 		case user := <-c.Leave:
 			cs.leaveUser(c, user)
 		case message := <-c.NewMessage:
+			log.Println(message, "sendmsg data")
 			cs.sendMessage(c, message)
 		case list := <-c.ListMessage:
 			cs.getMessages(list, c)

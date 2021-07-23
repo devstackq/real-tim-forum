@@ -1,5 +1,7 @@
-import { showListUser, addNewUser, listUsers } from "./HandleUsers.js";
+import { showListUser, addNewUser } from "./HandleUsers.js";
 import { showListMessages, sendMessage } from "./Chat.js";
+
+export let ListUsers = {};
 
 export let wsConn = null;
 
@@ -44,28 +46,23 @@ export const wsInit = (...args) => {
         el.className = "online";
         // showListUser(message.user);
         break;
-      // fix - 2 time click - getUsers - work
-      //fix send message
-      //fix logout msg
       case "observeusers":
-        //show divs class users, inside each user - - div
-        //  show by reverse
-        //update all conn -> added new user
-        // for (let i = 0; i < message.users.length; i++) {}
-        //  console.log(Object.entries(message.users).length)
-        showListUser(message.users, e);
+        // if (ListUsers == null) {
+        ListUsers = message.users;
+        // }
+        // console.log(ListUsers, "LIS");
+        showListUser(ListUsers);
         //update online state
         break;
-      case "getusers":
-    use ListUser - global var 
+      // case "getusers":
+      //   // use ListUser - global var
 
-      //add in arrayUsers
-        // get sorted data from server -> show
-        showListUser(message.users);
-        break;
+      //   //add in arrayUsers
+      //   // get sorted data from server -> show
+      //   showListUser(message.users);
+      //   break;
       case "listmessages":
-        use ListUser - global var
-
+        // use ListUser - global var
         document.getElementById("notify").value = "";
         // chatContainer.children["chatbox"].style.display =
         //   "block";
@@ -73,13 +70,11 @@ export const wsInit = (...args) => {
           message.messages,
           getUserId(),
           getCookie("session"),
-          message.users
+          ListUsers
         );
         break;
       case "nomessages":
-
-        use ListUser - global var
-
+        // use ListUser - global var
         alert("no messages now..");
         document.getElementById("notify").value = "no message now...";
         // chatContainer.children["chatbox"].style.display = "none";
@@ -92,12 +87,12 @@ export const wsInit = (...args) => {
           message.receiver,
           getUserId(),
           getCookie("session"),
-          message.users
+          ListUsers
         );
         // super.showNotify("now no messages", "error");
         break;
       case "lastmessage":
-        //prepend user - first
+        //prepend user - first, another client
         let span = document.createElement("span");
         let div = document.createElement("div");
         chatContainer.children["chatbox"].style.display = "block";
@@ -107,7 +102,7 @@ export const wsInit = (...args) => {
         chatContainer.children["messageFieldId"].value = "";
         break;
       case "leave":
-        ListUsers.delete(message.receiver);
+        // ListUsers.delete(message.receiver);
         console.log(el);
         el.classList.remove("online");
         // showListUser(message.users);
