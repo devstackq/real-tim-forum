@@ -1,6 +1,8 @@
 import { wsConn, getCookie, toggleOnlineUser } from "./WebSocket.js";
 
 export const showListUser = (users) => {
+  let count = 0;
+
   if (window.location.pathname == "/chat") {
     let senderUuid = getCookie("session");
     let parent = document.getElementById("userlistbox");
@@ -11,19 +13,21 @@ export const showListUser = (users) => {
         let li = document.createElement("li");
         // for (let [key, value] of Object.entries(user)) {
         if (Object.entries(users).length == 1) {
-          alert("Now, no has online user");
+          console.log(users.length, Object.entries(users).length);
+          // alert("Now, no has online user");
           return;
         }
         user.uuid == "" ? (li.id = user.id) : (li.id = user.uuid);
-
-        user.online ? (li.className = "online") : "";
+        user.online ? ((li.className = "online"), (count += 1)) : "";
 
         let uuid = user.uuid;
-        console.log(keyUser, user, Object.entries(user.lastmessage)[0]);
 
-        // if (key == "fullname" && value != "") {
         if (user.fullname) {
-          li.textContent = `Name: ${user.fullname}  Last Message:${user.lastmessage["String"]}  From:${user.lastsender["String"]}  Time:${user.senttime["Time"]} `;
+          li.textContent = `Name: ${user.fullname}  Last Message: ${
+            user.lastmessage["String"] != "" ? user.lastmessage["String"] : ""
+          }   From:${user.lastsender["String"]}  Time:${
+            user.senttime["Time"]
+          } `;
           li.onclick = (e) => {
             //remove prev clicked elem class, //dry /
             toggleOnlineUser(li.id);

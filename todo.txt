@@ -158,7 +158,11 @@ left join use, interface use, oop use, gorouitine use
 1 ref table, chat, chatusers, messages, - relations
 2 ref arch  - addUser, sendMsg, - for new db
 
+
 fix -/chat -> if no session -> logout, && 
 fix- header - /chat , isAuth
 time format fix -message_sent_timevalidation - signup check
 GetCreatedUserPosts, GetCreatedUserVote - refactor - Left  Join
+
+Message by scroll
+Nptififaction - logic done, add field in messages table

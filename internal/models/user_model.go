@@ -25,3 +25,10 @@ type Tezt struct {
 	U *User
 	M *Message
 }
+
+type Profile struct {
+	Posts      *[]Post
+	User       *User
+	VotedItems *[]Vote
+	// Comment *models.Comment{}
+}

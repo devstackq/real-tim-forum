@@ -85,7 +85,6 @@ export default class Parent {
       if (object.Posts != null) {
         this.render(object.Posts, ".postsUser", "Created posts");
       }
-
       if (object.VotedItems != null) {
         this.render(object.VotedItems, ".votedPost", "Voted posts");
       }
@@ -176,6 +175,7 @@ export default class Parent {
     this.vote.countlike = document.querySelector("#countlike").value;
 
     let object = await this.fetch("vote", this.vote);
+
     if (object != null) {
       document.querySelector(
         "#countlike"
@@ -184,7 +184,8 @@ export default class Parent {
         "#countdislike"
       ).textContent = `countdislike: ${object["countdislike"]} `;
     } else {
-      window.location.replace("/signin");
+      console.log(object, "vote");
+      // window.location.replace("/signin");
     }
   }
 

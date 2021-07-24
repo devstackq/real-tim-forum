@@ -16,6 +16,7 @@ type User interface {
 	GetUserUUID(int) (string, error)
 	GetUserName(string) (string, error)
 	GetUserID(string) (int, error)
+	GetUserProfile(int) (*models.Profile, error)
 }
 type Post interface {
 	Create(*models.Post) (int, error)

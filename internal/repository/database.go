@@ -71,8 +71,6 @@ func createTables(db *sql.DB) error {
 		FOREIGN KEY(creator_id) REFERENCES users(id) ON DELETE CASCADE 
 		)`,
 	)
-	// FOREIGN KEY(creator_id) REFERENCES users(id) 		ON DELETE CASCADE
-
 	if err != nil {
 		return err
 	}
@@ -115,7 +113,9 @@ func createTables(db *sql.DB) error {
 		dislike_state BOOLEAN DEFAULT FALSE, 
 		UNIQUE(post_id, user_id), 
 		FOREIGN KEY(comment_id) REFERENCES comments(id), 
-		FOREIGN KEY(post_id) REFERENCES posts(id))`,
+		FOREIGN KEY(post_id) REFERENCES posts(id),
+		FOREIGN KEY(user_id) REFERENCES users(id)
+		)`,
 	)
 	if err != nil {
 		return err
@@ -181,6 +181,7 @@ func createTables(db *sql.DB) error {
 		receiver_id INTEGER,
 		name TEXT,
 		sent_time DATETIME,
+		is_read  BOOLEAN DEFAULT FALSE,
 		FOREIGN KEY(user_id) REFERENCES users(id)
 		)`,
 	)

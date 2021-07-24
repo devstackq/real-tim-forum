@@ -126,6 +126,15 @@ func (us *UserService) GetUserName(uuid string) (string, error) {
 	return name, nil
 }
 
+func (us *UserService) GetUserProfile(userId int) (*models.Profile, error) {
+
+	data, err := us.repository.GetProfileData(userId)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
 func (us *UserService) GetCreatedUserPosts(userId int) (*[]models.Post, error) {
 	posts, err := us.repository.GetCreatedUserPosts(userId)
 	if err != nil {

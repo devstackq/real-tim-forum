@@ -27,14 +27,14 @@ func (vr *VoteRepository) GetVoteCount(vote *models.Vote) (*models.Vote, error) 
 	return vote, nil
 }
 
-//ref $1
+//ref $1, vote.VoteGroup+"s"
 func (vr *VoteRepository) UpdateVoteCount(vote *models.Vote) (*models.Vote, error) {
 
-	query, err := vr.db.Prepare(`UPDATE $1 SET count_like=?, count_dislike=? WHERE id=?`)
+	query, err := vr.db.Prepare(`UPDATE ` + vote.VoteGroup + `s SET count_like=?, count_dislike=? WHERE id=?`)
 	if err != nil {
 		return nil, err
 	}
-	_, err = query.Exec(vote.VoteGroup+"s", vote.CountLike, vote.CountDislike, vote.ID)
+	_, err = query.Exec(vote.CountLike, vote.CountDislike, vote.ID)
 
 	if err != nil {
 		return nil, err

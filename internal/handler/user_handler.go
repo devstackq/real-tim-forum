@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -92,8 +93,16 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		//userExist() ?
+		//userExist() ? sql -getUserByid, left join post get by userid & vote
 		var err error
+
+		data, err := h.Services.User.GetUserProfile(Authorized.UserID)
+		if err != nil {
+			JsonResponse(w, r, http.StatusNotFound, err.Error())
+			return
+		}
+		log.Println(data, "prof data")
+
 		Profile.User, err = h.Services.User.GetUserById(strconv.Itoa(Authorized.UserID))
 		if err != nil {
 			JsonResponse(w, r, http.StatusNotFound, err.Error())

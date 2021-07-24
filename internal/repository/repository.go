@@ -17,6 +17,7 @@ type User interface {
 	GetUserById(string) (*models.User, error)
 	GetCreatedUserPosts(int) (*[]models.Post, error)
 	GetUserVotedItems(int) (*[]models.Vote, error)
+	GetProfileData(int) (*models.Profile, error)
 }
 
 type Post interface {

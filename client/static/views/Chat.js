@@ -39,13 +39,16 @@ export default class Chat extends Parent {
   }
 
   async getHtml() {
+    //<div id="countusers"> </div>
     //?DRY
     let body = `
-    <div id="userlistbox" > <ul id="listusersID" > </ul> </div>
+    <div class="chat_wrapper">
+    <div id="userlistbox" >  </div>
     <div style='display:none' id="message_container"  >  
     <div id="chatbox" class="chat_container" >      </div>
-    <textarea id="messageFieldId"> </textarea>
+    <textarea cols="10" rows="10" id="messageFieldId"> </textarea>
     <button id="sendBtnId"> Send message </button
+      </div>
       </div>`;
     return super.showHeader() + body;
   }

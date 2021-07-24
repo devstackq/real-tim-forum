@@ -146,6 +146,41 @@ func (ur *UserRepository) GetUserID(uuid string) (int, error) {
 	return userid, nil
 }
 
+func (ur *UserRepository) GetProfileData(userId int) (*models.Profile, error) {
+	//by user id , get created posts, vote, and user data
+	//2 query, 1 get all post
+	queryStmt, err := ur.db.Query(`SELECT *  FROM users u
+	left join posts p ON p.user_id = $1
+	left join votes v ON v.user_id = $1  ORDER by p.create_time DESC`, userId)
+	if err != nil {
+		return nil, err
+	}
+	//get user data
+	// SELECT * FROM users where user_id=?
+	//get voted posts
+	// SELECT u.full_name, v.post_id as postid, u.email, v.id as voteid, u.id as userid  FROM users u
+	// left join votes v ON v.user_id = u.id WHERE
+	// u.id =5   ORDER by v.id DESC
+
+	//created post
+	// SELECT u.full_name, u.email, p.thread, u.id as userid, p.id as postid  FROM users u
+	// left join posts p ON p.creator_id = u.id   where u.id=5
+
+	// SELECT u.full_name, p.thread, v.id as voteid, u.id as userid, p.id as postid  FROM users u
+	// left join posts p ON p.creator_id = u.id
+	// left join votes v ON v.user_id = u.id AND v.post_id NOTNULL  WHERE u.id =5 GROUP BY u.id, v.id, p.id  ORDER by p.create_time DESC
+
+	// profile := []*models.Profile{}
+	// for queryStmt.Next() {
+	// 	u := models.User{}
+	// 	if err := queryStmt.Scan(&c.ID, &c.UserName, &c.LastMessage, &c.LastMessageSenderName, &c.SentTime, &c.MesageID); err != nil {
+	// 		return nil, err
+	// 	}
+	// 	chatUsers = append(chatUsers, &c)
+	// }
+	// return chatUsers, nil
+}
+
 //DRY func ?
 func (ur *UserRepository) GetCreatedUserPosts(userId int) (*[]models.Post, error) {
 

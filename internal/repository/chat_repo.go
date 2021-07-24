@@ -39,12 +39,10 @@ func (cr *ChatRepository) GetSortedUsers(userid int) ([]*models.Chat, error) {
 
 func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
 	//save in db message in chat, messages table
-
 	receiverUserID, senderUserID, err := cr.getUserIDs(m)
 	if err != nil {
 		return err
 	}
-
 	queryChat, err := cr.db.Prepare(`INSERT INTO chats(user_id1, user_id2, room) VALUES(?,?,?)`)
 	if err != nil {
 		return err
@@ -53,7 +51,6 @@ func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
 	if err != nil {
 		return err
 	}
-
 	defer queryChat.Close()
 	return nil
 }
@@ -76,18 +73,6 @@ func (cr *ChatRepository) AddNewMessage(m *models.Message) error {
 	return nil
 }
 
-func (ur *ChatRepository) GetUserName(id int) (string, error) {
-
-	var name string
-	query := `SELECT full_name FROM users WHERE id=?`
-	row := ur.db.QueryRow(query, id)
-	err := row.Scan(&name)
-	if err != nil {
-		return "", err
-	}
-	return name, nil
-}
-
 func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, error) {
 
 	var messages = []models.Message{}
@@ -98,7 +83,6 @@ func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, erro
 	if err != nil {
 		return nil, err
 	}
-
 	for queryStmt.Next() {
 		//or when create msg - set name ?
 		if err := queryStmt.Scan(&msg.Content, &msg.UserID, &msg.Name, &msg.Time); err != nil {
@@ -110,39 +94,6 @@ func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, erro
 		messages = append(messages, msg)
 	}
 	return messages, nil
-}
-
-func (cr *ChatRepository) GetAllUsers() ([]models.User, error) {
-
-	users := []models.User{}
-	row, err := cr.db.Query("SELECT id, full_name FROM users")
-	if err != nil {
-		return nil, err
-	}
-	for row.Next() {
-		user := models.User{}
-		if err := row.Scan(&user.UserID, &user.FullName); err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}
-	return users, nil
-}
-
-func (cr *ChatRepository) GetLastMessageIndex(room string, userid int) (lastindex int, err error) {
-
-	//	row, err := cr.db.Query("SELECT messages.id FROM messages LEFT JOIN chats ON chats.room=messages.room WHERE user_id=? AND messages.room=? ORDER BY sent_time ASC", userid, room)
-	row, err := cr.db.Query("SELECT id FROM messages WHERE  room=?", room)
-	if err != nil {
-		return 0, err
-	}
-	for row.Next() {
-		if err := row.Scan(&lastindex); err != nil {
-			return 0, err
-		}
-	}
-	// log.Println("last indx", lastindex)
-	return lastindex, nil
 }
 
 func (cr *ChatRepository) getUserIDs(m *models.Message) (int, int, error) {

@@ -50,7 +50,7 @@ export const wsInit = (...args) => {
     let message = JSON.parse(e.data);
     // listUsers = message.users;
     let el = null;
-    console.log(message.type, message);
+    // console.log(message.type, message);
     if (
       (message.type == "leave" || message.type == "online") &&
       message != null &&
@@ -62,13 +62,18 @@ export const wsInit = (...args) => {
         el = document.getElementById(message.user.uuid);
       }
     }
+    show todo. txt
 
     switch (message.type) {
       case "online":
+        // el == null ? (el = document.getElementById(message.id)) : null;
+        el == null ? (el = document.getElementById(message.uuid)) : null;
+        el == null ? (el = document.getElementById(message.id)) : null;
         el != null ? (el.className = "online") : null;
         break;
       case "observeusers":
         showListUser(message.users);
+
         break;
       case "getusers":
         showListUser(message.users);
@@ -108,13 +113,13 @@ export const wsInit = (...args) => {
         chatContainer.children["chatbox"].append(div);
         chatContainer.children["messageFieldId"].value = "";
         // set session || userid
-        console.log(message.message.sender);
         toggleOnlineUser(message.message.sender, "prepend");
         break;
       case "leave":
-        // fix el, null
-        console.log(el, 9);
+        el == null ? (el = document.getElementById(message.uuid)) : null;
+        el == null ? (el = document.getElementById(message.id)) : null;
         el != null ? el.classList.remove("online") : null;
+        el.id = message.id; //set id, replace - prev uuid
         break;
       default:
         console.log("incorrect type");
