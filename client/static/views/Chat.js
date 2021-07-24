@@ -1,21 +1,13 @@
 import Parent from "./Parent.js";
-import { wsInit, wsConn, getCookie, ListUsers } from "./WebSocket.js";
-import { showListUser, addNewUser } from "./HandleUsers.js";
+import { wsInit, wsConn, getCookie, toggleOnlineUser } from "./WebSocket.js";
 
 export default class Chat extends Parent {
   constructor() {
     super();
-    this.ws = wsConn;
-    this.msgType = "";
-    this.users = [];
-    this.onlineUsers = new Map();
-    this.historyUsers = [];
-    this.chatbox = document.getElementById("chatbox");
     this.HtmlElems = {
       messageContainer: null,
     };
   }
-
   setTitle(title) {
     document.title = title;
   }
@@ -32,18 +24,18 @@ export default class Chat extends Parent {
       parent.append(div);
     });
   }
+
   async init() {
     this.HtmlElems.messageContainer =
       document.querySelector("#message_container");
-
     wsInit(); //each time add user
-    // if (wsConn != null && wsConn.readyState == 1) {
-    //   wsConn.send(
-    //     JSON.stringify({ sender: getCookie("session"), type: "getusers" })
-    //   );
-    // }
-    console.log(ListUsers, "prev");
-    showListUser(ListUsers);
+    //getusers
+    if (wsConn != null && wsConn.readyState == 1) {
+      wsConn.send(
+        JSON.stringify({ sender: getCookie("session"), type: "newuser" })
+      );
+    }
+    // showListUser(ListUsers);
   }
 
   async getHtml() {
@@ -58,8 +50,9 @@ export default class Chat extends Parent {
     return super.showHeader() + body;
   }
 }
-peredelat pod struct -store
-export const showListMessages = (messages, userid, session, users) => {
+// peredelat pod struct -store
+
+export const showListMessages = (messages, userid, session, author) => {
   let chatContainer = document.querySelector("#message_container");
   if (messages != null && chatContainer != null) {
     chatContainer.style.display = "block";
@@ -83,46 +76,37 @@ export const showListMessages = (messages, userid, session, users) => {
     if (messages.length != 0) {
       receive = messages[0]["receiver"];
     }
-    // if (receive == "") {
-    //   receive = messages[0]["userid"];
-    // }
-    // this.showChatWindow(this, receive);
+
+    toggleOnlineUser(receive);
+
     chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
       this,
       receive,
       userid,
       session,
-      users
+      author
     );
   }
 };
 
-export const sendMessage = (receiver, userid, senderUUID, users) => {
+export const sendMessage = (receiver, authorId, senderUUID, author) => {
   let chatContainer = document.querySelector("#message_container");
   let content = chatContainer.children["messageFieldId"].value;
   chatContainer.children["chatbox"].style.display = "block";
-  console.log(receiver, userid, 86);
-  // if (receiver == "") {
-  //   receiver = userid;
-  // }
+
   let message = {
     content: content,
     sender: senderUUID,
     receiver: receiver,
-    userid: parseInt(userid),
+    userid: parseInt(authorId),
     type: "newmessage",
   };
-  let senderName = "";
-  for (let [k, v] of Object.entries(users)) {
-    if (v["uuid"] === senderUUID) {
-      senderName = v.fullname;
-    }
-  }
+
   let div = document.createElement("div");
   let span = document.createElement("span");
   span.className = "chat_sender";
 
-  span.textContent = `${senderName} :  \n${
+  span.textContent = `${author} :  \n${
     message.content
   }   ${new Date().toLocaleTimeString()}  `;
 
@@ -130,7 +114,7 @@ export const sendMessage = (receiver, userid, senderUUID, users) => {
   chatContainer.children["chatbox"].append(div);
   chatContainer.children["messageFieldId"].value = "";
 
-  // console.log(message, "msg obj");
+  toggleOnlineUser(receiver, "prepend");
 
   wsConn.send(JSON.stringify(message));
 };

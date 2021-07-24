@@ -181,7 +181,7 @@ label,
   cursor: pointer;
   color: lime;
   background: #000;
-  padding: 5px;
+  padding: 10px;
   opacity: 0.8;
 }
 #userlistbox li:hover {
@@ -199,3 +199,7 @@ label,
 /* #app {
   display: flex;
 } */
+.user_wrapper {
+  padding: 10px;
+  display: flex;
+}

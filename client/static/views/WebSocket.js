@@ -22,6 +22,18 @@ export const getUserId = () => {
   }
 };
 
+export const toggleOnlineUser = (receiver, type) => {
+  let currentUser = document.getElementById(receiver);
+  let listUsers = document.getElementById("userlistbox"); // out global var ?
+
+  for (let i = 0; i < listUsers.children.length; i++) {
+    if (listUsers.children[i].classList.contains("current")) {
+      listUsers.children[i].classList.remove("current");
+    }
+  }
+  currentUser.classList.add("current");
+  type == "prepend" ? listUsers.prepend(currentUser) : null;
+};
 // add user - send uuid
 export const wsInit = (...args) => {
   if (wsConn == null) {
@@ -32,62 +44,57 @@ export const wsInit = (...args) => {
   let chatContainer = document.querySelector("#message_container");
 
   wsConn.onmessage = (e) => {
+    let authorId = getCookie("user_id");
+    let authorSession = getCookie("session");
+
     let message = JSON.parse(e.data);
-    console.log(message);
-    // console.log(Object.entries(message).length, message, message.type, typeof message.users, message.users);
     // listUsers = message.users;
     let el = null;
-    if (message != null && message.user != undefined) {
+    console.log(message.type, message);
+    if (
+      (message.type == "leave" || message.type == "online") &&
+      message != null &&
+      message.user != undefined
+    ) {
+      //remove online class - by id or uuid
       el = document.getElementById(message.user.id);
+      if (el == null) {
+        el = document.getElementById(message.user.uuid);
+      }
     }
 
     switch (message.type) {
       case "online":
-        el.className = "online";
-        // showListUser(message.user);
+        el != null ? (el.className = "online") : null;
         break;
       case "observeusers":
-        // if (ListUsers == null) {
-        ListUsers = message.users;
-        // }
-        // console.log(ListUsers, "LIS");
-        showListUser(ListUsers);
-        //update online state
+        showListUser(message.users);
         break;
-      // case "getusers":
-      //   // use ListUser - global var
-
-      //   //add in arrayUsers
-      //   // get sorted data from server -> show
-      //   showListUser(message.users);
-      //   break;
+      case "getusers":
+        showListUser(message.users);
+        break;
       case "listmessages":
-        // use ListUser - global var
         document.getElementById("notify").value = "";
-        // chatContainer.children["chatbox"].style.display =
-        //   "block";
         showListMessages(
           message.messages,
-          getUserId(),
-          getCookie("session"),
-          ListUsers
+          authorId,
+          authorSession,
+          message.author
         );
         break;
       case "nomessages":
-        // use ListUser - global var
         alert("no messages now..");
         document.getElementById("notify").value = "no message now...";
         // chatContainer.children["chatbox"].style.display = "none";
         chatContainer.style.display = "block";
         chatContainer.children["chatbox"].innerHTML = "";
         //now no messages -> fix, show message field
-
         chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
           this,
           message.receiver,
-          getUserId(),
-          getCookie("session"),
-          ListUsers
+          authorId,
+          authorSession,
+          message.author
         );
         // super.showNotify("now no messages", "error");
         break;
@@ -100,13 +107,17 @@ export const wsInit = (...args) => {
         div.append(span);
         chatContainer.children["chatbox"].append(div);
         chatContainer.children["messageFieldId"].value = "";
+        // set session || userid
+        console.log(message.message.sender);
+        toggleOnlineUser(message.message.sender, "prepend");
         break;
       case "leave":
-        // ListUsers.delete(message.receiver);
-        console.log(el);
-        el.classList.remove("online");
-        // showListUser(message.users);
+        // fix el, null
+        console.log(el, 9);
+        el != null ? el.classList.remove("online") : null;
         break;
+      default:
+        console.log("incorrect type");
     }
 
     wsConn.onclose = function (event) {

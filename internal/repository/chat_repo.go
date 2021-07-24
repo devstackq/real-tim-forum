@@ -17,7 +17,7 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 	return &ChatRepository{db}
 }
 
-func (cr *ChatRepository) GetSortedUsers(userid int) ([]models.Chat, error) {
+func (cr *ChatRepository) GetSortedUsers(userid int) ([]*models.Chat, error) {
 	//save in db message in chat, c.room,  m.user_id, m.id,, WHERE u.id NOT IN($1)
 	queryStmt, err := cr.db.Query(`SELECT u.id, u.full_name, m.content,  m.name as lastMessageSenderName,  m.sent_time, MAX(m.id) FROM users u  
 	left join chats c ON c.user_id1 = $1  AND c.user_id2 = u.id  OR  c.user_id2 = $1 AND c.user_id1 = u.id
@@ -26,24 +26,21 @@ func (cr *ChatRepository) GetSortedUsers(userid int) ([]models.Chat, error) {
 		return nil, err
 	}
 
-	chatUsers := []models.Chat{}
+	chatUsers := []*models.Chat{}
 	for queryStmt.Next() {
 		c := models.Chat{}
 		if err := queryStmt.Scan(&c.ID, &c.UserName, &c.LastMessage, &c.LastMessageSenderName, &c.SentTime, &c.MesageID); err != nil {
 			return nil, err
 		}
-		chatUsers = append(chatUsers, c)
+		chatUsers = append(chatUsers, &c)
 	}
 	return chatUsers, nil
 }
 
 func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
 	//save in db message in chat, messages table
-	senderUserID, err := cr.GetUserID(m.Sender)
-	if err != nil {
-		return err
-	}
-	receiverUserID, err := cr.GetUserID(m.Receiver)
+
+	receiverUserID, senderUserID, err := cr.getUserIDs(m)
 	if err != nil {
 		return err
 	}
@@ -104,10 +101,10 @@ func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, erro
 
 	for queryStmt.Next() {
 		//or when create msg - set name ?
-		if err := queryStmt.Scan(&msg.Content, &msg.UserID, &msg.Name, &msg.SentTime); err != nil {
+		if err := queryStmt.Scan(&msg.Content, &msg.UserID, &msg.Name, &msg.Time); err != nil {
 			return nil, err
 		}
-
+		msg.SentTime = msg.Time.Format(time.RFC3339)
 		msg.Receiver = m.Receiver
 		msg.Sender = m.Sender
 		messages = append(messages, msg)
@@ -148,36 +145,43 @@ func (cr *ChatRepository) GetLastMessageIndex(room string, userid int) (lastinde
 	return lastindex, nil
 }
 
-func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
-	//case 1 uuid sender, uuid receiver
-	//case 2
-	log.Println(m.ID, m.UserID, m.Receiver, "rec", m.Sender, "send")
+func (cr *ChatRepository) getUserIDs(m *models.Message) (int, int, error) {
+
 	senderUserID := m.ID
 	receiverUserID := m.UserID
-
-	// log.Println(receiverUserID, m.Receiver, m.Sender, senderUserID, "users ids check exist room")
 
 	var err error
 
 	if len(m.Receiver) == 1 {
 		receiverUserID, err = strconv.Atoi(m.Receiver)
 		if err != nil {
-			return "", err
+			return 0, 0, err
 		}
 		senderUserID, err = cr.GetUserID(m.Sender)
 		if err != nil {
-			return "", err
+			return 0, 0, err
 		}
 	} else if (senderUserID == 0 || receiverUserID == 0) && len(m.Receiver) == 36 {
 
 		receiverUserID, err = cr.GetUserID(m.Receiver)
 		if err != nil {
-			return "", err
+			return 0, 0, err
 		}
 		senderUserID, err = cr.GetUserID(m.Sender)
 		if err != nil {
-			return "", err
+			return 0, 0, err
 		}
+	}
+
+	return receiverUserID, senderUserID, nil
+
+}
+
+func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
+
+	receiverUserID, senderUserID, err := cr.getUserIDs(m)
+	if err != nil {
+		return "", err
 	}
 
 	log.Println(receiverUserID, senderUserID, "after")

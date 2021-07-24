@@ -9,8 +9,12 @@ export default class Profile extends Parent {
     document.title = title;
   }
 
+  //change Type, time, repo, -> change& format
+  //model structs -> change settime - text
+
   async init() {
     let response = await fetch("http://localhost:6969/api/profile");
+    console.log(response, 9);
     if (response.status === 200) {
       let result = await response.json();
       super.renderSequence(result);

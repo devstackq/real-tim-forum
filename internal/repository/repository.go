@@ -42,7 +42,7 @@ type Chat interface {
 	AddNewRoom(m *models.Message) error
 	IsExistRoom(m *models.Message) (string, error)
 	GetUserID(string) (int, error)
-	GetSortedUsers(int) ([]models.Chat, error)
+	GetSortedUsers(int) ([]*models.Chat, error)
 }
 
 // type Utils interface {

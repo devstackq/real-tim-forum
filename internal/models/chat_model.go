@@ -23,7 +23,8 @@ type Message struct {
 	Conn             *websocket.Conn
 	Room             string    `json:"room"`
 	Name             string    `json:"aname"`
-	SentTime         time.Time `json:"senttime"`
+	SentTime         string    `json:"senttime"`
+	Time             time.Time `json:"time"`
 	LastIndexMessage int
 	Indexs           []int
 }
@@ -56,6 +57,9 @@ type Chat struct {
 	Online                bool            `json:"online"`
 	UUID                  string          `json:"uuid"`
 	Conn                  *websocket.Conn `json:"conn"`
+	Uzers                 []*Chat         `json:"uzers"`
 }
+
+//
 
 //user19 -> send msg -> user 59, from, who, chatid99

@@ -22,11 +22,13 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 //implement method, by interface User
 func (ur *UserRepository) CreateUser(user *models.User) (int64, error) {
 
-	query, err := ur.db.Prepare(`INSERT INTO users(full_name, email, user_name, password, age, sex, created_time, city, image) VALUES(?,?,?,?,?,?,?,?,?)`)
+	query, err := ur.db.Prepare(`INSERT INTO users(full_name, email, user_name, password, age, sex, created_time, last_seen, city, image) VALUES(?,?,?,?,?,?,?,?,?,?)`)
 	if err != nil {
 		return -1, err
 	}
-	result, err := query.Exec(user.FullName, user.Email, user.Username, user.Password, user.Age, user.Sex, time.Now(), user.City, user.Image)
+	t := time.Now().Format(time.RFC822)
+
+	result, err := query.Exec(user.FullName, user.Email, user.Username, user.Password, user.Age, user.Sex, t, time.Now(), user.City, user.Image)
 	if err != nil {
 		return -1, err
 	}
@@ -98,12 +100,13 @@ func (ur *UserRepository) UpdateSession(session *models.Session) error {
 func (ur *UserRepository) GetUserById(uid string) (*models.User, error) {
 
 	user := models.User{}
-	query := `SELECT full_name, email, user_name, age, sex, city FROM users WHERE id=?`
+	query := `SELECT full_name, email, user_name, age, sex, created_time, city FROM users WHERE id=?`
 	row := ur.db.QueryRow(query, uid)
-	err := row.Scan(&user.FullName, &user.Email, &user.Username, &user.Age, &user.Sex, &user.City)
+	err := row.Scan(&user.FullName, &user.Email, &user.Username, &user.Age, &user.Sex, &user.CreatedTime, &user.City)
 	if err != nil {
 		return nil, err
 	}
+	log.Println(user.CreatedTime, "time")
 	return &user, nil
 }
 
