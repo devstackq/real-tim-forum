@@ -158,11 +158,19 @@ left join use, interface use, oop use, gorouitine use
 1 ref table, chat, chatusers, messages, - relations
 2 ref arch  - addUser, sendMsg, - for new db
 
-
-fix -/chat -> if no session -> logout, && 
+Done:
+GetCreatedUserPosts, GetCreatedUserVote - refactor - Left  Join - done
 fix- header - /chat , isAuth
+fix -/chat -> if no session -> logout
+
+
+//fix - new user signup -> another user - not show, in online
+
 time format fix -message_sent_timevalidation - signup check
-GetCreatedUserPosts, GetCreatedUserVote - refactor - Left  Join
 
 Message by scroll
 Nptififaction - logic done, add field in messages table
+
+
+check case - ressesion -> get chat ? no duplicate ?
+check case 2 - signup -> signin - other user - can see new user ?

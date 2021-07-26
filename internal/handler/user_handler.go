@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -93,33 +92,12 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		//userExist() ? sql -getUserByid, left join post get by userid & vote
-		var err error
-
 		data, err := h.Services.User.GetUserProfile(Authorized.UserID)
 		if err != nil {
 			JsonResponse(w, r, http.StatusNotFound, err.Error())
 			return
 		}
-		log.Println(data, "prof data")
-
-		Profile.User, err = h.Services.User.GetUserById(strconv.Itoa(Authorized.UserID))
-		if err != nil {
-			JsonResponse(w, r, http.StatusNotFound, err.Error())
-			return
-		}
-		Profile.Posts, err = h.Services.User.GetCreatedUserPosts(Authorized.UserID)
-		if err != nil {
-			JsonResponse(w, r, http.StatusNotFound, err.Error())
-			return
-		}
-		Profile.VotedItems, err = h.Services.User.GetUserVotedItems(Authorized.UserID)
-		if err != nil {
-			JsonResponse(w, r, http.StatusNotFound, err.Error())
-			return
-		}
-		JsonResponse(w, r, http.StatusOK, Profile)
-		//getCreatedComment() comment /array comment
+		JsonResponse(w, r, http.StatusOK, data)
 	case "POST":
 		//update name, age, etc, delete user, update, delete request
 	default:

@@ -14,7 +14,7 @@ var upgrader = websocket.Upgrader{
 }
 
 //1 create new obj chat - for each new user(conn)
-var chat = &models.ChatStorage{
+var chat = &models.ChannelStorage{
 	OnlineUsers: make(map[string]*models.Chat),
 	NewMessage:  make(chan *models.Message), // 1 time - 10 user can write
 	ListMessage: make(chan *models.Message),

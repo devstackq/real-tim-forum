@@ -97,19 +97,6 @@ func (ur *UserRepository) UpdateSession(session *models.Session) error {
 	return nil
 }
 
-func (ur *UserRepository) GetUserById(uid string) (*models.User, error) {
-
-	user := models.User{}
-	query := `SELECT full_name, email, user_name, age, sex, created_time, city FROM users WHERE id=?`
-	row := ur.db.QueryRow(query, uid)
-	err := row.Scan(&user.FullName, &user.Email, &user.Username, &user.Age, &user.Sex, &user.CreatedTime, &user.City)
-	if err != nil {
-		return nil, err
-	}
-	log.Println(user.CreatedTime, "time")
-	return &user, nil
-}
-
 func (ur *UserRepository) GetUserUUID(uid int) (string, error) {
 	var uuid string
 	query := `SELECT uuid FROM sessions WHERE user_id=?`
@@ -147,79 +134,46 @@ func (ur *UserRepository) GetUserID(uuid string) (int, error) {
 }
 
 func (ur *UserRepository) GetProfileData(userId int) (*models.Profile, error) {
-	//by user id , get created posts, vote, and user data
-	//2 query, 1 get all post
-	queryStmt, err := ur.db.Query(`SELECT *  FROM users u
-	left join posts p ON p.user_id = $1
-	left join votes v ON v.user_id = $1  ORDER by p.create_time DESC`, userId)
+
+	profile := models.Profile{}
+
+	user := models.User{}
+	query := `SELECT full_name, email, user_name, age, sex, city FROM users where id=?`
+	row := ur.db.QueryRow(query, userId)
+	// err := row.Scan(&profile.UserData.FullName, &profile.UserData.Email, &profile.UserData.UserDataname, &profile.UserData.Age, &profile.UserData.Sex, &profile.UserData.City)
+	err := row.Scan(&user.FullName, &user.Email, &user.Username, &user.Age, &user.Sex, &user.City)
+
 	if err != nil {
 		return nil, err
 	}
-	//get user data
-	// SELECT * FROM users where user_id=?
-	//get voted posts
-	// SELECT u.full_name, v.post_id as postid, u.email, v.id as voteid, u.id as userid  FROM users u
-	// left join votes v ON v.user_id = u.id WHERE
-	// u.id =5   ORDER by v.id DESC
+	profile.User = &user
 
-	//created post
-	// SELECT u.full_name, u.email, p.thread, u.id as userid, p.id as postid  FROM users u
-	// left join posts p ON p.creator_id = u.id   where u.id=5
-
-	// SELECT u.full_name, p.thread, v.id as voteid, u.id as userid, p.id as postid  FROM users u
-	// left join posts p ON p.creator_id = u.id
-	// left join votes v ON v.user_id = u.id AND v.post_id NOTNULL  WHERE u.id =5 GROUP BY u.id, v.id, p.id  ORDER by p.create_time DESC
-
-	// profile := []*models.Profile{}
-	// for queryStmt.Next() {
-	// 	u := models.User{}
-	// 	if err := queryStmt.Scan(&c.ID, &c.UserName, &c.LastMessage, &c.LastMessageSenderName, &c.SentTime, &c.MesageID); err != nil {
-	// 		return nil, err
-	// 	}
-	// 	chatUsers = append(chatUsers, &c)
-	// }
-	// return chatUsers, nil
-}
-
-//DRY func ?
-func (ur *UserRepository) GetCreatedUserPosts(userId int) (*[]models.Post, error) {
-
-	arrPosts := []models.Post{}
-	post := models.Post{}
-	var rows *sql.Rows
-	var err error
-	rows, err = ur.db.Query("SELECT id, thread, content, creator_id, create_time, update_time, image, count_like, count_dislike FROM posts WHERE creator_id=?  ORDER  BY create_time  DESC ", userId)
+	posts, err := ur.db.Query(`SELECT id, thread, content FROM posts WHERE creator_id=?  ORDER  BY create_time  DESC`, userId)
 	if err != nil {
 		return nil, err
 	}
-	for rows.Next() {
-		if err := rows.Scan(&post.ID, &post.Thread, &post.Content, &post.CreatorID, &post.CreatedTime, &post.UpdatedTime, &post.Image, &post.CountLike, &post.CountDislike); err != nil {
+	for posts.Next() {
+		post := models.Post{}
+		if err := posts.Scan(&post.ID, &post.Thread, &post.Content); err != nil {
 			return nil, err
 		}
-		arrPosts = append(arrPosts, post)
+		profile.Posts = append(profile.Posts, &post)
 	}
-	return &arrPosts, nil
-}
 
-func (ur *UserRepository) GetUserVotedItems(userId int) (*[]models.Vote, error) {
-
-	seqVote := []models.Vote{}
-	voteObj := models.Vote{}
-	var rows *sql.Rows
-	var err error
-
-	rows, err = ur.db.Query("SELECT post_id, like_state, dislike_state FROM votes WHERE user_id=?", userId)
-
+	votes, err := ur.db.Query(`
+	SELECT  p.id,p.thread, p.content FROM users u
+	left join votes v ON v.user_id = u.id
+	left join posts p ON p.id = v.post_id
+	WHERE u.id =user_id`, userId)
 	if err != nil {
 		return nil, err
 	}
-	for rows.Next() {
-		if err = rows.Scan(&voteObj.ID, &voteObj.LikeState, &voteObj.DislikeState); err != nil {
+	for votes.Next() {
+		votedPost := models.Post{}
+		if err := votes.Scan(&votedPost.ID, &votedPost.Thread, &votedPost.Content); err != nil {
 			return nil, err
 		}
-		if voteObj.LikeState || voteObj.DislikeState {
-			seqVote = append(seqVote, voteObj)
-		}
+		profile.VotedItems = append(profile.VotedItems, &votedPost)
 	}
-	return &seqVote, nil
+	return &profile, nil
 }

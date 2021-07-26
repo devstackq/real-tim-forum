@@ -11,14 +11,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var ChatStorage struct {
-	ListMessage []models.Message `json:"messages"`
-	// OnlineUsers   map[string]*models.User `json:"users"`
-	OnlineUsers map[string]*models.Chat `json:"online"`
-	AllUsers    []models.Chat           `json:"users"`
-	Message     models.Message          `json:"message"`
-	Type        string                  `json:"type"`
-	Receiver    string                  `json:"receiver"`
+var Online struct {
+	Users map[string]*models.Chat `json:"online"`
 }
 
 //or global each time send client - use client side this var ?``
@@ -46,7 +40,7 @@ func NewChatService(repo repository.Chat) *ChatService {
 	return &ChatService{repo}
 }
 
-func (cs *ChatService) getMessages(m *models.Message, c *models.ChatStorage) error {
+func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) error {
 	//find users room, if zero
 	store := ChatStore{}
 	store.Receiver = m.Receiver
@@ -68,7 +62,7 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChatStorage) err
 	if err != nil {
 		log.Println(err, "get msg err")
 	}
-
+	// log.Println(m.Name, "NAME")
 	store.Author = m.Name
 	store.ListMessage = seq
 	store.Type = "listmessages"
@@ -93,12 +87,12 @@ func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string
 		}
 	}
 	return dbUsers
-	// ChatStorage.AllUsers = dbUsers
+	// ChannelStorage.AllUsers = dbUsers
 }
 
 //if find userid -> update CS.OnlineUsers[id]=u, uuid, u.LastMessage, etc
 
-func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
+func (cs *ChatService) sendMessage(c *models.ChannelStorage, m *models.Message) {
 	//save db in message, caht table & message, add author, date message
 	//send msg - to  conn - receiver if have in server
 	room, err := cs.repository.IsExistRoom(m)
@@ -139,7 +133,7 @@ func (cs *ChatService) sendMessage(c *models.ChatStorage, m *models.Message) {
 	}
 }
 
-func (cs *ChatService) leaveUser(c *models.ChatStorage, u *models.Chat) {
+func (cs *ChatService) leaveUser(c *models.ChannelStorage, u *models.Chat) {
 	leaveUser := NewUser{}
 	leaveUser.Type = "leave"
 	leaveUser.User = u
@@ -147,16 +141,15 @@ func (cs *ChatService) leaveUser(c *models.ChatStorage, u *models.Chat) {
 	delete(c.OnlineUsers, u.UUID)
 	u.Conn.Close()
 	//update users
-	ChatStorage.OnlineUsers = c.OnlineUsers
-	for _, v := range ChatStorage.OnlineUsers {
+	Online.Users = c.OnlineUsers
+	for _, v := range Online.Users {
 		v.Conn.WriteJSON(leaveUser)
 	}
 }
 
-func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) ChatStore {
+func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChannelStorage) ChatStore {
 	//fill user.Name -> in db, by uuid  u.Conn
 	store := ChatStore{}
-
 	store.Type = "observeusers"
 	//case - relogin, delete prev user in map, no duplicate
 	if len(c.OnlineUsers) > 1 {
@@ -176,7 +169,6 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) ChatSto
 	}
 	store.AllUsers = cs.mergeUsers(sorted, store.OnlineUsers)
 	// u.Uzers = sorted
-
 	//another user send send list users & user which signin
 	u.Online = true
 	newUser := NewUser{}
@@ -189,10 +181,13 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChatStorage) ChatSto
 			v.Conn.WriteJSON(newUser)
 		}
 	}
-	//only get list user
-	// if wsType == "getusers" {
-	// 	store.Type = "getusers"
-	// }
+
+	//
+	add new user handle, signup -> signin - other user observs
+
+	log.Println(store.OnlineUsers, newUser, "added user")
+
+	//only get list user -> // store.AllUsers
 
 	//user logged -> show own list user
 	u.Conn.WriteJSON(store)
@@ -211,7 +206,7 @@ func (cs *ChatService) getUsers(user *models.Chat) {
 
 //1 main -> Start() ->  createEmptyObjecetChat -> 2 ws Handler, newConn -> 3 go Run() // goruutine each newConn(user)
 //handle if receive new user (from new conn(user) -> join), get new user -> by chan(goroutine)
-func (cs *ChatService) Run(c *models.ChatStorage) {
+func (cs *ChatService) Run(c *models.ChannelStorage) {
 	//run every, wait data from chan
 	for {
 		//each conn - own goroutuine
@@ -238,7 +233,7 @@ func (cs *ChatService) Run(c *models.ChatStorage) {
 
 //conn - hsndshake, client - server, server for loop: listen ws.send message -f if have -> another thread Run goroutine
 //and slect case : wait data from channel
-func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChatStorage, name string, uuid string) error {
+func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStorage, name string, uuid string) error {
 
 	body := models.Message{}
 

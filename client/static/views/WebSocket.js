@@ -1,9 +1,10 @@
 import { showListUser, addNewUser } from "./HandleUsers.js";
-import { showListMessages, sendMessage } from "./Chat.js";
+import { showListMessages, sendMessage, setLastMessage } from "./Chat.js";
 
 export let ListUsers = {};
 
 export let wsConn = null;
+export let authorName = "";
 
 export function getCookie(cName) {
   const name = cName + "=";
@@ -62,7 +63,6 @@ export const wsInit = (...args) => {
         el = document.getElementById(message.user.uuid);
       }
     }
-    show todo. txt
 
     switch (message.type) {
       case "online":
@@ -72,10 +72,7 @@ export const wsInit = (...args) => {
         el != null ? (el.className = "online") : null;
         break;
       case "observeusers":
-        showListUser(message.users);
-
-        break;
-      case "getusers":
+        authorName = message.author;
         showListUser(message.users);
         break;
       case "listmessages":
@@ -105,14 +102,23 @@ export const wsInit = (...args) => {
         break;
       case "lastmessage":
         //prepend user - first, another client
-        let span = document.createElement("span");
-        let div = document.createElement("div");
+        //prepend ?
+
+        // let span = document.createElement("span");
+        // let div = document.createElement("div");
         chatContainer.children["chatbox"].style.display = "block";
-        span.textContent = `${message.message.aname} : \n ${message.message.content} ${message.message.senttime}  `;
-        div.append(span);
-        chatContainer.children["chatbox"].append(div);
+        // span.textContent = `${message.message.aname} : \n ${message.message.content} ${message.message.senttime}  `;
+
+        // div.append(span);
+        // chatContainer.children["chatbox"].append(div);
         chatContainer.children["messageFieldId"].value = "";
         // set session || userid
+        setLastMessage(
+          message.message.content,
+          new Date().toLocaleTimeString(),
+          message.message.aname,
+          message.message.sender
+        );
         toggleOnlineUser(message.message.sender, "prepend");
         break;
       case "leave":

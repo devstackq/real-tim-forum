@@ -234,3 +234,7 @@ label,
   max-width: 800px;
   margin-left: 50px;
 }
+.username {
+  font-size: 26px;
+  font-weight: bold;
+}

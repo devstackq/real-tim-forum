@@ -122,19 +122,6 @@ func createTables(db *sql.DB) error {
 	}
 	votes.Exec()
 
-	// notify, err := db.Prepare(`CREATE TABLE IF NOT EXISTS notifies(
-	// 	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	// 	post_id INTEGER,
-	// 	current_user_id INTEGER,
-	// 	voteState INTEGER DEFAULT 0,
-	// 	created_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-	// 	to_whom INTEGER,
-	// 	comment_id INTEGER )`)
-	// if err != nil {
-	// 	return err
-	// }
-	// notify.Exec()
-
 	category, err := db.Prepare(`CREATE TABLE IF NOT EXISTS categories(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		name TEXT UNIQUE)`,

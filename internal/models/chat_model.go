@@ -38,7 +38,7 @@ type Message struct {
 // 	}
 // }
 
-type ChatStorage struct {
+type ChannelStorage struct {
 	OnlineUsers map[string]*Chat
 	NewMessage  chan *Message
 	Join        chan *Chat

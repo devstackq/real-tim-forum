@@ -31,7 +31,7 @@ export default class Signin extends Parent {
   }
 
   init() {
-    // localStorage.setItem("isAuth", false);
+    localStorage.setItem("isAuth", false);
     document.querySelector("#signin").onclick = this.signin.bind(this);
   }
 

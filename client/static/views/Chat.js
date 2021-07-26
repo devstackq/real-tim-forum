@@ -11,19 +11,6 @@ export default class Chat extends Parent {
   setTitle(title) {
     document.title = title;
   }
-  //onscroll get offset messages
-  render(seq, where) {
-    let parent = document.querySelector(where);
-    seq.forEach((item) => {
-      let div = document.createElement("div");
-      for (let [i, v] of Object.entries(item)) {
-        let span = document.createElement("span");
-        span.textContent = ` ${i} : ${v} `;
-        div.append(span);
-      }
-      parent.append(div);
-    });
-  }
 
   async init() {
     this.HtmlElems.messageContainer =
@@ -40,7 +27,6 @@ export default class Chat extends Parent {
 
   async getHtml() {
     //<div id="countusers"> </div>
-    //?DRY
     let body = `
     <div class="chat_wrapper">
     <div id="userlistbox" >  </div>
@@ -50,12 +36,19 @@ export default class Chat extends Parent {
     <button id="sendBtnId"> Send message </button
       </div>
       </div>`;
-    return super.showHeader() + body;
+    let header = super.showHeader();
+    return header + body;
   }
 }
 // peredelat pod struct -store
+export const setLastMessage = (message, time, senderName, receiver) => {
+  let currentChat = document.getElementById(`${receiver}`);
+  currentChat.innerHTML = "";
+  // console.log(message, time, senderName, receiver);
+  currentChat.textContent = `From : ${senderName} \n Message: ${message} \n Time:${time} `;
+};
 
-export const showListMessages = (messages, userid, session, author) => {
+export const showListMessages = (messages, userid, session, authorName) => {
   let chatContainer = document.querySelector("#message_container");
   if (messages != null && chatContainer != null) {
     chatContainer.style.display = "block";
@@ -65,9 +58,7 @@ export const showListMessages = (messages, userid, session, author) => {
     messages.forEach((item) => {
       let div = document.createElement("div");
       let span = document.createElement("span");
-
       span.textContent = `${item.aname}  ${item.content}  ${item.senttime} \n `;
-
       if (item.userid == userid) {
         div.classList.add("chat_sender");
       }
@@ -79,30 +70,28 @@ export const showListMessages = (messages, userid, session, author) => {
     if (messages.length != 0) {
       receive = messages[0]["receiver"];
     }
-
     toggleOnlineUser(receive);
-
     chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
       this,
       receive,
       userid,
-      session,
-      author
+      authorName
     );
   }
 };
+// update lastmessage & receive message - text format
 
-export const sendMessage = (receiver, authorId, senderUUID, author) => {
+export const sendMessage = (receiver, authorId, author) => {
+  console.log(author, authorId, receiver);
   let chatContainer = document.querySelector("#message_container");
   let content = chatContainer.children["messageFieldId"].value;
   chatContainer.children["chatbox"].style.display = "block";
 
   let message = {
-    content: content,
-    sender: senderUUID,
     receiver: receiver,
     userid: parseInt(authorId),
     type: "newmessage",
+    content: content,
   };
 
   let div = document.createElement("div");
@@ -113,6 +102,8 @@ export const sendMessage = (receiver, authorId, senderUUID, author) => {
     message.content
   }   ${new Date().toLocaleTimeString()}  `;
 
+  //current chat -> update contetn
+  setLastMessage(content, new Date().toLocaleTimeString(), author, receiver);
   div.append(span);
   chatContainer.children["chatbox"].append(div);
   chatContainer.children["messageFieldId"].value = "";

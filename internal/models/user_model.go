@@ -27,8 +27,8 @@ type Tezt struct {
 }
 
 type Profile struct {
-	Posts      *[]Post
 	User       *User
-	VotedItems *[]Vote
+	Posts      []*Post //array pointer - each post
+	VotedItems []*Post
 	// Comment *models.Comment{}
 }

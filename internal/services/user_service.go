@@ -94,14 +94,6 @@ func (us *UserService) Logout(session string) error {
 	return nil
 }
 
-func (us *UserService) GetUserById(id string) (*models.User, error) {
-	user, err := us.repository.GetUserById(id)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
 func (us *UserService) GetUserUUID(userId int) (string, error) {
 	uuid, err := us.repository.GetUserUUID(userId)
 	if err != nil {
@@ -127,28 +119,11 @@ func (us *UserService) GetUserName(uuid string) (string, error) {
 }
 
 func (us *UserService) GetUserProfile(userId int) (*models.Profile, error) {
-
 	data, err := us.repository.GetProfileData(userId)
 	if err != nil {
 		return nil, err
 	}
 	return data, nil
-}
-
-func (us *UserService) GetCreatedUserPosts(userId int) (*[]models.Post, error) {
-	posts, err := us.repository.GetCreatedUserPosts(userId)
-	if err != nil {
-		return nil, err
-	}
-	return posts, nil
-}
-
-func (us *UserService) GetUserVotedItems(userId int) (*[]models.Vote, error) {
-	voted, err := us.repository.GetUserVotedItems(userId)
-	if err != nil {
-		return nil, err
-	}
-	return voted, nil
 }
 
 // take out utils ? user_utils.
