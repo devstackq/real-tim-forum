@@ -24,6 +24,9 @@ export default class Chat extends Parent {
     }
     // showListUser(ListUsers);
   }
+  fix - offline user - first message , no name - uuid ?
+fix - updated message from anther client - lastmessage
+
 
   async getHtml() {
     //<div id="countusers"> </div>

@@ -182,13 +182,11 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChannelStorage) Chat
 		}
 	}
 
-	//
 	add new user handle, signup -> signin - other user observs
+fix d- getProfileDate() - userid 
 
 	log.Println(store.OnlineUsers, newUser, "added user")
-
 	//only get list user -> // store.AllUsers
-
 	//user logged -> show own list user
 	u.Conn.WriteJSON(store)
 	return store
@@ -305,7 +303,6 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 				user.ID = body.UserID
 				c.Leave <- user
 			}
-
 		}
 	}
 	defer conn.Close()
