@@ -238,3 +238,7 @@ label,
   font-size: 26px;
   font-weight: bold;
 }
+.internlocutor {
+  color: rgb(187, 135, 235);
+  font-size: 20px;
+}

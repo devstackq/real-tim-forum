@@ -24,16 +24,19 @@ export default class Chat extends Parent {
     }
     // showListUser(ListUsers);
   }
-  fix - offline user - first message , no name - uuid ?
-fix - updated message from anther client - lastmessage
 
+  //fix show message - case nomessages UserName
+  // fix - updated message from anther client - lastmessage
+  // fix-> show : receipment  name
 
+  //fix - send message -listUsers , show Receipment Name fixed, div-inside, div, each time, no delete Receip name, and clear another data
+  //fix  todo : lastmessage - listusers - lastmessage show, & add chat with Username
   async getHtml() {
     //<div id="countusers"> </div>
     let body = `
     <div class="chat_wrapper">
-    <div id="userlistbox" >  </div>
-    <div style='display:none' id="message_container"  >  
+    <div id="userlistbox">  </div>
+    <div style='display:none' id="message_container">  
     <div id="chatbox" class="chat_container" >      </div>
     <textarea cols="10" rows="10" id="messageFieldId"> </textarea>
     <button id="sendBtnId"> Send message </button
@@ -47,8 +50,7 @@ fix - updated message from anther client - lastmessage
 export const setLastMessage = (message, time, senderName, receiver) => {
   let currentChat = document.getElementById(`${receiver}`);
   currentChat.innerHTML = "";
-  // console.log(message, time, senderName, receiver);
-  currentChat.textContent = `From : ${senderName} \n Message: ${message} \n Time:${time} `;
+  currentChat.textContent = `Fromz : ${senderName} \n Message: ${message} \n Time:${time} Chat with: `;
 };
 
 export const showListMessages = (messages, userid, session, authorName) => {
@@ -73,6 +75,7 @@ export const showListMessages = (messages, userid, session, authorName) => {
     if (messages.length != 0) {
       receive = messages[0]["receiver"];
     }
+
     toggleOnlineUser(receive);
     chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
       this,
@@ -82,10 +85,9 @@ export const showListMessages = (messages, userid, session, authorName) => {
     );
   }
 };
-// update lastmessage & receive message - text format
 
-export const sendMessage = (receiver, authorId, author) => {
-  console.log(author, authorId, receiver);
+// update lastmessage & receive message - text format
+export const sendMessage = (receiver, authorId, authorName) => {
   let chatContainer = document.querySelector("#message_container");
   let content = chatContainer.children["messageFieldId"].value;
   chatContainer.children["chatbox"].style.display = "block";
@@ -101,12 +103,17 @@ export const sendMessage = (receiver, authorId, author) => {
   let span = document.createElement("span");
   span.className = "chat_sender";
 
-  span.textContent = `${author} :  \n${
+  span.textContent = `${authorName} :  \n${
     message.content
   }   ${new Date().toLocaleTimeString()}  `;
 
   //current chat -> update contetn
-  setLastMessage(content, new Date().toLocaleTimeString(), author, receiver);
+  setLastMessage(
+    content,
+    new Date().toLocaleTimeString(),
+    authorName,
+    receiver
+  );
   div.append(span);
   chatContainer.children["chatbox"].append(div);
   chatContainer.children["messageFieldId"].value = "";

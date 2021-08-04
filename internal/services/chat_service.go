@@ -44,10 +44,13 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 	//find users room, if zero
 	store := ChatStore{}
 	store.Receiver = m.Receiver
+	store.Author = m.Name
+
 	room, err := cs.repository.IsExistRoom(m)
 	if err != nil {
 		log.Println(err, "empty room")
 	}
+	// log.Println(m.Name, "NAME")
 
 	if room == "" {
 		store.Type = "nomessages"
@@ -57,16 +60,14 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 		return nil
 	}
 	m.Room = room
-	// log.Println(m, err)
 	seq, err := cs.repository.GetMessages(m)
 	if err != nil {
 		log.Println(err, "get msg err")
 	}
-	// log.Println(m.Name, "NAME")
-	store.Author = m.Name
+
 	store.ListMessage = seq
 	store.Type = "listmessages"
-	log.Println(seq)
+	// log.Println(seq)
 	err = m.Conn.WriteJSON(store)
 	if err != nil {
 		return err
@@ -76,7 +77,7 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 
 func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string]*models.Chat) []*models.Chat {
 	// l := Tezt{1, "sd"}
-	// log.Println(l)
+	// go func() {
 	for index, dbUser := range dbUsers { //sorted users from db
 		for uuid, onlineUser := range onlineUsers { //server users
 			if onlineUser.ID == dbUser.ID {
@@ -86,6 +87,7 @@ func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string
 			// exlude -> ourselve
 		}
 	}
+	// }()
 	return dbUsers
 	// ChannelStorage.AllUsers = dbUsers
 }
@@ -120,10 +122,9 @@ func (cs *ChatService) sendMessage(c *models.ChannelStorage, m *models.Message) 
 		store.Message.Content = m.Content
 		store.Message.SentTime = time.Now().Format("2006-01-02 3:4:5 pm")
 		// store.Message.SentTime = Format("2006-01-02 3:4:5 pm"))
-
+		store.Message.Sender = m.Sender
 		store.Message.Name = m.Name
 		store.Type = "lastmessage"
-		store.Message.Sender = m.Sender
 
 		err = receiver.Conn.WriteJSON(store)
 		if err != nil {
@@ -182,8 +183,9 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChannelStorage) Chat
 		}
 	}
 
-	add new user handle, signup -> signin - other user observs
-fix d- getProfileDate() - userid 
+	//reSortUsers -> if newuserSignup()
+	// add new user handle, signup -> signin - other user observs
+	// fix d- getProfileDate() - userid
 
 	log.Println(store.OnlineUsers, newUser, "added user")
 	//only get list user -> // store.AllUsers

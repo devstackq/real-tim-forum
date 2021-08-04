@@ -23,11 +23,15 @@ export const showListUser = (users) => {
 
         if (user.fullname) {
           let pattern = "";
-
+          let internlocutor = document.createElement("span");
+          internlocutor.className = "internlocutor";
+          internlocutor.textContent = user.fullname;
           user.lastmessage["String"] == ""
-            ? (pattern = `Now now have messages with: ${user.fullname.toUpperCase()} `)
-            : (pattern = `From : ${user.lastsender["String"]} \n Message: ${user.lastmessage["String"]} \n Time:${user.senttime["Time"]} `);
+            ? (pattern = `Now now have messages with:  `)
+            : (pattern = `From : ${user.lastsender["String"]} \n Message: ${user.lastmessage["String"]} \n Time:${user.senttime["Time"]} Chat with: `);
           li.textContent = pattern;
+          // li.textContent = u
+          li.append(internlocutor);
           li.onclick = (e) => {
             //remove prev clicked elem class, //dry /
             toggleOnlineUser(li.id);

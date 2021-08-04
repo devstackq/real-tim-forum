@@ -51,7 +51,6 @@ export const wsInit = (...args) => {
     let message = JSON.parse(e.data);
     // listUsers = message.users;
     let el = null;
-    // console.log(message.type, message);
     if (
       (message.type == "leave" || message.type == "online") &&
       message != null &&
@@ -91,34 +90,24 @@ export const wsInit = (...args) => {
         chatContainer.style.display = "block";
         chatContainer.children["chatbox"].innerHTML = "";
         //now no messages -> fix, show message field
+        console.log(authorSession, message.author, message.receiver, message);
+        // authorSession,
         chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
           this,
           message.receiver,
           authorId,
-          authorSession,
           message.author
         );
         // super.showNotify("now no messages", "error");
         break;
       case "lastmessage":
         //prepend user - first, another client
-        //prepend ?
-
-        // let span = document.createElement("span");
-        // let div = document.createElement("div");
         chatContainer.children["chatbox"].style.display = "block";
-        // span.textContent = `${message.message.aname} : \n ${message.message.content} ${message.message.senttime}  `;
-
-        // div.append(span);
-        // chatContainer.children["chatbox"].append(div);
+        let span = document.createElement("span");
+        span.textContent = `From :${message.message.aname} : \n ${message.message.content} ${message.message.senttime}  Chat with: `;
+        chatContainer.children["chatbox"].append(span);
         chatContainer.children["messageFieldId"].value = "";
         // set session || userid
-        setLastMessage(
-          message.message.content,
-          new Date().toLocaleTimeString(),
-          message.message.aname,
-          message.message.sender
-        );
         toggleOnlineUser(message.message.sender, "prepend");
         break;
       case "leave":
