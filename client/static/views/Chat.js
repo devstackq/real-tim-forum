@@ -15,13 +15,12 @@ export default class Chat extends Parent {
   async init() {
     this.HtmlElems.messageContainer =
       document.querySelector("#message_container");
-    wsInit(); //each time add user
-    //getusers
-    if (wsConn != null && wsConn.readyState == 1) {
-      wsConn.send(
-        JSON.stringify({ sender: getCookie("session"), type: "newuser" })
-      );
-    }
+    wsInit("getusers"); //open conn ?
+    // if (wsConn != null && wsConn.readyState == 1) {
+    //   wsConn.send(
+    //     JSON.stringify({ sender: getCookie("session"), type: "online" })
+    //   );
+    // }
     // showListUser(ListUsers);
   }
 

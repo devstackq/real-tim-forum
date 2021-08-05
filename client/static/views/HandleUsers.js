@@ -62,23 +62,41 @@ export const showListUser = (users) => {
     }
   }
 };
-//mail. pwd, 1 auth,1 open
-export const addNewUser = (uuid) => {
-  if (uuid == undefined) {
-    uuid = getCookie("session");
-  }
-  if (getAuthState() == "true") {
-    // console.log("new user", uuid, wsConn);
-    wsConn.onopen = () =>
-      wsConn.send(
-        JSON.stringify({
-          sender: uuid,
-          type: "newuser",
-        })
-      );
-  }
+const openWs = (uuid, type) => {
+  wsConn.onopen = () => {
+    wsConn.send(
+      JSON.stringify({
+        sender: uuid,
+        type: type,
+      })
+    );
+  };
+};
+const sendWs = (uuid, type)=> {
+  wsConn.send(
+    JSON.stringify({
+      sender: uuid,
+      type: type,
+    })
+  );
 };
 
+//mail. pwd, 1 auth,1 open
+export const listUsers = (uuid, type) => {
+
+  if (type == "signin" || type == "getusers") {
+    if (uuid == undefined) {
+      uuid = getCookie("session");
+    }
+    if (getAuthState() == "true") {
+      if (wsConn.readyState != 1) {
+        openWs(uuid, "online");
+      } else {
+      sendWs(uuid, "online")
+      }
+  }
+}
+}
 export const getAuthState = () => {
   if (document.cookie.split(";").length > 1) {
     return localStorage.getItem("isAuth");

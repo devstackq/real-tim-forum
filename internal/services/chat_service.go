@@ -285,20 +285,28 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 			}
 			c.NewMessage <- message
 		}
+
+		if body.Type == "newuser" {
+			log.Println("observe onlien users, update mergeusers")
+			//get online users
+			//updated listUsers
+		}
 		// if strings.TrimSpace(username) == "" {
-		if body.Type == "newuser" || body.Type == "leave" {
-			id, err := cs.repository.GetUserID(body.Sender)
-			if err != nil {
-				log.Println(err, "erka")
-			}
+		if body.Type == "online" || body.Type == "leave" {
+			send uuid || id, leave || online user
+
 			user := &models.Chat{
-				ID:       id,
 				UUID:     body.Sender,
 				Conn:     conn, //set conn current user
 				UserName: name,
 			}
 
-			if body.Type == "newuser" {
+			if body.Type == "online" {
+				id, err := cs.repository.GetUserID(body.Sender)
+				if err != nil {
+					log.Println(err, "erka")
+				}
+				user.ID = id
 				c.Join <- user
 			}
 			if body.Type == "leave" {

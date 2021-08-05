@@ -1,4 +1,7 @@
 import Parent from "./Parent.js";
+import { redirect } from "../index.js";
+import { wsInit } from "./WebSocket.js";
+
 
 export default class Signup extends Parent {
   constructor(params) {
@@ -30,13 +33,21 @@ export default class Signup extends Parent {
     } else if (user.age == 0) {
       user.age = 21;
     }
-
+//success signup user return uid
     let uid = await super.fetch("signup", user);
     if (uid > 0) {
-      window.location.replace("http://localhost:6969/signin");
+      let result = await super.fetch("signin", {email: user.email, password: user.password});
+      if (result != null) {
+        localStorage.setItem("isAuth", true);
+        wsInit(result.uuid);
+        redirect("profile");
+      }else {
+        console.log("no correct login or password")
+      }
     } else {
+      console.log("error signup")
       //validParams() todo
-      super.showNotify(response.statusText, "error");
+      super.showNotify("signup error", "error");
     }
   }
   init() {

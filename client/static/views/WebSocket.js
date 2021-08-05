@@ -1,4 +1,4 @@
-import { showListUser, addNewUser } from "./HandleUsers.js";
+import { showListUser, listUsers } from "./HandleUsers.js";
 import { showListMessages, sendMessage, setLastMessage } from "./Chat.js";
 
 export let ListUsers = {};
@@ -38,10 +38,15 @@ export const toggleOnlineUser = (receiver, type) => {
 // add user - send uuid
 export const wsInit = (...args) => {
   if (wsConn == null) {
-    console.log(wsConn, "val, singleton?");
     wsConn = new WebSocket("ws://localhost:6969/api/chat");
-    addNewUser(args[0]);
+    console.log(wsConn, "val, singleton?");
   }
+  if (args[0].length > 30 && args[0] != "") {
+    listUsers(args[0], "signin");
+  } else if (args[0] == "getusers") {
+    listUsers(getCookie("session"), args[0]);
+  }
+
   let chatContainer = document.querySelector("#message_container");
 
   wsConn.onmessage = (e) => {
@@ -69,6 +74,7 @@ export const wsInit = (...args) => {
         el == null ? (el = document.getElementById(message.uuid)) : null;
         el == null ? (el = document.getElementById(message.id)) : null;
         el != null ? (el.className = "online") : null;
+       console.log(message.id, message.uuid, "online")
         break;
       case "observeusers":
         authorName = message.author;
@@ -114,6 +120,7 @@ export const wsInit = (...args) => {
         el == null ? (el = document.getElementById(message.uuid)) : null;
         el == null ? (el = document.getElementById(message.id)) : null;
         el != null ? el.classList.remove("online") : null;
+        console.log(message.id, message.uuid, "leave")
         el.id = message.id; //set id, replace - prev uuid
         break;
       default:

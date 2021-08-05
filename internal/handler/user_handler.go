@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -40,6 +41,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		}
 		//user.ID = id
 		JsonResponse(w, r, status, id)
+		log.Println("signup user success")
 	default:
 		JsonResponse(w, r, http.StatusBadRequest, "Bad Request")
 	}
