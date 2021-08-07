@@ -40,15 +40,16 @@ type ChannelStorage struct {
 	NewUser     chan *Chat
 }
 
+// sql.NullTime
 type Chat struct {
 	ID                    int             `json:"id"`
 	UserName              string          `json:"fullname"`
 	LastMessage           sql.NullString  `json:"lastmessage"`
 	LastMessageSenderName sql.NullString  `json:"lastsender"`
-	SentTime              sql.NullTime    `json:"senttime"`
+	SentTime              sql.NullTime    `json:"time"`
 	MesageID              sql.NullInt64   `json:"messageid"`
 	Online                bool            `json:"online"`
 	UUID                  string          `json:"uuid"`
 	Conn                  *websocket.Conn `json:"conn"`
-	Uzers                 []*Chat         `json:"uzers"`
+	Time                  string          `json:"senttime"`
 }

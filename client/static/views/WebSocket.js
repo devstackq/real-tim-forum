@@ -24,7 +24,6 @@ export const getUserId = () => {
 };
 //send uuid or id if offline
 export const toggleOnlineUser = (receiver, type) => {
-  console.log(receiver, "receiver uuid");
   let currentUser = document.getElementById(receiver);
   let listUsers = document.getElementById("userlistbox"); // out global var ?
 
@@ -58,7 +57,6 @@ const prepareUserButton = (uuid, fullname, idx) => {
 };
 
 const insertNewUser = (message, tempListUsers) => {
-  console.log(message.user.uuid);
   if (tempListUsers.length > 1) {
     for (let [index, user] of Object.entries(tempListUsers)) {
       if (`${user.lastmessage["String"]}` == "") {
@@ -135,9 +133,12 @@ export const wsInit = (...args) => {
           authorSession,
           message.author
         );
+        //set chat windows
+        chatContainer.children["chatbox"].value = message.receiver;
+
         break;
       case "nomessages":
-        // alert("no messages now..");
+        alert("no have messages..");
         document.getElementById("notify").value = "no have messages...";
         chatContainer.style.display = "block";
         chatContainer.children["chatbox"].innerHTML = "";
@@ -151,14 +152,15 @@ export const wsInit = (...args) => {
         break;
       case "lastmessage":
         //append last message, chatbox
-        chatContainer.children["chatbox"].style.display = "block";
         let div = document.createElement("div");
         let span = document.createElement("span");
         let text = ` ${message.message.sendername} ${message.message.content} ${message.message.senttime} \n`;
         span.textContent = text;
-        div.append(span);
-
-        chatContainer.children["chatbox"].append(div);
+        //active windwos -> if uuid equal
+        if (chatContainer.children["chatbox"].value == message.message.sender) {
+          div.append(span);
+          chatContainer.children["chatbox"].append(div);
+        }
         //list users - update messages
         el == null
           ? (el = document.getElementById(message.message.sender))

@@ -194,14 +194,23 @@ fix - 1user create - not show another user -> list users
  //todo: fix - logout wsconn null
 
  fix logout - another user - null
- //header - fix, auth, etc case
 //logout -> leave case -> set id - undefinde fix
 
 //fix - send msg,  - show lastmessage - userWindwos
 
-  //hard case -> reSignin another browser
-  //signup -> show list users correct ?
+ 
+anomal case: 
+  //1 fix - another user signup, - no correct sort, js side ?
 
-  
-  //1 fix - another user signup, - no correct sort, js side
 //2 fix - focus user 5, send msg user 5, then focuse change user 3, again send msg user5, -> here 
+//4 time correct show
+
+
+ //3 header - fix, auth, etc case
+ //5comment service todo
+  //start notify
+//start scroll message
+
+audiit:
+ //hard case -> reSignin another browser
+  //signup -> show list users correct ?

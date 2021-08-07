@@ -25,7 +25,7 @@ export const showListUser = (users) => {
             ? (pattern = `No have messages with:  ${user.fullname}`)
             : (pattern = `<h3 class="partner">${user.fullname}</h3>
                 <span>${user.lastmessage["String"]}</span>
-              <span class="time">${user.senttime["Time"]}</span>
+              <span class="time">${user.senttime}</span>
              `);
 
           li.innerHTML = pattern;

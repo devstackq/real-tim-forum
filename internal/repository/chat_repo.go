@@ -32,6 +32,9 @@ func (cr *ChatRepository) GetSortedUsers(userid int) ([]*models.Chat, error) {
 		if err := queryStmt.Scan(&c.ID, &c.UserName, &c.LastMessage, &c.LastMessageSenderName, &c.SentTime, &c.MesageID); err != nil {
 			return nil, err
 		}
+
+		c.Time = c.SentTime.Time.Format(time.Stamp)
+
 		chatUsers = append(chatUsers, &c)
 	}
 	return chatUsers, nil
@@ -39,7 +42,7 @@ func (cr *ChatRepository) GetSortedUsers(userid int) ([]*models.Chat, error) {
 
 func (cr *ChatRepository) AddNewRoom(m *models.Message) error {
 	//save in db message in chat, messages table
-	receiverUserID, senderUserID, err := cr.getUserIDs(m)
+	receiverUserID, senderUserID, err := cr.getUsersID(m)
 	if err != nil {
 		return err
 	}
@@ -88,7 +91,7 @@ func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, erro
 		if err := queryStmt.Scan(&msg.Content, &msg.UserID, &msg.Name, &msg.Time); err != nil {
 			return nil, err
 		}
-		msg.SentTime = msg.Time.Format(time.RFC3339)
+		msg.SentTime = msg.Time.Format(time.Stamp)
 		msg.Receiver = m.Receiver
 		msg.Sender = m.Sender
 		messages = append(messages, msg)
@@ -96,12 +99,10 @@ func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, erro
 	return messages, nil
 }
 
-func (cr *ChatRepository) getUserIDs(m *models.Message) (int, int, error) {
+func (cr *ChatRepository) getUsersID(m *models.Message) (int, int, error) {
 
 	senderUserID := m.ID
 	receiverUserID := m.UserID
-
-	log.Println(m.ID, m.UserID, "uid", m.Receiver, len(m.Receiver), m.Sender)
 
 	var err error
 
@@ -124,22 +125,18 @@ func (cr *ChatRepository) getUserIDs(m *models.Message) (int, int, error) {
 			return 0, 0, err
 		}
 	}
-	log.Println(senderUserID, "edn", receiverUserID)
 	return receiverUserID, senderUserID, nil
 
 }
 
 func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
+	var room string
 
-	receiverUserID, senderUserID, err := cr.getUserIDs(m)
+	receiverUserID, senderUserID, err := cr.getUsersID(m)
 	if err != nil {
 		return "", err
 	}
-
-	log.Println(receiverUserID, senderUserID, "after")
-
-	var room string
-
+	// log.Println(receiverUserID, senderUserID, "after")
 	row := cr.db.QueryRow("SELECT room FROM chats WHERE user_id1=? AND user_id2=?", senderUserID, receiverUserID)
 	err = row.Scan(&room)
 	//2,1 -> swap query ?

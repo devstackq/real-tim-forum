@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+//http -> upgrade - ws
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024, // read/write, count network call
 	WriteBufferSize: 1024,
@@ -42,8 +43,4 @@ func (h *Handler) ChatHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//goroutine Run, action -> with channels(user state, leave, joikn, message) -> call concrete Method
 	//listen event by channel -> select case : Join , Message, Leave
-}
-
-func (h *Handler) GetListUsers(w http.ResponseWriter, r *http.Request) {
-
 }

@@ -168,7 +168,7 @@ label,
 }
 .chat_sender {
   background: orange !important;
-  margin-left: 300px;
+  margin-left: 50%;
   color: blue !important;
 }
 
@@ -188,6 +188,7 @@ label,
   opacity: 1;
 }
 #sendBtnId {
+  color: #efefef;
   cursor: pointer;
   opacity: 0.8;
   background: cornflowerblue;
@@ -255,7 +256,7 @@ label,
 #message_container {
   width: 100%;
   max-width: 800px;
-  margin-left: 50px;
+  margin-left: 20px;
 }
 .username {
   font-size: 26px;

@@ -42,7 +42,6 @@ func NewChatService(repo repository.Chat) *ChatService {
 
 func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) error {
 	//find users room, if zero
-	log.Println(m.Receiver, "getmsg1")
 	store := ChatStore{}
 	store.Receiver = m.Receiver
 	store.Author = m.Name
@@ -51,11 +50,9 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 	if err != nil {
 		log.Println(err, "empty room")
 	}
-	// log.Println(m.Name, "NAME")
 
 	if room == "" {
 		store.Type = "nomessages"
-		// send []user - by concrete conn, lel
 		m.Conn.WriteJSON(store)
 		return nil
 	}
@@ -64,10 +61,8 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 	if err != nil {
 		log.Println(err, "get msg err")
 	}
-
 	store.ListMessage = seq
 	store.Type = "listmessages"
-	// log.Println(seq)
 	err = m.Conn.WriteJSON(store)
 	if err != nil {
 		return err
@@ -88,7 +83,6 @@ func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string
 	}
 	// }()
 	return dbUsers
-	// ChannelStorage.AllUsers = dbUsers
 }
 
 //if find userid -> update CS.OnlineUsers[id]=u, uuid, u.LastMessage, etc
@@ -161,7 +155,7 @@ func (cs *ChatService) addGetUpdateUser(u *models.Chat, c *models.ChannelStorage
 			}
 		}
 	}
-
+	//add onlien user
 	c.OnlineUsers[u.UUID] = u
 	store.OnlineUsers = c.OnlineUsers
 
@@ -169,9 +163,11 @@ func (cs *ChatService) addGetUpdateUser(u *models.Chat, c *models.ChannelStorage
 	if err != nil {
 		log.Println(err)
 	}
+	//add online state user, for own
 	store.AllUsers = cs.mergeUsers(sorted, store.OnlineUsers)
-	// u.Uzers = sorted
-	//another user send send list users & user which signin
+	u.Conn.WriteJSON(store)
+
+	//for another user -> list users & user which signin
 	u.Online = true
 	newUser := NewUser{}
 	newUser.Type = wsType
@@ -183,22 +179,7 @@ func (cs *ChatService) addGetUpdateUser(u *models.Chat, c *models.ChannelStorage
 			v.Conn.WriteJSON(newUser)
 		}
 	}
-
-	//only get list user -> // store.AllUsers
-	//user logged -> show own list user
-	u.Conn.WriteJSON(store)
-	log.Println(store.OnlineUsers, newUser, wsType, " user")
-
-}
-
-//sol1: adduser -> then use -> &user.ListUsers, by pointer in address
-//sol2: again call newuser()
-//sol3: send addUser() - listUser -> then update each change - client side
-func (cs *ChatService) getUsers(user *models.Chat) {
-	//no use global  var
-	store := ChatStore{Type: "getusers", AllUsers: user.Uzers}
-	println("memory address of => store", &user)
-	user.Conn.WriteJSON(store)
+	// log.Println(store.OnlineUsers, newUser, wsType, " user")
 }
 
 //1 main -> Start() ->  createEmptyObjecetChat -> 2 ws Handler, newConn -> 3 go Run() // goruutine each newConn(user)
@@ -220,8 +201,6 @@ func (cs *ChatService) Run(c *models.ChannelStorage) {
 		// 	cs.getUsers(listuser, c)
 		case list := <-c.ListMessage:
 			cs.getMessages(list, c)
-		default:
-			// log.Println("nill chan", c.Leave)
 		}
 	}
 }
@@ -238,7 +217,6 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 
 	for {
 		log.Println("accept more 1 ws.send from cleint")
-		// err = conn.ReadJSON(&body)
 		_, msg, errk := conn.ReadMessage()
 		err := json.Unmarshal(msg, &body)
 		if err != nil {
@@ -248,15 +226,9 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 		fmt.Println(body.Type, "ws type")
 
 		if code, ok := errk.(*websocket.CloseError); ok {
-			// if c.Code == 1000 {
-			// 	// Never entering since c.Code == 1005
-			// 	log.Println("ok status", k)
-			// 	break
-			// }
-			//logout, close tab -> leave
-			log.Println(code.Code, "codet")
-			if code.Code == 1001 {
-				log.Println(code.Code, "code 1001")
+			//logout, close tab -> leave, break loop
+			if code.Code == 1001 || code.Code == 1006 {
+				log.Println(code.Code, "err conn")
 				cs.leaveUser(c, &models.Chat{UUID: body.Sender})
 				break
 			}
