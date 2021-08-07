@@ -205,12 +205,16 @@ anomal case:
 //2 fix - focus user 5, send msg user 5, then focuse change user 3, again send msg user5, -> here 
 //4 time correct show
 
+-----------------------
+//1 header - fix, auth, etc case
+//2 comment service todo
+//3 start notify
+//4 start scroll message
 
- //3 header - fix, auth, etc case
- //5comment service todo
-  //start notify
-//start scroll message
+//1 time get all messages, work this data Client side, fetch()
+//scroll - eventListener(throttle, 250ms), then(debounce() -> // get 10 msgs, descending
 
-audiit:
+
+audit:
  //hard case -> reSignin another browser
   //signup -> show list users correct ?

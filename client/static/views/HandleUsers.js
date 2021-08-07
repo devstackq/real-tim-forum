@@ -1,5 +1,7 @@
 import { wsConn, getCookie, toggleOnlineUser } from "./WebSocket.js";
 
+export const listMessages = [];
+
 export const showListUser = (users) => {
   let count = 0;
   if (window.location.pathname == "/chat") {
@@ -29,16 +31,38 @@ export const showListUser = (users) => {
              `);
 
           li.innerHTML = pattern;
-          // li.append(internlocutor);
+
           li.onclick = (e) => {
             //remove prev clicked elem class, //dry /
             toggleOnlineUser(li.id);
-            let obj = {
-              receiver: li.id,
-              sender: senderUuid,
-              type: "getmessages",
+            // let obj = {
+            //   receiver: li.id,
+            //   sender: senderUuid,
+            //   type: "getmessages",
+            // };
+            // wsConn.send(JSON.stringify(obj));
+            //getListMessages();
+
+            const options = {
+              method: `POST`,
+              body: JSON.stringify({ receiver: li.id, sender: senderUuid }),
             };
-            wsConn.send(JSON.stringify(obj));
+
+            fetch("localhost:6969/getmessages", options)
+              .then((data) => {
+                if (!data.ok) {
+                  throw data;
+                }
+                listMessages = data;
+              })
+              // catch any error in the network call.
+              .catch((error) => {
+                console.error(error, "err ");
+                // someErrorFunction(error);
+              });
+            //scroll event
+            //1 click-> show 10 msg
+            //next time - evenListener Scroll()
           };
         }
         //append without yourself

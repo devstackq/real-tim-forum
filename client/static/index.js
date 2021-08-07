@@ -30,9 +30,7 @@ const getParams = (match) => {
 
 const navigateTo = (url) => {
   history.pushState(null, null, url);
-  console.log(url, "url");
-  //if url == '/chat
-
+  // console.log(url, "url");
   router();
 };
 
@@ -75,9 +73,6 @@ const router = async () => {
   // let date = new Date(Date.now() + 86400);expires=${date.toUTCString()
   document.cookie = `category=${match.result[0]}; path=/; sameSite: "Lax";`;
   view.init();
-  // if (window.location.pathname == "/chat") {
-  //   window.location.reload();
-  // }
 };
 
 window.addEventListener("popstate", router);
