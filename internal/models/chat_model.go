@@ -7,29 +7,21 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-//chatID99 -> from, who chatid JOIN
-//query select * from messages where uiser_id1 => and user_id2=?
-//59, 19 ->
-//hi; how r u? uid1
-//- hello, fine and u ? uid2
 type Message struct {
-	ID               int    `json:"id"`
-	Content          string `json:"content"`
-	ChatID           int    `json:"chatid"`
-	Sender           string `json:"sender"`
-	Receiver         string `json:"receiver"`
-	Type             string `json:"type"`
-	UserID           int    `json:"userid"`
-	Conn             *websocket.Conn
-	Room             string    `json:"room"`
-	Name             string    `json:"aname"`
-	SentTime         string    `json:"senttime"`
-	Time             time.Time `json:"time"`
-	LastIndexMessage int
-	Indexs           []int
+	ID           int    `json:"id"`
+	Content      string `json:"content"`
+	ChatID       int    `json:"chatid"`
+	Sender       string `json:"sender"`
+	Receiver     string `json:"receiver"`
+	Type         string `json:"type"`
+	UserID       int    `json:"userid"`
+	Conn         *websocket.Conn
+	Room         string    `json:"room"`
+	Name         string    `json:"sendername"`
+	ReceiverName string    `json:"receivername"`
+	SentTime     string    `json:"senttime"`
+	Time         time.Time `json:"time"`
 }
-
-// 20 time,
 
 // func NewMessage(body string, sender int) *Message {
 // 	return &Message{
@@ -45,6 +37,7 @@ type ChannelStorage struct {
 	Leave       chan *Chat
 	ListMessage chan *Message
 	GetUsers    chan *Chat
+	NewUser     chan *Chat
 }
 
 type Chat struct {
@@ -59,7 +52,3 @@ type Chat struct {
 	Conn                  *websocket.Conn `json:"conn"`
 	Uzers                 []*Chat         `json:"uzers"`
 }
-
-//
-
-//user19 -> send msg -> user 59, from, who, chatid99

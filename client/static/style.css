@@ -147,7 +147,13 @@ label,
 }
 
 .chat_container div {
-  padding: 8px;
+  margin-bottom: 8px;
+  padding: 9px;
+  border-radius: 4px;
+}
+.chat_container span {
+  background: #c6c6c6;
+  padding: 6px;
 }
 .chat_container {
   padding: 20px;
@@ -157,8 +163,12 @@ label,
   max-width: 800px;
   position: relative;
 }
+.chat_sender span {
+  background: orange !important;
+}
 .chat_sender {
-  margin-left: 50%;
+  background: orange !important;
+  margin-left: 300px;
   color: blue !important;
 }
 
@@ -190,7 +200,18 @@ label,
   padding: 20px;
   max-width: 560px;
 }
+.time {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  font-size: 12px;
+}
+#userlistbox h3 {
+  margin: 0px 0 14px 0px;
+}
 #userlistbox li {
+  position: relative;
+
   list-style-type: none;
   margin-bottom: 8px;
   cursor: pointer;
@@ -199,15 +220,17 @@ label,
   padding: 10px;
   opacity: 0.8;
   width: 100%;
-  max-width: 500px;
+  max-width: 540px;
 }
 #userlistbox li:hover {
   opacity: 1;
 }
+.online > .time {
+  color: #000 !important;
+}
 .online {
   color: #000 !important;
   background: lightgreen !important;
-  border: 2px solid #000;
 }
 .current {
   color: blue;

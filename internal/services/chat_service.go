@@ -42,6 +42,7 @@ func NewChatService(repo repository.Chat) *ChatService {
 
 func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) error {
 	//find users room, if zero
+	log.Println(m.Receiver, "getmsg1")
 	store := ChatStore{}
 	store.Receiver = m.Receiver
 	store.Author = m.Name
@@ -55,7 +56,6 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 	if room == "" {
 		store.Type = "nomessages"
 		// send []user - by concrete conn, lel
-		// cs.addNewUser(u, c)
 		m.Conn.WriteJSON(store)
 		return nil
 	}
@@ -76,7 +76,6 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 }
 
 func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string]*models.Chat) []*models.Chat {
-	// l := Tezt{1, "sd"}
 	// go func() {
 	for index, dbUser := range dbUsers { //sorted users from db
 		for uuid, onlineUser := range onlineUsers { //server users
@@ -123,7 +122,8 @@ func (cs *ChatService) sendMessage(c *models.ChannelStorage, m *models.Message) 
 		store.Message.SentTime = time.Now().Format("2006-01-02 3:4:5 pm")
 		// store.Message.SentTime = Format("2006-01-02 3:4:5 pm"))
 		store.Message.Sender = m.Sender
-		store.Message.Name = m.Name
+		store.Message.Name = m.Name                    //sender msg name
+		store.Message.ReceiverName = receiver.UserName // receiver name
 		store.Type = "lastmessage"
 
 		err = receiver.Conn.WriteJSON(store)
@@ -135,20 +135,20 @@ func (cs *ChatService) sendMessage(c *models.ChannelStorage, m *models.Message) 
 }
 
 func (cs *ChatService) leaveUser(c *models.ChannelStorage, u *models.Chat) {
-	leaveUser := NewUser{}
-	leaveUser.Type = "leave"
-	leaveUser.User = u
-
+	user := NewUser{}
+	user.Type = "leave"
+	user.User = u
+	// user.UserID =
 	delete(c.OnlineUsers, u.UUID)
 	u.Conn.Close()
 	//update users
 	Online.Users = c.OnlineUsers
 	for _, v := range Online.Users {
-		v.Conn.WriteJSON(leaveUser)
+		v.Conn.WriteJSON(user)
 	}
 }
 
-func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChannelStorage) ChatStore {
+func (cs *ChatService) addGetUpdateUser(u *models.Chat, c *models.ChannelStorage, wsType string) {
 	//fill user.Name -> in db, by uuid  u.Conn
 	store := ChatStore{}
 	store.Type = "observeusers"
@@ -161,6 +161,7 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChannelStorage) Chat
 			}
 		}
 	}
+
 	c.OnlineUsers[u.UUID] = u
 	store.OnlineUsers = c.OnlineUsers
 
@@ -173,7 +174,7 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChannelStorage) Chat
 	//another user send send list users & user which signin
 	u.Online = true
 	newUser := NewUser{}
-	newUser.Type = "online"
+	newUser.Type = wsType
 	newUser.User = u
 
 	//all connected user - observe - new user connect
@@ -183,15 +184,11 @@ func (cs *ChatService) addNewUser(u *models.Chat, c *models.ChannelStorage) Chat
 		}
 	}
 
-	//reSortUsers -> if newuserSignup()
-	// add new user handle, signup -> signin - other user observs
-	// fix d- getProfileDate() - userid
-
-	log.Println(store.OnlineUsers, newUser, "added user")
 	//only get list user -> // store.AllUsers
 	//user logged -> show own list user
 	u.Conn.WriteJSON(store)
-	return store
+	log.Println(store.OnlineUsers, newUser, wsType, " user")
+
 }
 
 //sol1: adduser -> then use -> &user.ListUsers, by pointer in address
@@ -211,14 +208,16 @@ func (cs *ChatService) Run(c *models.ChannelStorage) {
 	for {
 		//each conn - own goroutuine
 		select {
-		case newuser := <-c.Join:
-			cs.addNewUser(newuser, c)
+		case newuser := <-c.NewUser:
+			cs.addGetUpdateUser(newuser, c, "newuser")
+		case onlineUser := <-c.Join:
+			cs.addGetUpdateUser(onlineUser, c, "online")
 		case user := <-c.Leave:
 			cs.leaveUser(c, user)
 		case message := <-c.NewMessage:
 			cs.sendMessage(c, message)
 		// case listuser := <-c.GetUsers:
-		// 	cs.addNewUser(listuser, c)
+		// 	cs.getUsers(listuser, c)
 		case list := <-c.ListMessage:
 			cs.getMessages(list, c)
 		default:
@@ -286,39 +285,35 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 			c.NewMessage <- message
 		}
 
-		if body.Type == "newuser" {
-			log.Println("observe onlien users, update mergeusers")
-			//get online users
-			//updated listUsers
-		}
 		// if strings.TrimSpace(username) == "" {
-		if body.Type == "online" || body.Type == "leave" {
-			send uuid || id, leave || online user
-
+		if body.Type == "getusers" || body.Type == "signin" || body.Type == "leave" || body.Type == "newuser" {
+			// send uuid || id, leave || online user
 			user := &models.Chat{
 				UUID:     body.Sender,
 				Conn:     conn, //set conn current user
 				UserName: name,
 			}
+			id, err := cs.repository.GetUserID(body.Sender)
+			if err != nil {
+				log.Println(err, "erka")
+			}
+			user.ID = id
 
-			if body.Type == "online" {
-				id, err := cs.repository.GetUserID(body.Sender)
-				if err != nil {
-					log.Println(err, "erka")
-				}
-				user.ID = id
+			if body.Type == "newuser" {
+				c.NewUser <- user
+			}
+
+			if body.Type == "getusers" || body.Type == "signin" {
 				c.Join <- user
 			}
+
 			if body.Type == "leave" {
 				user.ID = body.UserID
+				user.UUID = body.Sender
 				c.Leave <- user
 			}
 		}
 	}
 	defer conn.Close()
-	// cs.Reader(conn)
 	return nil
 }
-
-// signin -> Authorization.UUID -> /api/chat -> ChatHandler->
-// if receiver  & message != nil -addNewUser

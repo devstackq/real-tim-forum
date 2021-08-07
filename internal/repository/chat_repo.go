@@ -101,6 +101,8 @@ func (cr *ChatRepository) getUserIDs(m *models.Message) (int, int, error) {
 	senderUserID := m.ID
 	receiverUserID := m.UserID
 
+	log.Println(m.ID, m.UserID, "uid", m.Receiver, len(m.Receiver), m.Sender)
+
 	var err error
 
 	if len(m.Receiver) == 1 {
@@ -113,7 +115,6 @@ func (cr *ChatRepository) getUserIDs(m *models.Message) (int, int, error) {
 			return 0, 0, err
 		}
 	} else if (senderUserID == 0 || receiverUserID == 0) && len(m.Receiver) == 36 {
-
 		receiverUserID, err = cr.GetUserID(m.Receiver)
 		if err != nil {
 			return 0, 0, err
@@ -123,7 +124,7 @@ func (cr *ChatRepository) getUserIDs(m *models.Message) (int, int, error) {
 			return 0, 0, err
 		}
 	}
-
+	log.Println(senderUserID, "edn", receiverUserID)
 	return receiverUserID, senderUserID, nil
 
 }

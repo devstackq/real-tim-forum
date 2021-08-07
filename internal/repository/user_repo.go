@@ -140,7 +140,7 @@ func (ur *UserRepository) GetProfileData(userId int) (*models.Profile, error) {
 	user := models.User{}
 	query := `SELECT full_name, email, user_name, age, sex, city FROM users where id=?`
 	row := ur.db.QueryRow(query, userId)
-	// err := row.Scan(&profile.UserData.FullName, &profile.UserData.Email, &profile.UserData.UserDataname, &profile.UserData.Age, &profile.UserData.Sex, &profile.UserData.City)
+	// err := row.Scan(&profile.UserData.FullName, &profile.UserData.Email, &profile.UserData.UserDatsendername, &profile.UserData.Age, &profile.UserData.Sex, &profile.UserData.City)
 	err := row.Scan(&user.FullName, &user.Email, &user.Username, &user.Age, &user.Sex, &user.City)
 
 	if err != nil {

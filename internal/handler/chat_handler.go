@@ -21,6 +21,7 @@ var chat = &models.ChannelStorage{
 	GetUsers:    make(chan *models.Chat),
 	Join:        make(chan *models.Chat),
 	Leave:       make(chan *models.Chat),
+	NewUser:     make(chan *models.Chat),
 }
 
 func (h *Handler) ChatHandler(w http.ResponseWriter, r *http.Request) {

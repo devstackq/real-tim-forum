@@ -13,11 +13,10 @@ export default class extends Parent {
 
   async init() {
     let response = await fetch("http://localhost:6969/api/logout");
-    if (response.status === 200) {
-      //delete cookie & auth state false
-      console.log(wsConn.readyState, getCookie("session"))
-norm send json
 
+    if (response != null && response.status === 200) {
+      //delete cookie & auth state false
+      console.log(wsConn, "wsconn");
       wsConn.send(
         JSON.stringify({
           type: "leave",
@@ -34,7 +33,7 @@ norm send json
       window.location.reload();
     } else {
       console.log("error logout");
-      super.showNotify(response.statusText, "error");
+      super.showNotify("error logout", "error");
     }
   }
   async getHtml() {
