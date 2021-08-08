@@ -16,16 +16,16 @@ export const showListUser = (users) => {
           alert("Now, no has online user");
           return;
         }
-
         user.uuid !== "" ? (li.id = user.uuid) : (li.id = user.id);
         user.online ? ((li.className = "online"), (count += 1)) : "";
 
         if (user.fullname) {
           let pattern = "";
           // <span class="partner"> ${user.fullname}</span>
+          let username = `<h3 class="partner">${user.fullname}</h3>`;
           user.lastmessage["String"] == ""
-            ? (pattern = `No have messages with:  ${user.fullname}`)
-            : (pattern = `<h3 class="partner">${user.fullname}</h3>
+            ? (pattern = `  ${username}<span> No have messages.. </span>`)
+            : (pattern = `${username}
                 <span>${user.lastmessage["String"]}</span>
               <span class="time">${user.senttime}</span>
              `);
@@ -33,35 +33,15 @@ export const showListUser = (users) => {
           li.innerHTML = pattern;
 
           li.onclick = (e) => {
-            //remove prev clicked elem class, //dry /
             toggleOnlineUser(li.id);
-            // let obj = {
-            //   receiver: li.id,
-            //   sender: senderUuid,
-            //   type: "getmessages",
-            // };
-            // wsConn.send(JSON.stringify(obj));
-            //getListMessages();
-
-            const options = {
-              method: `POST`,
-              body: JSON.stringify({ receiver: li.id, sender: senderUuid }),
+            let obj = {
+              receiver: li.id,
+              sender: senderUuid,
+              type: "last10msg",
+              offset: 0,
             };
-
-            fetch("localhost:6969/getmessages", options)
-              .then((data) => {
-                if (!data.ok) {
-                  throw data;
-                }
-                listMessages = data;
-              })
-              // catch any error in the network call.
-              .catch((error) => {
-                console.error(error, "err ");
-                // someErrorFunction(error);
-              });
-            //scroll event
-            //1 click-> show 10 msg
+            wsConn.send(JSON.stringify(obj));
+            //1 click->get last 10 msg
             //next time - evenListener Scroll()
           };
         }

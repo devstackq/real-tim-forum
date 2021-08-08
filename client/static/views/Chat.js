@@ -41,7 +41,7 @@ export const showListMessages = (messages, userid, session, authorName) => {
     chatContainer.children["chatbox"].style.display = "block";
     chatContainer.children["chatbox"].innerHTML = "";
 
-    messages.forEach((item) => {
+    messages.forEach((item, index) => {
       let div = document.createElement("div");
       let span = document.createElement("span");
       span.textContent = `${item.sendername}  ${item.content} ${item.senttime} \n `;
@@ -49,6 +49,10 @@ export const showListMessages = (messages, userid, session, authorName) => {
         div.classList.add("chat_sender");
       }
       div.append(span);
+      //try
+      // if (messages.length - 1 == index) {
+      //   div.scrollTop = div.scrollHeight;
+      // }
       chatContainer.children["chatbox"].append(div);
     });
     //call func

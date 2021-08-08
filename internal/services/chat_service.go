@@ -25,6 +25,8 @@ type ChatStore struct {
 	Type        string                  `json:"type"`
 	Author      string                  `json:"author"`
 	Receiver    string                  `json:"receiver"`
+	Sender      string                  `json:"sender"`
+	Offset      int                     `json:"offset"`
 }
 
 type NewUser struct {
@@ -40,12 +42,13 @@ func NewChatService(repo repository.Chat) *ChatService {
 	return &ChatService{repo}
 }
 
-func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) error {
-	//find users room, if zero
+//receiver, sender uuid
+func (cs *ChatService) getFirstMessages(m *models.Message, c *models.ChannelStorage) {
+	//send client = lastID Msg & RoomName - offset
 	store := ChatStore{}
 	store.Receiver = m.Receiver
+	store.Sender = m.Sender
 	store.Author = m.Name
-
 	room, err := cs.repository.IsExistRoom(m)
 	if err != nil {
 		log.Println(err, "empty room")
@@ -54,21 +57,53 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 	if room == "" {
 		store.Type = "nomessages"
 		m.Conn.WriteJSON(store)
-		return nil
+		return
 	}
+	//offset -> sdata change -> scroll
 	m.Room = room
-	seq, err := cs.repository.GetMessages(m)
+	seq, _, err := cs.repository.GetMessages(m)
 	if err != nil {
 		log.Println(err, "get msg err")
 	}
+	// store.Offset = lid //set from db
+	log.Println(m.Offset, "receive offset")
 	store.ListMessage = seq
 	store.Type = "listmessages"
 	err = m.Conn.WriteJSON(store)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
-	return nil
+	// log.Println(store)
 }
+
+// func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) {
+// 	//find users room, if zero
+// 	store := ChatStore{}
+// 	store.Receiver = m.Receiver
+// 	store.Author = m.Name
+
+// 	room, err := cs.repository.IsExistRoom(m)
+// 	if err != nil {
+// 		log.Println(err, "empty room")
+// 	}
+
+// 	if room == "" {
+// 		store.Type = "nomessages"
+// 		m.Conn.WriteJSON(store)
+// 		return
+// 	}
+// 	m.Room = room
+// 	seq, lid, err := cs.repository.GetMessages(m)
+// 	if err != nil {
+// 		log.Println(err, "get msg err", lid)
+// 	}
+// 	store.ListMessage = seq
+// 	store.Type = "listmessages"
+// 	err = m.Conn.WriteJSON(store)
+// 	if err != nil {
+// 		log.Println(err, "wj")
+// 	}
+// }
 
 func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string]*models.Chat) []*models.Chat {
 	// go func() {
@@ -199,8 +234,10 @@ func (cs *ChatService) Run(c *models.ChannelStorage) {
 			cs.sendMessage(c, message)
 		// case listuser := <-c.GetUsers:
 		// 	cs.getUsers(listuser, c)
-		case list := <-c.ListMessage:
-			cs.getMessages(list, c)
+		// case list := <-c.ListMessages:
+		// 	cs.getMessages(list, c)
+		case last := <-c.LastMessages:
+			cs.getFirstMessages(last, c)
 		}
 	}
 }
@@ -234,15 +271,26 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 			}
 		}
 
-		if body.Type == "getmessages" {
+		if body.Type == "last10msg" {
 			messages := &models.Message{
 				Conn:     conn,
 				Sender:   body.Sender,
 				Receiver: body.Receiver,
 				Name:     name,
+				Offset:   body.Offset,
 			}
-			c.ListMessage <- messages
+			c.LastMessages <- messages
 		}
+
+		// if body.Type == "getmessages" {
+		// 	messages := &models.Message{
+		// 		Conn:     conn,
+		// 		Sender:   body.Sender,
+		// 		Receiver: body.Receiver,
+		// 		Name:     name,
+		// 	}
+		// 	c.ListMessages <- messages
+		// }
 
 		if body.Type == "newmessage" {
 			//maybe set user id ?

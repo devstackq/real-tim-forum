@@ -76,27 +76,31 @@ func (cr *ChatRepository) AddNewMessage(m *models.Message) error {
 	return nil
 }
 
-func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, error) {
-
+func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, int, error) {
+	var lastId int
 	var messages = []models.Message{}
-	msg := models.Message{}
 
-	queryStmt, err := cr.db.Query("SELECT content, user_id, name, sent_time FROM messages  WHERE room=?", m.Room)
-	// queryStmt, err := cr.db.Query("SELECT content, user_id FROM messages  WHERE room=? ORDER BY  message_sent_time DESC", room)
+	msg := models.Message{}
+	queryStmt, err := cr.db.Query("SELECT id, content, user_id, name, sent_time  FROM messages  WHERE room=? ORDER BY sent_time DESC LIMIT 10 OFFSET?", m.Room, m.Offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
+	//noftdretbs
+	//ORDER BY sent_time DESC  LIMIT 10 OFFSET 1
 	for queryStmt.Next() {
 		//or when create msg - set name ?
-		if err := queryStmt.Scan(&msg.Content, &msg.UserID, &msg.Name, &msg.Time); err != nil {
-			return nil, err
+		if err := queryStmt.Scan(&msg.ID, &msg.Content, &msg.UserID, &msg.Name, &msg.Time); err != nil {
+			return nil, 0, err
 		}
 		msg.SentTime = msg.Time.Format(time.Stamp)
 		msg.Receiver = m.Receiver
 		msg.Sender = m.Sender
 		messages = append(messages, msg)
+		lastId = msg.ID
 	}
-	return messages, nil
+	log.Println(lastId, "last in db")
+
+	return messages, lastId, nil
 }
 
 func (cr *ChatRepository) getUsersID(m *models.Message) (int, int, error) {

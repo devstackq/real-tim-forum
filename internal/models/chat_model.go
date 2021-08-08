@@ -21,6 +21,7 @@ type Message struct {
 	ReceiverName string    `json:"receivername"`
 	SentTime     string    `json:"senttime"`
 	Time         time.Time `json:"time"`
+	Offset       int       `json:"offset"`
 }
 
 // func NewMessage(body string, sender int) *Message {
@@ -31,13 +32,14 @@ type Message struct {
 // }
 
 type ChannelStorage struct {
-	OnlineUsers map[string]*Chat
-	NewMessage  chan *Message
-	Join        chan *Chat
-	Leave       chan *Chat
-	ListMessage chan *Message
-	GetUsers    chan *Chat
-	NewUser     chan *Chat
+	OnlineUsers  map[string]*Chat
+	NewMessage   chan *Message
+	ListMessages chan *Message
+	LastMessages chan *Message
+	Join         chan *Chat
+	Leave        chan *Chat
+	GetUsers     chan *Chat
+	NewUser      chan *Chat
 }
 
 // sql.NullTime

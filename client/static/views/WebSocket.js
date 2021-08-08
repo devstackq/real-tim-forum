@@ -86,6 +86,7 @@ export const wsInit = (...args) => {
 
   let chatContainer = document.querySelector("#message_container");
   let tempListUsers = [];
+  let chatDiv = chatContainer.children["chatbox"];
 
   wsConn.onmessage = (e) => {
     let authorId = getCookie("user_id");
@@ -133,15 +134,66 @@ export const wsInit = (...args) => {
           authorSession,
           message.author
         );
-        //set chat windows
-        chatContainer.children["chatbox"].value = message.receiver;
+        var objDiv = chatDiv.children[message.messages.length - 1];
+        objDiv.scrollTop = objDiv.scrollHeight + 100;
+        set last message Down
+        scroll -> up to 10 MSGesture, position -> sned rRequest
 
+        console.log(objDiv, objDiv.scrollTop, objDiv.scrollHeight);
+        //set chat windows
+        chatDiv.value = message.receiver;
+
+        chatDiv.addEventListener("scroll", (e) => {
+          console.log(chatDiv.scrollTop);
+          if (
+            // c.scrollTop,
+            //c.scrollHeight, c.clientHeight - const
+            // chatDiv.scrollTop + chatDiv.scrollHeight >
+            // document.height - 100
+            chatDiv.scrollTop <= 10
+          ) {
+            console.log("ok");
+          }
+
+          // console.log(
+          //   chatDiv.height,
+          //   chatDiv.offsetHeight,
+          //   chatDiv.offsetTop,
+
+          //   chatDiv.scrollHeight,
+          //   chatDiv.scrollTopMax
+          // );
+
+          // if (
+          //   chatDiv.scrollTop +
+          //     chatDiv.offsetHeight >
+          //   chatDiv.offsetHeight - 100
+          // ) {
+          //use - like Oleg
+          // switch (e.target.id) {
+          //   case "btnScrollLeft":
+          //     div.scrollLeft += 20;
+          //     break;
+
+          //   case "btnScrollTop":
+          //     div.scrollTop += 20;
+          //     break;
+          // }
+
+          // let obj = {
+          //   receiver: message.receiver,
+          //   sender: message.sender,
+          //   type: "last10msg",
+          //   offset: (message.offset += 10),
+          // };
+          // wsConn.send(JSON.stringify(obj));
+        });
         break;
       case "nomessages":
         alert("no have messages..");
         document.getElementById("notify").value = "no have messages...";
         chatContainer.style.display = "block";
-        chatContainer.children["chatbox"].innerHTML = "";
+        chatDiv.innerHTML = "";
 
         chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
           this,
@@ -157,9 +209,9 @@ export const wsInit = (...args) => {
         let text = ` ${message.message.sendername} ${message.message.content} ${message.message.senttime} \n`;
         span.textContent = text;
         //active windwos -> if uuid equal
-        if (chatContainer.children["chatbox"].value == message.message.sender) {
+        if (chatDiv.value == message.message.sender) {
           div.append(span);
-          chatContainer.children["chatbox"].append(div);
+          chatDiv.append(div);
         }
         //list users - update messages
         el == null

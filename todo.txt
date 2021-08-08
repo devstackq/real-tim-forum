@@ -211,8 +211,12 @@ anomal case:
 //3 start notify
 //4 start scroll message
 
+1varinat:
 //1 time get all messages, work this data Client side, fetch()
 //scroll - eventListener(throttle, 250ms), then(debounce() -> // get 10 msgs, descending
+
+2 variant:
+each scroll -> throttle -> clent get ws data, pagintion, sql limit, offset, data 
 
 
 audit:

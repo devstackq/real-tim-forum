@@ -35,10 +35,10 @@ type Comment interface {
 	CreateComment(*models.Comment) (int, error)
 }
 type Chat interface {
-	GetMessages(m *models.Message) ([]models.Message, error)
-	AddNewMessage(m *models.Message) error
-	AddNewRoom(m *models.Message) error
-	IsExistRoom(m *models.Message) (string, error)
+	GetMessages(*models.Message) ([]models.Message, int, error)
+	AddNewMessage(*models.Message) error
+	AddNewRoom(*models.Message) error
+	IsExistRoom(*models.Message) (string, error)
 	GetUserID(string) (int, error)
 	GetSortedUsers(int) ([]*models.Chat, error)
 }
