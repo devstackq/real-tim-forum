@@ -206,11 +206,12 @@ anomal case:
 //4 time correct show
 
 -----------------------
+//get count all msg, throttle called count: ++, if allMsgCount / 10 == countThrottle, not work throttle
+0//list user -> if relogin -> llistuser - not work
 //1 header - fix, auth, etc case
 //2 comment service todo
 //3 start notify
 //4 start scroll message
-
 1varinat:
 //1 time get all messages, work this data Client side, fetch()
 //scroll - eventListener(throttle, 250ms), then(debounce() -> // get 10 msgs, descending

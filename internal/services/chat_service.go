@@ -148,7 +148,7 @@ func (cs *ChatService) sendMessage(c *models.ChannelStorage, m *models.Message) 
 	if c.OnlineUsers[m.Receiver] != nil {
 		receiver := c.OnlineUsers[m.Receiver]
 		store.Message.Content = m.Content
-		store.Message.SentTime = time.Now().Format("2006-01-02 3:4:5 pm")
+		store.Message.SentTime = time.Now().Format(time.Stamp)
 		// store.Message.SentTime = Format("2006-01-02 3:4:5 pm"))
 		store.Message.Sender = m.Sender
 		store.Message.Name = m.Name                    //sender msg name

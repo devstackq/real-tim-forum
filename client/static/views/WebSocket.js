@@ -70,6 +70,32 @@ const insertNewUser = (message, tempListUsers) => {
     prepareUserButton(message.user.uuid, message.user.fullname, 0);
   }
 };
+
+//update listMsg, call listMsgs()
+const getMessages = (chatDiv, receiver, sender, type, offset) => {
+  console.log("out get msg, throttle", chatDiv.scrollTop);
+  if (chatDiv.scrollTop <= 2) {
+    console.log("send query");
+    let obj = {
+      receiver: receiver,
+      sender: sender,
+      type: type,
+      offset: (offset += 10),
+    };
+    wsConn.send(JSON.stringify(obj));
+  }
+};
+
+function throttle(fn, wait) {
+  var time = Date.now();
+  return function () {
+    if (time + wait - Date.now() < 0) {
+      console.log("call func");
+      fn();
+      time = Date.now();
+    }
+  };
+}
 // add user - send uuid
 export const wsInit = (...args) => {
   if (wsConn == null) {
@@ -86,7 +112,11 @@ export const wsInit = (...args) => {
 
   let chatContainer = document.querySelector("#message_container");
   let tempListUsers = [];
-  let chatDiv = chatContainer.children["chatbox"];
+  let chatDiv;
+  if (chatContainer != null) {
+    chatDiv = chatContainer.children["chatbox"];
+  }
+  let listMessages = [];
 
   wsConn.onmessage = (e) => {
     let authorId = getCookie("user_id");
@@ -128,66 +158,49 @@ export const wsInit = (...args) => {
         break;
       case "listmessages":
         document.getElementById("notify").value = "";
-        showListMessages(
-          message.messages,
-          authorId,
-          authorSession,
-          message.author
-        );
-        var objDiv = chatDiv.children[message.messages.length - 1];
-        objDiv.scrollTop = objDiv.scrollHeight + 100;
-        set last message Down
-        scroll -> up to 10 MSGesture, position -> sned rRequest
+        //append -> current merge 2 array
+        listMessages = [...listMessages, ...message.messages.reverse()]; // for compare, & ignoring duplicate msg
+        console.log(listMessages.length, "len msg", listMessages);
+        showListMessages(listMessages, authorId, authorSession, message.author);
 
-        console.log(objDiv, objDiv.scrollTop, objDiv.scrollHeight);
-        //set chat windows
+        // scroll -> up to 10 MSGesture, position -> sned rRequest
+
         chatDiv.value = message.receiver;
+        chatDiv.children[chatDiv.children.length - 1].scrollIntoView();
+        //scroll -> throttle, ms -> call after ms, fn
+        //get count all msg, throttle called count: ++, if allMsgCount / 10 == countThrottle, not work throttle
 
-        chatDiv.addEventListener("scroll", (e) => {
-          console.log(chatDiv.scrollTop);
-          if (
-            // c.scrollTop,
-            //c.scrollHeight, c.clientHeight - const
-            // chatDiv.scrollTop + chatDiv.scrollHeight >
-            // document.height - 100
-            chatDiv.scrollTop <= 10
-          ) {
-            console.log("ok");
-          }
+        chatDiv.addEventListener(
+          "scroll",
+          throttle(
+            getMessages.bind(
+              this,
+              chatDiv,
+              message.receiver,
+              message.sender,
+              "last10msg",
+              message.offset
+            ),
+            60
+          )
+        );
 
-          // console.log(
-          //   chatDiv.height,
-          //   chatDiv.offsetHeight,
-          //   chatDiv.offsetTop,
+        // if (
+        //   chatDiv.scrollTop +
+        //     chatDiv.offsetHeight >
+        //   chatDiv.offsetHeight - 100
+        // ) {
+        //use - like Oleg
+        // switch (e.target.id) {
+        //   case "btnScrollLeft":
+        //     div.scrollLeft += 20;
+        //     break;
 
-          //   chatDiv.scrollHeight,
-          //   chatDiv.scrollTopMax
-          // );
-
-          // if (
-          //   chatDiv.scrollTop +
-          //     chatDiv.offsetHeight >
-          //   chatDiv.offsetHeight - 100
-          // ) {
-          //use - like Oleg
-          // switch (e.target.id) {
-          //   case "btnScrollLeft":
-          //     div.scrollLeft += 20;
-          //     break;
-
-          //   case "btnScrollTop":
-          //     div.scrollTop += 20;
-          //     break;
-          // }
-
-          // let obj = {
-          //   receiver: message.receiver,
-          //   sender: message.sender,
-          //   type: "last10msg",
-          //   offset: (message.offset += 10),
-          // };
-          // wsConn.send(JSON.stringify(obj));
-        });
+        //   case "btnScrollTop":
+        //     div.scrollTop += 20;
+        //     break;
+        // }
+        // });
         break;
       case "nomessages":
         alert("no have messages..");
@@ -204,14 +217,17 @@ export const wsInit = (...args) => {
         break;
       case "lastmessage":
         //append last message, chatbox
+        //dry ?
         let div = document.createElement("div");
         let span = document.createElement("span");
-        let text = ` ${message.message.sendername} ${message.message.content} ${message.message.senttime} \n`;
+        let text = `  ${message.message.sendername} ${message.message.content}  ${message.message.senttime}`;
+        span.style.padding = "9px";
         span.textContent = text;
         //active windwos -> if uuid equal
         if (chatDiv.value == message.message.sender) {
           div.append(span);
           chatDiv.append(div);
+          chatDiv.children[chatDiv.children.length - 1].scrollIntoView();
         }
         //list users - update messages
         el == null
@@ -231,7 +247,6 @@ export const wsInit = (...args) => {
       default:
         console.log("incorrect type");
     }
-
     wsConn.onclose = function (event) {
       console.log(
         " Обрыв соединения, Код: " + event.code + " причина: " + event.reason

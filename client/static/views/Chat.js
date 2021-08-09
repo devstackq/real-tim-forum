@@ -47,12 +47,10 @@ export const showListMessages = (messages, userid, session, authorName) => {
       span.textContent = `${item.sendername}  ${item.content} ${item.senttime} \n `;
       if (item.userid == userid) {
         div.classList.add("chat_sender");
+      } else {
+        div.classList.add("chat_receiver");
       }
       div.append(span);
-      //try
-      // if (messages.length - 1 == index) {
-      //   div.scrollTop = div.scrollHeight;
-      // }
       chatContainer.children["chatbox"].append(div);
     });
     //call func
@@ -96,11 +94,13 @@ export const sendMessage = (receiver, authorId, authorName, session) => {
 
   let el = document.getElementById(receiver);
   el.textContent = ` ${authorName} ${content} ${new Date().toLocaleTimeString()}`;
-
+  span.style.padding = "9px";
   div.append(span);
-  chatContainer.children["chatbox"].append(div);
+  let chatDiv = chatContainer.children["chatbox"];
+  chatDiv.append(div);
+  //set last item inside chat window
+  chatDiv.children[chatDiv.children.length - 1].scrollIntoView();
   chatContainer.children["messageFieldId"].value = "";
-
   toggleOnlineUser(receiver, "prepend");
 
   wsConn.send(JSON.stringify(message));
