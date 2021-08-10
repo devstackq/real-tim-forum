@@ -1,5 +1,10 @@
 import Parent from "./Parent.js";
-import { wsInit, wsConn, toggleOnlineUser } from "./WebSocket.js";
+import {
+  wsInit,
+  wsConn,
+  toggleOnlineUser,
+  countNewMessage,
+} from "./WebSocket.js";
 
 export default class Chat extends Parent {
   constructor() {
@@ -102,7 +107,7 @@ export const sendMessage = (receiver, authorId, authorName, session) => {
   chatDiv.children[chatDiv.children.length - 1].scrollIntoView();
   chatContainer.children["messageFieldId"].value = "";
   toggleOnlineUser(receiver, "prepend");
-
   wsConn.send(JSON.stringify(message));
+  countNewMessage.value += 1;
 };
 //test listuser, send msg, signin, signup, show msg, receive msg

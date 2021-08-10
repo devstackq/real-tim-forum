@@ -18,15 +18,16 @@ var Online struct {
 //or global each time send client - use client side this var ?``
 //open, then close conn //read/write - block //1 goproutine - read budffer, 2 goroutine write buffer, reusable buffer
 type ChatStore struct {
-	ListMessage []models.Message        `json:"messages"`
-	OnlineUsers map[string]*models.Chat `json:"online"`
-	AllUsers    []*models.Chat          `json:"users"`
-	Message     models.Message          `json:"message"`
-	Type        string                  `json:"type"`
-	Author      string                  `json:"author"`
-	Receiver    string                  `json:"receiver"`
-	Sender      string                  `json:"sender"`
-	Offset      int                     `json:"offset"`
+	ListMessage     []models.Message        `json:"messages"`
+	OnlineUsers     map[string]*models.Chat `json:"online"`
+	AllUsers        []*models.Chat          `json:"users"`
+	Message         models.Message          `json:"message"`
+	Type            string                  `json:"type"`
+	Author          string                  `json:"author"`
+	Receiver        string                  `json:"receiver"`
+	Sender          string                  `json:"sender"`
+	Offset          int                     `json:"offset"`
+	CountNewMessage int                     `json:"countnewmessage"`
 }
 
 type NewUser struct {
@@ -49,6 +50,10 @@ func (cs *ChatService) getFirstMessages(m *models.Message, c *models.ChannelStor
 	store.Receiver = m.Receiver
 	store.Sender = m.Sender
 	store.Author = m.Name
+	//set and send last result offset
+	store.Offset = m.Offset
+	log.Println(m.Offset, "receive offset")
+
 	room, err := cs.repository.IsExistRoom(m)
 	if err != nil {
 		log.Println(err, "empty room")
@@ -66,44 +71,14 @@ func (cs *ChatService) getFirstMessages(m *models.Message, c *models.ChannelStor
 		log.Println(err, "get msg err")
 	}
 	// store.Offset = lid //set from db
-	log.Println(m.Offset, "receive offset")
 	store.ListMessage = seq
 	store.Type = "listmessages"
 	err = m.Conn.WriteJSON(store)
 	if err != nil {
 		log.Println(err)
 	}
-	// log.Println(store)
+	log.Println(store.ListMessage[0].ID, m.Offset)
 }
-
-// func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) {
-// 	//find users room, if zero
-// 	store := ChatStore{}
-// 	store.Receiver = m.Receiver
-// 	store.Author = m.Name
-
-// 	room, err := cs.repository.IsExistRoom(m)
-// 	if err != nil {
-// 		log.Println(err, "empty room")
-// 	}
-
-// 	if room == "" {
-// 		store.Type = "nomessages"
-// 		m.Conn.WriteJSON(store)
-// 		return
-// 	}
-// 	m.Room = room
-// 	seq, lid, err := cs.repository.GetMessages(m)
-// 	if err != nil {
-// 		log.Println(err, "get msg err", lid)
-// 	}
-// 	store.ListMessage = seq
-// 	store.Type = "listmessages"
-// 	err = m.Conn.WriteJSON(store)
-// 	if err != nil {
-// 		log.Println(err, "wj")
-// 	}
-// }
 
 func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string]*models.Chat) []*models.Chat {
 	// go func() {
@@ -234,8 +209,6 @@ func (cs *ChatService) Run(c *models.ChannelStorage) {
 			cs.sendMessage(c, message)
 		// case listuser := <-c.GetUsers:
 		// 	cs.getUsers(listuser, c)
-		// case list := <-c.ListMessages:
-		// 	cs.getMessages(list, c)
 		case last := <-c.LastMessages:
 			cs.getFirstMessages(last, c)
 		}
@@ -281,16 +254,6 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 			}
 			c.LastMessages <- messages
 		}
-
-		// if body.Type == "getmessages" {
-		// 	messages := &models.Message{
-		// 		Conn:     conn,
-		// 		Sender:   body.Sender,
-		// 		Receiver: body.Receiver,
-		// 		Name:     name,
-		// 	}
-		// 	c.ListMessages <- messages
-		// }
 
 		if body.Type == "newmessage" {
 			//maybe set user id ?

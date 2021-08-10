@@ -2,9 +2,12 @@ import { showListUser, listUsers } from "./HandleUsers.js";
 import { showListMessages, sendMessage } from "./Chat.js";
 
 export let ListUsers = {};
-
 export let wsConn = null;
 export let authorName = "";
+export let listMessages = [];
+export let countNewMessage = { value: 0 };
+
+let chatDiv;
 
 export function getCookie(cName) {
   const name = cName + "=";
@@ -73,17 +76,19 @@ const insertNewUser = (message, tempListUsers) => {
 
 //update listMsg, call listMsgs()
 const getMessages = (chatDiv, receiver, sender, type, offset) => {
-  console.log("out get msg, throttle", chatDiv.scrollTop);
-  if (chatDiv.scrollTop <= 2) {
-    console.log("send query");
-    let obj = {
-      receiver: receiver,
-      sender: sender,
-      type: type,
-      offset: (offset += 10),
-    };
-    wsConn.send(JSON.stringify(obj));
-  }
+  //list message get, append in array, - then scrollView -> 0-> down, last element
+  // if (chatDiv.scrollTop === 0) {
+  console.log("send query", "ofset val: ", offset);
+  let obj = {
+    receiver: receiver,
+    sender: sender,
+    type: type,
+    offset: (offset += 10),
+  };
+  wsConn.send(JSON.stringify(obj));
+  // chatDiv.removeEventListener("scroll", getMessages);
+  return;
+  // }
 };
 
 function throttle(fn, wait) {
@@ -94,6 +99,21 @@ function throttle(fn, wait) {
       fn();
       time = Date.now();
     }
+  };
+}
+
+function scrollToBottom() {
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+//call acc * 2?
+function debounce(func, timeout) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func.apply(this, args);
+    }, timeout);
   };
 }
 // add user - send uuid
@@ -111,12 +131,12 @@ export const wsInit = (...args) => {
   }
 
   let chatContainer = document.querySelector("#message_container");
+
   let tempListUsers = [];
-  let chatDiv;
   if (chatContainer != null) {
     chatDiv = chatContainer.children["chatbox"];
   }
-  let listMessages = [];
+  let count = false;
 
   wsConn.onmessage = (e) => {
     let authorId = getCookie("user_id");
@@ -159,48 +179,56 @@ export const wsInit = (...args) => {
       case "listmessages":
         document.getElementById("notify").value = "";
         //append -> current merge 2 array
-        listMessages = [...listMessages, ...message.messages.reverse()]; // for compare, & ignoring duplicate msg
-        console.log(listMessages.length, "len msg", listMessages);
-        showListMessages(listMessages, authorId, authorSession, message.author);
-
-        // scroll -> up to 10 MSGesture, position -> sned rRequest
-
-        chatDiv.value = message.receiver;
-        chatDiv.children[chatDiv.children.length - 1].scrollIntoView();
-        //scroll -> throttle, ms -> call after ms, fn
-        //get count all msg, throttle called count: ++, if allMsgCount / 10 == countThrottle, not work throttle
-
-        chatDiv.addEventListener(
-          "scroll",
-          throttle(
-            getMessages.bind(
-              this,
-              chatDiv,
-              message.receiver,
-              message.sender,
-              "last10msg",
-              message.offset
-            ),
-            60
-          )
+        listMessages = [...message.messages.reverse(), ...listMessages]; // for compare, & ignoring duplicate msg
+        console.log(
+          listMessages.length,
+          "len msg",
+          listMessages,
+          "count new msg",
+          countNewMessage
         );
 
-        // if (
-        //   chatDiv.scrollTop +
-        //     chatDiv.offsetHeight >
-        //   chatDiv.offsetHeight - 100
-        // ) {
-        //use - like Oleg
-        // switch (e.target.id) {
-        //   case "btnScrollLeft":
-        //     div.scrollLeft += 20;
-        //     break;
+        showListMessages(listMessages, authorId, authorSession, message.author);
+        // scroll -> up to 10 MSGesture, position -> sned rRequest
+        chatDiv.value = message.receiver;
+        chatDiv.children[chatDiv.children.length - 1].scrollIntoView();
 
-        //   case "btnScrollTop":
-        //     div.scrollTop += 20;
-        //     break;
-        // }
-        // });
+        //scroll -> throttle, ms -> call after ms, fn
+        //get count all msg, throttle called count: ++, if allMsgCount / 10 == countThrottle, not work throttle
+        count = false;
+        console.log(count, "ccc");
+
+        chatDiv.addEventListener("scroll", () => {
+          if (count) {
+            console.log(count, "count");
+            return;
+          } else {
+            console.log(chatDiv.scrollTop);
+            if (chatDiv.scrollTop == 0) {
+              // debounce(
+              let obj = {
+                receiver: message.receiver,
+                sender: message.sender,
+                type: "last10msg",
+                offset: message.offset + countNewMessage.value,
+              };
+              wsConn.send(JSON.stringify(obj));
+              count = true;
+
+              // getMessages.bind(
+              //   this,
+              //   chatDiv,
+              //   message.receiver,
+              //   message.sender,
+              //   "last10msg",
+              //   message.offset + countNewMessage.value
+              // );
+              //   300
+              // );
+            }
+          }
+        });
+
         break;
       case "nomessages":
         alert("no have messages..");
@@ -216,7 +244,8 @@ export const wsInit = (...args) => {
         );
         break;
       case "lastmessage":
-        //append last message, chatbox
+        countNewMessage.value += 1;
+        //append last m.vaessage, chatbox
         //dry ?
         let div = document.createElement("div");
         let span = document.createElement("span");

@@ -206,6 +206,11 @@ anomal case:
 //4 time correct show
 
 -----------------------
+/fix - offset + countLastMessage - send/
+/fix - if scroll Top==0  -> scrolView() - called again, when scroll go to down
+/fix - chat window get message list Msg = []
+
+
 //get count all msg, throttle called count: ++, if allMsgCount / 10 == countThrottle, not work throttle
 0//list user -> if relogin -> llistuser - not work
 //1 header - fix, auth, etc case

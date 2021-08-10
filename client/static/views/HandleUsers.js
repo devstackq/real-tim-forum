@@ -1,6 +1,12 @@
-import { wsConn, getCookie, toggleOnlineUser } from "./WebSocket.js";
+import {
+  wsConn,
+  getCookie,
+  toggleOnlineUser,
+  listMessages,
+  countNewMessage,
+} from "./WebSocket.js";
 
-export const listMessages = [];
+// export const listMessages = [];
 
 export const showListUser = (users) => {
   let count = 0;
@@ -43,6 +49,9 @@ export const showListUser = (users) => {
             wsConn.send(JSON.stringify(obj));
             //1 click->get last 10 msg
             //next time - evenListener Scroll()
+            //set global array empty, next chatWindwos, own messages
+            listMessages.length = 0;
+            countNewMessage.value = 0;
           };
         }
         //append without yourself
