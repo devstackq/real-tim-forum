@@ -149,6 +149,7 @@ label,
 .chat_container div {
   padding: 9px;
   border-radius: 4px;
+margin-bottom: 6px;
 }
 .chat_container span {
   background: #c6c6c6;
@@ -177,7 +178,7 @@ label,
 
 #chatbox {
   height: 100%;
-  max-height: 50vh;
+  max-height: 60vh;
   padding: 4px 16px 0px 4px;
   width: 97%;
   max-width: 50vw;
@@ -199,6 +200,7 @@ label,
   width: 100%;
 }
 #userlistbox {
+  overflow-y: scroll;
   background: lavender;
   width: 100%;
   padding: 20px;
@@ -215,7 +217,6 @@ label,
 }
 #userlistbox li {
   position: relative;
-
   list-style-type: none;
   margin-bottom: 8px;
   cursor: pointer;

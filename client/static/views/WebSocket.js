@@ -6,6 +6,10 @@ export let wsConn = null;
 export let authorName = "";
 export let listMessages = [];
 export let countNewMessage = { value: 0 };
+export let sender = {value : ""}
+export let receiver = {value : ""}
+export let offset = {value : 0}
+export let messageLen = {value :0}
 
 let chatDiv;
 
@@ -74,48 +78,6 @@ const insertNewUser = (message, tempListUsers) => {
   }
 };
 
-//update listMsg, call listMsgs()
-const getMessages = (chatDiv, receiver, sender, type, offset) => {
-  //list message get, append in array, - then scrollView -> 0-> down, last element
-  // if (chatDiv.scrollTop === 0) {
-  console.log("send query", "ofset val: ", offset);
-  let obj = {
-    receiver: receiver,
-    sender: sender,
-    type: type,
-    offset: (offset += 10),
-  };
-  wsConn.send(JSON.stringify(obj));
-  // chatDiv.removeEventListener("scroll", getMessages);
-  return;
-  // }
-};
-
-function throttle(fn, wait) {
-  var time = Date.now();
-  return function () {
-    if (time + wait - Date.now() < 0) {
-      console.log("call func");
-      fn();
-      time = Date.now();
-    }
-  };
-}
-
-function scrollToBottom() {
-  chatDiv.scrollTop = chatDiv.scrollHeight;
-}
-
-//call acc * 2?
-function debounce(func, timeout) {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func.apply(this, args);
-    }, timeout);
-  };
-}
 // add user - send uuid
 export const wsInit = (...args) => {
   if (wsConn == null) {
@@ -136,7 +98,6 @@ export const wsInit = (...args) => {
   if (chatContainer != null) {
     chatDiv = chatContainer.children["chatbox"];
   }
-  let count = false;
 
   wsConn.onmessage = (e) => {
     let authorId = getCookie("user_id");
@@ -178,64 +139,23 @@ export const wsInit = (...args) => {
         break;
       case "listmessages":
         document.getElementById("notify").value = "";
-        //append -> current merge 2 array
+        messageLen.value = message.messages.length
+//prepend reversed get message from backend, offset limit
         listMessages = [...message.messages.reverse(), ...listMessages]; // for compare, & ignoring duplicate msg
-        console.log(
-          listMessages.length,
-          "len msg",
-          listMessages,
-          "count new msg",
-          countNewMessage
-        );
-
         showListMessages(listMessages, authorId, authorSession, message.author);
-        // scroll -> up to 10 MSGesture, position -> sned rRequest
         chatDiv.value = message.receiver;
+        // scroll -> up to 10 MSGesture, position -> sned rRequest
         chatDiv.children[chatDiv.children.length - 1].scrollIntoView();
-
-        //scroll -> throttle, ms -> call after ms, fn
-        //get count all msg, throttle called count: ++, if allMsgCount / 10 == countThrottle, not work throttle
-        count = false;
-        console.log(count, "ccc");
-
-        chatDiv.addEventListener("scroll", () => {
-          if (count) {
-            console.log(count, "count");
-            return;
-          } else {
-            console.log(chatDiv.scrollTop);
-            if (chatDiv.scrollTop == 0) {
-              // debounce(
-              let obj = {
-                receiver: message.receiver,
-                sender: message.sender,
-                type: "last10msg",
-                offset: message.offset + countNewMessage.value,
-              };
-              wsConn.send(JSON.stringify(obj));
-              count = true;
-
-              // getMessages.bind(
-              //   this,
-              //   chatDiv,
-              //   message.receiver,
-              //   message.sender,
-              //   "last10msg",
-              //   message.offset + countNewMessage.value
-              // );
-              //   300
-              // );
-            }
-          }
-        });
-
+//export value use Chat component func
+        sender.value = message.sender
+        receiver.value = message.receiver
+        offset.value =  message.offset
         break;
       case "nomessages":
         alert("no have messages..");
         document.getElementById("notify").value = "no have messages...";
         chatContainer.style.display = "block";
         chatDiv.innerHTML = "";
-
         chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
           this,
           message.receiver,

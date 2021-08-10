@@ -58,7 +58,7 @@ func (cs *ChatService) getFirstMessages(m *models.Message, c *models.ChannelStor
 	if err != nil {
 		log.Println(err, "empty room")
 	}
-
+	log.Println(room, 11)
 	if room == "" {
 		store.Type = "nomessages"
 		m.Conn.WriteJSON(store)
@@ -242,6 +242,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 				cs.leaveUser(c, &models.Chat{UUID: body.Sender})
 				break
 			}
+			log.Println(code.Code, "err conn")
 		}
 
 		if body.Type == "last10msg" {

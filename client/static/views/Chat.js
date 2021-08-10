@@ -1,9 +1,14 @@
 import Parent from "./Parent.js";
+
 import {
   wsInit,
   wsConn,
   toggleOnlineUser,
   countNewMessage,
+  offset,
+  receiver,
+  sender,
+  messageLen,
 } from "./WebSocket.js";
 
 export default class Chat extends Parent {
@@ -16,11 +21,33 @@ export default class Chat extends Parent {
   setTitle(title) {
     document.title = title;
   }
+  // chatDiv.removeEventListener("scroll", debounce, false);
 
   async init() {
     this.HtmlElems.messageContainer =
       document.querySelector("#message_container");
     wsInit("", "getusers"); //open conn ?
+
+    let chatDiv =
+      document.querySelector("#message_container").children["chatbox"];
+//scroll, each 240 ms, call anonim func, if offsetTop ==0 -> get ws data
+    chatDiv.addEventListener(
+      "scroll",
+      debounce(() => {
+        if (messageLen.value > 9) {
+          console.log(countNewMessage.value, "count")
+          if (chatDiv.scrollTop <= 1) {
+            let obj = {
+              receiver: receiver.value,
+              sender: sender.value,
+              type: "last10msg",
+              offset: offset.value + 10 + countNewMessage.value,
+            };
+            wsConn.send(JSON.stringify(obj));
+          }
+        }
+      }, 240)
+    );
   }
 
   async getHtml() {
@@ -29,7 +56,7 @@ export default class Chat extends Parent {
     <div class="chat_wrapper">
     <div id="userlistbox">  </div>
     <div style='display:none' id="message_container">  
-    <div id="chatbox" class="chat_container" >      </div>
+    <div id="chatbox" class="chat_container">      </div>
     <textarea cols="10" rows="10" id="messageFieldId"> </textarea>
     <button id="sendBtnId"> Send message </button
       </div>
@@ -37,6 +64,22 @@ export default class Chat extends Parent {
     let header = super.showHeader();
     return header + body;
   }
+}
+1 chat if have unread msg, offline state(sql field) || another chat focus ->
+notify - newmessage
+if user -> click current chat, all messages - readed-state, count =0
+classNotify - remove
+get all received message by RandomSource, - if isRead = true, = set false
+
+
+function debounce(func, timeout) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func.apply(this, args);
+    }, timeout);
+  };
 }
 
 export const showListMessages = (messages, userid, session, authorName) => {
