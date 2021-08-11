@@ -1,15 +1,7 @@
 import Parent from "./Parent.js";
 
-import {
-  wsInit,
-  wsConn,
-  toggleOnlineUser,
-  countNewMessage,
-  offset,
-  receiver,
-  sender,
-  messageLen,
-} from "./WebSocket.js";
+import { wsInit, wsConn, chatStore, getCookie } from "./WebSocket.js";
+import { toggleOnlineUser } from "./HandleUsers.js";
 
 export default class Chat extends Parent {
   constructor() {
@@ -26,22 +18,22 @@ export default class Chat extends Parent {
   async init() {
     this.HtmlElems.messageContainer =
       document.querySelector("#message_container");
-    wsInit("", "getusers"); //open conn ?
+    wsInit(getCookie("session"), "getusers"); //open conn ?
 
     let chatDiv =
       document.querySelector("#message_container").children["chatbox"];
-//scroll, each 240 ms, call anonim func, if offsetTop ==0 -> get ws data
+    //scroll, each 240 ms, call anonim func, if offsetTop ==0 -> get ws data
     chatDiv.addEventListener(
       "scroll",
       debounce(() => {
-        if (messageLen.value > 9) {
-          console.log(countNewMessage.value, "count")
+        if (chatStore.messageLen > 9) {
+          // console.log(countNewMessage.value, "count");
           if (chatDiv.scrollTop <= 1) {
             let obj = {
-              receiver: receiver.value,
-              sender: sender.value,
+              receiver: chatStore.receiver,
+              sender: chatStore.sender,
               type: "last10msg",
-              offset: offset.value + 10 + countNewMessage.value,
+              offset: chatStore.offset + 10 + chatStore.countNewMessage,
             };
             wsConn.send(JSON.stringify(obj));
           }
@@ -65,12 +57,13 @@ export default class Chat extends Parent {
     return header + body;
   }
 }
-1 chat if have unread msg, offline state(sql field) || another chat focus ->
-notify - newmessage
-if user -> click current chat, all messages - readed-state, count =0
-classNotify - remove
-get all received message by RandomSource, - if isRead = true, = set false
 
+// 1 chat if have unread msg, offline state(sql field) || another chat focus ->
+// notify - newmessage
+// if user -> click current chat, all messages - readed-state, count =0
+// classNotify - remove
+// get all received message by RandomSource, - if isRead = true, = set false
+//check if user -> chatWindow -> active chat, if -> room
 
 function debounce(func, timeout) {
   let timer;
@@ -151,6 +144,6 @@ export const sendMessage = (receiver, authorId, authorName, session) => {
   chatContainer.children["messageFieldId"].value = "";
   toggleOnlineUser(receiver, "prepend");
   wsConn.send(JSON.stringify(message));
-  countNewMessage.value += 1;
+  chatStore.countNewMessage += 1;
 };
 //test listuser, send msg, signin, signup, show msg, receive msg

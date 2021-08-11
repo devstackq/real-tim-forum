@@ -1,17 +1,19 @@
-import { showListUser, listUsers } from "./HandleUsers.js";
+import { showListUser, listUsers, toggleOnlineUser } from "./HandleUsers.js";
 import { showListMessages, sendMessage } from "./Chat.js";
 
+let chatDiv;
 export let ListUsers = {};
 export let wsConn = null;
-export let authorName = "";
 export let listMessages = [];
-export let countNewMessage = { value: 0 };
-export let sender = {value : ""}
-export let receiver = {value : ""}
-export let offset = {value : 0}
-export let messageLen = {value :0}
 
-let chatDiv;
+export let chatStore = {
+  authorName: "",
+  sender: "",
+  receiver: "",
+  offset: 0,
+  messageLen: 0,
+  countNewMessage: 0,
+};
 
 export function getCookie(cName) {
   const name = cName + "=";
@@ -24,28 +26,8 @@ export function getCookie(cName) {
   return res;
 }
 
-export const getUserId = () => {
-  if (document.cookie.split(";").length == 3) {
-    return document.cookie.split(";")[1].slice(9).toString();
-  }
-};
-//send uuid or id if offline
-export const toggleOnlineUser = (receiver, type) => {
-  let currentUser = document.getElementById(receiver);
-  let listUsers = document.getElementById("userlistbox"); // out global var ?
-
-  for (let i = 0; i < listUsers.children.length; i++) {
-    if (listUsers.children[i].classList.contains("current")) {
-      listUsers.children[i].classList.remove("current");
-    }
-  }
-  currentUser.classList.add("current");
-  type == "prepend" ? listUsers.prepend(currentUser) : null;
-};
-
 const prepareUserButton = (uuid, fullname, idx) => {
   let listUsersDom = document.querySelector("#userlistbox");
-
   let el = document.createElement("li");
   el.id = uuid;
   el.classList.add("online");
@@ -62,7 +44,7 @@ const prepareUserButton = (uuid, fullname, idx) => {
     wsConn.send(JSON.stringify(obj));
   };
 };
-
+//insert new signup user, and sort local array list users
 const insertNewUser = (message, tempListUsers) => {
   if (tempListUsers.length > 1) {
     for (let [index, user] of Object.entries(tempListUsers)) {
@@ -133,23 +115,22 @@ export const wsInit = (...args) => {
         //temp, for sort & insert  in DOm, new signup user
         tempListUsers = [];
         tempListUsers = [...message.users];
-
-        authorName = message.author;
+        // chatStore.authorName = message.author;
         showListUser(message.users);
         break;
       case "listmessages":
         document.getElementById("notify").value = "";
-        messageLen.value = message.messages.length
-//prepend reversed get message from backend, offset limit
+        chatStore.messageLen = message.messages.length;
+        //prepend reversed get message from backend, offset limit
         listMessages = [...message.messages.reverse(), ...listMessages]; // for compare, & ignoring duplicate msg
         showListMessages(listMessages, authorId, authorSession, message.author);
         chatDiv.value = message.receiver;
         // scroll -> up to 10 MSGesture, position -> sned rRequest
         chatDiv.children[chatDiv.children.length - 1].scrollIntoView();
-//export value use Chat component func
-        sender.value = message.sender
-        receiver.value = message.receiver
-        offset.value =  message.offset
+        //export value use Chat component func
+        chatStore.sender = message.sender;
+        chatStore.receiver = message.receiver;
+        chatStore.offset = message.offset;
         break;
       case "nomessages":
         alert("no have messages..");
@@ -164,7 +145,7 @@ export const wsInit = (...args) => {
         );
         break;
       case "lastmessage":
-        countNewMessage.value += 1;
+        chatStore.countNewMessage += 1;
         //append last m.vaessage, chatbox
         //dry ?
         let div = document.createElement("div");

@@ -17,9 +17,11 @@ export default class Signin extends Parent {
       email: "",
       password: "",
     };
+    //prepare object - see field
     user = super.fillObject(user);
 
     let result = await super.fetch("signin", user);
+
     if (result !== null) {
       localStorage.setItem("isAuth", true);
       wsInit(result.uuid, "signin");

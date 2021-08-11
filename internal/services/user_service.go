@@ -51,6 +51,7 @@ func (us *UserService) Signin(user *models.User) (int, *models.Session, error) {
 		return http.StatusBadRequest, nil, err
 	}
 
+	// r.Cookie = session.
 	log.Println("session update -> signin in system", session.UUID)
 	return http.StatusOK, &session, nil
 }

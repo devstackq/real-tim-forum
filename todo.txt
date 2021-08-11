@@ -229,7 +229,9 @@ close tab ? user offline ? server ping pong ?
 //2 comment service todo
 //3 start notify
 //4 valid signup, post/comment/ chat message
-
+//4 chat -  !isAuth -> redirect signin
+//5 correct format - show, send, last message - UI
+//not add oursel - when signup
 
 audit:
 //write msg - another window,

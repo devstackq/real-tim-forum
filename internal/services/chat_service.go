@@ -77,7 +77,7 @@ func (cs *ChatService) getFirstMessages(m *models.Message, c *models.ChannelStor
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(store.ListMessage[0].ID, m.Offset)
+	// log.Println(store.ListMessage[0].ID, m.Offset)
 }
 
 func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string]*models.Chat) []*models.Chat {

@@ -1,12 +1,18 @@
-import {
-  wsConn,
-  getCookie,
-  toggleOnlineUser,
-  listMessages,
-  countNewMessage,
-} from "./WebSocket.js";
+import { wsConn, getCookie, listMessages, chatStore } from "./WebSocket.js";
 
-// export const listMessages = [];
+//send uuid or id if offline
+export const toggleOnlineUser = (receiver, type) => {
+  let currentUser = document.getElementById(receiver);
+  let listUsers = document.getElementById("userlistbox"); // out global var ?
+
+  for (let i = 0; i < listUsers.children.length; i++) {
+    if (listUsers.children[i].classList.contains("current")) {
+      listUsers.children[i].classList.remove("current");
+    }
+  }
+  currentUser.classList.add("current");
+  type == "prepend" ? listUsers.prepend(currentUser) : null;
+};
 
 export const showListUser = (users) => {
   let count = 0;
@@ -51,10 +57,11 @@ export const showListUser = (users) => {
             //next time - evenListener Scroll()
             //set global array empty, next chatWindwos, own messages
             listMessages.length = 0;
-            countNewMessage.value = 0;
+            chatStore.countNewMessage = 0;
           };
         }
         //append without yourself
+        console.log(senderUuid, user.uuid);
         if (user.uuid) {
           if (user.uuid != senderUuid) {
             parent.append(li);

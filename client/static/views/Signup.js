@@ -37,13 +37,16 @@ export default class Signup extends Parent {
     console.log(uid);
 
     if (uid > 0) {
+      //success signup
       let result = await super.fetch("signin", {
         email: user.email,
         password: user.password,
       });
       if (result != null) {
+        //signin success
         localStorage.setItem("isAuth", true);
         wsInit(result.uuid, "newuser");
+        console.log(result.uuid, "signup");
         //newuser type, another user update list user
         redirect("profile");
       } else {
