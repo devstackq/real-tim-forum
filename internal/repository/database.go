@@ -169,6 +169,7 @@ func createTables(db *sql.DB) error {
 		name TEXT,
 		sent_time DATETIME,
 		is_read  BOOLEAN DEFAULT FALSE,
+		count_unread INTEGER,
 		FOREIGN KEY(user_id) REFERENCES users(id)
 		)`,
 	)

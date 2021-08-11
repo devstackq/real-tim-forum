@@ -74,7 +74,7 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(seq, 2)
+	// log.Println(seq, 2)
 }
 
 func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string]*models.Chat) []*models.Chat {

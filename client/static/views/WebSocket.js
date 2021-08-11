@@ -112,6 +112,7 @@ export const wsInit = (...args) => {
         //1 set user onlien state, update uuid
         break;
       case "observeusers":
+        console.log(message.users.countunread)  
         //temp, for sort & insert  in DOm, new signup user
         tempListUsers = [];
         tempListUsers = [...message.users];
@@ -120,7 +121,8 @@ export const wsInit = (...args) => {
         break;
       case "listmessages":
         document.getElementById("notify").value = "";
-        chatStore.messageLen = message.messages.length;
+      //  if(message.messages != null) {
+      chatStore.messageLen = message.messages.length 
         //prepend reversed get message from backend, offset limit
         listMessages = [...message.messages.reverse(), ...listMessages]; // for compare, & ignoring duplicate msg
         showListMessages(listMessages, authorId, authorSession, message.author);
@@ -131,6 +133,7 @@ export const wsInit = (...args) => {
         chatStore.sender = message.sender;
         chatStore.receiver = message.receiver;
         chatStore.offset = message.offset;
+   
         break;
       case "nomessages":
         alert("no have messages..");

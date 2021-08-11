@@ -14,10 +14,10 @@ export const toggleOnlineUser = (receiver, type) => {
   type == "prepend" ? listUsers.prepend(currentUser) : null;
 };
 
-1 getCountMesg - each user 
-2 if click user, remove class - unread, 
-2.1 db each msg -> set unread = true
-lastmessage,  handle
+// 1 getCountMesg - each user 
+// 2 if click user, remove class - unread, 
+// 2.1 db each msg -> set unread = true
+// lastmessage,  handle
 
 export const showListUser = (users) => {
   let count = 0;
