@@ -221,6 +221,12 @@ anomal case:
 2 variant:
 each scroll -> throttle -> clent get ws data, pagintion, sql limit, offset, data 
 
+        //set count unread, if click -> count = 0
+        //scroll event -> msg.isread == false -> send ws -> change state,
+
+        //if user.coununread > 0 {cRing elsegray ring}
+        //remove class,  global count -chatUnread Mesg
+
 
 
 Next:
@@ -231,7 +237,8 @@ close tab ? user offline ? server ping pong ?
 //4 valid signup, post/comment/ chat message
 //4 chat -  !isAuth -> redirect signin
 //5 correct format - show, send, last message - UI
-//not add oursel - when signup
+//optimize & refactor
+
 
 audit:
 //write msg - another window,

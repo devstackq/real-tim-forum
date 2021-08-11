@@ -44,7 +44,7 @@ func NewChatService(repo repository.Chat) *ChatService {
 }
 
 //receiver, sender uuid
-func (cs *ChatService) getFirstMessages(m *models.Message, c *models.ChannelStorage) {
+func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) {
 	//send client = lastID Msg & RoomName - offset
 	store := ChatStore{}
 	store.Receiver = m.Receiver
@@ -52,13 +52,11 @@ func (cs *ChatService) getFirstMessages(m *models.Message, c *models.ChannelStor
 	store.Author = m.Name
 	//set and send last result offset
 	store.Offset = m.Offset
-	log.Println(m.Offset, "receive offset")
 
 	room, err := cs.repository.IsExistRoom(m)
 	if err != nil {
 		log.Println(err, "empty room")
 	}
-	log.Println(room, 11)
 	if room == "" {
 		store.Type = "nomessages"
 		m.Conn.WriteJSON(store)
@@ -70,14 +68,13 @@ func (cs *ChatService) getFirstMessages(m *models.Message, c *models.ChannelStor
 	if err != nil {
 		log.Println(err, "get msg err")
 	}
-	// store.Offset = lid //set from db
 	store.ListMessage = seq
 	store.Type = "listmessages"
 	err = m.Conn.WriteJSON(store)
 	if err != nil {
 		log.Println(err)
 	}
-	// log.Println(store.ListMessage[0].ID, m.Offset)
+	log.Println(seq, 2)
 }
 
 func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string]*models.Chat) []*models.Chat {
@@ -91,12 +88,10 @@ func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string
 			// exlude -> ourselve
 		}
 	}
-	// }()
 	return dbUsers
 }
 
 //if find userid -> update CS.OnlineUsers[id]=u, uuid, u.LastMessage, etc
-
 func (cs *ChatService) sendMessage(c *models.ChannelStorage, m *models.Message) {
 	//save db in message, caht table & message, add author, date message
 	//send msg - to  conn - receiver if have in server
@@ -189,7 +184,6 @@ func (cs *ChatService) addGetUpdateUser(u *models.Chat, c *models.ChannelStorage
 			v.Conn.WriteJSON(newUser)
 		}
 	}
-	// log.Println(store.OnlineUsers, newUser, wsType, " user")
 }
 
 //1 main -> Start() ->  createEmptyObjecetChat -> 2 ws Handler, newConn -> 3 go Run() // goruutine each newConn(user)
@@ -210,7 +204,7 @@ func (cs *ChatService) Run(c *models.ChannelStorage) {
 		// case listuser := <-c.GetUsers:
 		// 	cs.getUsers(listuser, c)
 		case last := <-c.LastMessages:
-			cs.getFirstMessages(last, c)
+			cs.getMessages(last, c)
 		}
 	}
 }

@@ -22,6 +22,7 @@ type Message struct {
 	SentTime     string    `json:"senttime"`
 	Time         time.Time `json:"time"`
 	Offset       int       `json:"offset"`
+	IsRead       bool      `json:"isread"`
 }
 
 // func NewMessage(body string, sender int) *Message {
@@ -54,4 +55,5 @@ type Chat struct {
 	UUID                  string          `json:"uuid"`
 	Conn                  *websocket.Conn `json:"conn"`
 	Time                  string          `json:"senttime"`
+	CountUnreadMessage    int             `json:"countunread"`
 }

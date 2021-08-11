@@ -14,6 +14,11 @@ export const toggleOnlineUser = (receiver, type) => {
   type == "prepend" ? listUsers.prepend(currentUser) : null;
 };
 
+1 getCountMesg - each user 
+2 if click user, remove class - unread, 
+2.1 db each msg -> set unread = true
+lastmessage,  handle
+
 export const showListUser = (users) => {
   let count = 0;
   if (window.location.pathname == "/chat") {
@@ -21,47 +26,50 @@ export const showListUser = (users) => {
     let parent = document.getElementById("userlistbox");
 
     if (users != null && parent != null) {
-      // parent.innerHTML = "";
       for (let [keyUser, user] of Object.entries(users)) {
         let li = document.createElement("li");
         if (Object.entries(users).length == 1) {
           alert("Now, no has online user");
           return;
         }
+        console.log(user.countunread);
+
         user.uuid !== "" ? (li.id = user.uuid) : (li.id = user.id);
         user.online ? ((li.className = "online"), (count += 1)) : "";
 
         if (user.fullname) {
           let pattern = "";
-          // <span class="partner"> ${user.fullname}</span>
+
           let username = `<h3 class="partner">${user.fullname}</h3>`;
           user.lastmessage["String"] == ""
-            ? (pattern = `  ${username}<span> No have messages.. </span>`)
+            ? (pattern = `${username}<span> No have messages.. </span>`)
             : (pattern = `${username}
                 <span>${user.lastmessage["String"]}</span>
               <span class="time">${user.senttime}</span>
-             `);
+            ${
+              user.countunread > 0
+                ? ` <span class="unread">${user.countunread} </span>`
+                : ""
+            }  `);
 
           li.innerHTML = pattern;
 
           li.onclick = (e) => {
             toggleOnlineUser(li.id);
             let obj = {
-              receiver: li.id,
               sender: senderUuid,
+              receiver: li.id,
               type: "last10msg",
               offset: 0,
             };
-            wsConn.send(JSON.stringify(obj));
-            //1 click->get last 10 msg
-            //next time - evenListener Scroll()
+
+            wsConn.send(JSON.stringify(obj)); //1 click->get last 10 msg
             //set global array empty, next chatWindwos, own messages
             listMessages.length = 0;
             chatStore.countNewMessage = 0;
           };
         }
         //append without yourself
-        console.log(senderUuid, user.uuid);
         if (user.uuid) {
           if (user.uuid != senderUuid) {
             parent.append(li);

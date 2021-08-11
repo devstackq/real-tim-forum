@@ -18,10 +18,13 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 }
 
 func (cr *ChatRepository) GetSortedUsers(userid int) ([]*models.Chat, error) {
+
 	//save in db message in chat, c.room,  m.user_id, m.id,, WHERE u.id NOT IN($1)
-	queryStmt, err := cr.db.Query(`SELECT u.id, u.full_name, m.content,  m.name as lastMessageSenderName,  m.sent_time, MAX(m.id) FROM users u  
-	left join chats c ON c.user_id1 = $1  AND c.user_id2 = u.id  OR  c.user_id2 = $1 AND c.user_id1 = u.id
-	left join messages m ON m.room = c.room   GROUP BY u.id ORDER by m.sent_time DESC, u.full_name ASC`, userid)
+
+	//HAVING COUNT(is_read) IS NOT m.user_id=$1
+	queryStmt, err := cr.db.Query(`SELECT COUNT( is_read is null) as unread, u.id, u.full_name, m.content,  m.name as lastMessageSenderName,  m.sent_time, MAX(m.id) FROM users u  
+	left join chats c ON c.user_id1 = $1 AND c.user_id2 = u.id  OR  c.user_id2 = $1 AND c.user_id1 = u.id
+	left join messages m ON m.room = c.room GROUP BY u.id ORDER by m.sent_time DESC, u.full_name ASC`, userid)
 	if err != nil {
 		return nil, err
 	}
@@ -29,12 +32,10 @@ func (cr *ChatRepository) GetSortedUsers(userid int) ([]*models.Chat, error) {
 	chatUsers := []*models.Chat{}
 	for queryStmt.Next() {
 		c := models.Chat{}
-		if err := queryStmt.Scan(&c.ID, &c.UserName, &c.LastMessage, &c.LastMessageSenderName, &c.SentTime, &c.MesageID); err != nil {
+		if err := queryStmt.Scan(&c.CountUnreadMessage, &c.ID, &c.UserName, &c.LastMessage, &c.LastMessageSenderName, &c.SentTime, &c.MesageID); err != nil {
 			return nil, err
 		}
-
 		c.Time = c.SentTime.Time.Format(time.Stamp)
-
 		chatUsers = append(chatUsers, &c)
 	}
 	return chatUsers, nil
@@ -77,24 +78,37 @@ func (cr *ChatRepository) AddNewMessage(m *models.Message) error {
 }
 
 func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, int, error) {
+
 	var lastId int
 	var messages = []models.Message{}
 
 	msg := models.Message{}
-	queryStmt, err := cr.db.Query("SELECT id, content, user_id, name, sent_time  FROM messages  WHERE room=? ORDER BY sent_time DESC LIMIT 10 OFFSET?", m.Room, m.Offset)
+
+	id, err := cr.GetUserID(m.Sender)
 	if err != nil {
 		return nil, 0, err
 	}
-	//noftdretbs
-	//ORDER BY sent_time DESC  LIMIT 10 OFFSET 1
+
+	queryChat, err := cr.db.Prepare(`UPDATE  messages  SET is_read=1 WHERE room=? AND  NOT IN user_id =?`)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	queryChat.Exec(m.Room, id)
+
+	queryStmt, err := cr.db.Query("SELECT id, content, user_id, name, sent_time, is_read  FROM messages  WHERE room=? ORDER BY sent_time DESC LIMIT 10 OFFSET?", m.Room, m.Offset)
+	if err != nil {
+		return nil, 0, err
+	}
 	for queryStmt.Next() {
 		//or when create msg - set name ?
-		if err := queryStmt.Scan(&msg.ID, &msg.Content, &msg.UserID, &msg.Name, &msg.Time); err != nil {
+		if err := queryStmt.Scan(&msg.ID, &msg.Content, &msg.UserID, &msg.Name, &msg.Time, &msg.IsRead); err != nil {
 			return nil, 0, err
 		}
 		msg.SentTime = msg.Time.Format(time.Stamp)
 		msg.Receiver = m.Receiver
 		msg.Sender = m.Sender
+		msg.IsRead = m.IsRead
 		messages = append(messages, msg)
 		lastId = msg.ID
 	}

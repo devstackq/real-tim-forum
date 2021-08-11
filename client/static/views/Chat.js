@@ -58,13 +58,6 @@ export default class Chat extends Parent {
   }
 }
 
-// 1 chat if have unread msg, offline state(sql field) || another chat focus ->
-// notify - newmessage
-// if user -> click current chat, all messages - readed-state, count =0
-// classNotify - remove
-// get all received message by RandomSource, - if isRead = true, = set false
-//check if user -> chatWindow -> active chat, if -> room
-
 function debounce(func, timeout) {
   let timer;
   return (...args) => {
@@ -89,6 +82,7 @@ export const showListMessages = (messages, userid, session, authorName) => {
       if (item.userid == userid) {
         div.classList.add("chat_sender");
       } else {
+        // !item.isread  send ws, & remove class unread
         div.classList.add("chat_receiver");
       }
       div.append(span);
