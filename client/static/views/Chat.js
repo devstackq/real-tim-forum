@@ -1,7 +1,7 @@
 import Parent from "./Parent.js";
 
 import { wsInit, wsConn, chatStore, getCookie } from "./WebSocket.js";
-import { toggleOnlineUser } from "./HandleUsers.js";
+import { toggleOnlineUser, updateDataInListUser } from "./HandleUsers.js";
 
 export default class Chat extends Parent {
   constructor() {
@@ -13,7 +13,6 @@ export default class Chat extends Parent {
   setTitle(title) {
     document.title = title;
   }
-  // chatDiv.removeEventListener("scroll", debounce, false);
 
   async init() {
     this.HtmlElems.messageContainer =
@@ -46,7 +45,7 @@ export default class Chat extends Parent {
     //<div id="countusers"> </div>
     let body = `
     <div class="chat_wrapper">
-    <div id="userlistbox">  </div>
+    <div id="userlistbox"> </div>
     <div style='display:none' id="message_container">  
     <div id="chatbox" class="chat_container">      </div>
     <textarea cols="10" rows="10" id="messageFieldId"> </textarea>
@@ -58,7 +57,7 @@ export default class Chat extends Parent {
   }
 }
 
-function debounce(func, timeout) {
+const debounce = (func, timeout) => {
   let timer;
   return (...args) => {
     clearTimeout(timer);
@@ -66,10 +65,33 @@ function debounce(func, timeout) {
       func.apply(this, args);
     }, timeout);
   };
-}
+};
+
+export const appendLastMessageInActiveChat = (type, name, time, content) => {
+  let chatContainer = document.querySelector("#message_container");
+  chatContainer.children["chatbox"].style.display = "block";
+  let activeChat = chatContainer.children["chatbox"];
+
+  let div = document.createElement("div");
+  let span = document.createElement("span");
+  span.style.padding = "9px";
+  if (type == "send") {
+    span.className = "chat_sender";
+  } else if (type == "receive") {
+    span.className = "chat_receiver";
+  }
+  span.textContent = `${name} ${content} ${time}`;
+  div.append(span);
+  activeChat.append(div);
+  //set last item inside chat window
+  activeChat.children[activeChat.children.length - 1].scrollIntoView();
+  //empty textarea field
+  chatContainer.children["messageFieldId"].value = "";
+};
 
 export const showListMessages = (messages, userid, session, authorName) => {
   let chatContainer = document.querySelector("#message_container");
+
   if (messages != null && chatContainer != null) {
     chatContainer.style.display = "block";
     chatContainer.children["chatbox"].style.display = "block";
@@ -82,13 +104,11 @@ export const showListMessages = (messages, userid, session, authorName) => {
       if (item.userid == userid) {
         div.classList.add("chat_sender");
       } else {
-        // !item.isread  send ws, & remove class unread
         div.classList.add("chat_receiver");
       }
       div.append(span);
       chatContainer.children["chatbox"].append(div);
     });
-    //call func
     let receive = "";
     if (messages.length != 0) {
       receive = messages[0]["receiver"];
@@ -99,45 +119,38 @@ export const showListMessages = (messages, userid, session, authorName) => {
       this,
       receive,
       userid,
-      authorName,
-      session
+      authorName
     );
   }
 };
 
 // update lastmessage & receive message - text format
-export const sendMessage = (receiver, authorId, authorName, session) => {
-  let chatContainer = document.querySelector("#message_container");
-  let content = chatContainer.children["messageFieldId"].value;
-  chatContainer.children["chatbox"].style.display = "block";
-
+export const sendMessage = (receiver, authorId, authorName) => {
+  let content =
+    document.querySelector("#message_container").children["messageFieldId"]
+      .value;
+  //append last message in activeChat
+  appendLastMessageInActiveChat(
+    "send",
+    authorName,
+    new Date().toLocaleTimeString(),
+    content
+  );
+  //update value in list users
+  updateDataInListUser(
+    receiver,
+    new Date().toLocaleTimeString(),
+    authorName,
+    content
+  );
+  //change online user position in list users or chane state - online offline
+  toggleOnlineUser(receiver, "prepend");
+  //send ws  msg
   let message = {
     receiver: receiver,
     userid: parseInt(authorId),
     type: "newmessage",
     content: content,
   };
-
-  let div = document.createElement("div");
-  let span = document.createElement("span");
-  span.className = "chat_sender";
-
-  span.textContent = `${authorName} :  \n${
-    message.content
-  }   ${new Date().toLocaleTimeString()}  `;
-  //dry
-
-  let el = document.getElementById(receiver);
-  el.textContent = ` ${authorName} ${content} ${new Date().toLocaleTimeString()}`;
-  span.style.padding = "9px";
-  div.append(span);
-  let chatDiv = chatContainer.children["chatbox"];
-  chatDiv.append(div);
-  //set last item inside chat window
-  chatDiv.children[chatDiv.children.length - 1].scrollIntoView();
-  chatContainer.children["messageFieldId"].value = "";
-  toggleOnlineUser(receiver, "prepend");
   wsConn.send(JSON.stringify(message));
-  chatStore.countNewMessage += 1;
 };
-//test listuser, send msg, signin, signup, show msg, receive msg

@@ -1,5 +1,11 @@
 import { wsConn, getCookie, listMessages, chatStore } from "./WebSocket.js";
 
+export const updateDataInListUser = (receiver, time, sendername, content) => {
+  let currentUser = document.getElementById(receiver);
+  currentUser.children[2].textContent = time;
+  currentUser.children[1].textContent = `${sendername} : ${content}`;
+};
+
 //send uuid or id if offline
 export const toggleOnlineUser = (receiver, type) => {
   let currentUser = document.getElementById(receiver);
@@ -14,12 +20,7 @@ export const toggleOnlineUser = (receiver, type) => {
   type == "prepend" ? listUsers.prepend(currentUser) : null;
 };
 
-// 1 getCountMesg - each user 
-// 2 if click user, remove class - unread, 
-// 2.1 db each msg -> set unread = true
-// lastmessage,  handle
-
-export const showListUser = (users) => {
+export const showListUser = (users, type) => {
   let count = 0;
   if (window.location.pathname == "/chat") {
     let senderUuid = getCookie("session");
@@ -32,41 +33,60 @@ export const showListUser = (users) => {
           alert("Now, no has online user");
           return;
         }
-        console.log(user.countunread);
-
+        console.log(user.countunread, "count read");
+        //set element id = id || uuid
         user.uuid !== "" ? (li.id = user.uuid) : (li.id = user.id);
         user.online ? ((li.className = "online"), (count += 1)) : "";
 
         if (user.fullname) {
           let pattern = "";
-
           let username = `<h3 class="partner">${user.fullname}</h3>`;
           user.lastmessage["String"] == ""
-            ? (pattern = `${username}<span> No have messages.. </span>`)
+            ? (pattern = `${username}<span> No have messages.. </span>
+            <span class="time"></span>
+            `)
             : (pattern = `${username}
-                <span>${user.lastmessage["String"]}</span>
+            <span> ${user.lastsender["String"]} : ${
+                user.lastmessage["String"]
+              }</span>
               <span class="time">${user.senttime}</span>
-            ${
-              user.countunread > 0
-                ? ` <span class="unread">${user.countunread} </span>`
-                : ""
-            }  `);
-
+              ${
+                user.countunread > 0
+                  ? ((chatStore.countNewMessage = user.countunread),
+                    ` <span id="unread" class="unread">${user.countunread} </span>`)
+                  : ""
+              }  `);
           li.innerHTML = pattern;
 
           li.onclick = (e) => {
-            toggleOnlineUser(li.id);
+            //case - newuser
+
+            // set each user active chat.value = uuid || id
+            // let chatDiv =
+            //   document.querySelector("#message_container").children["chatbox"];
+            // chatDiv.value = li.id;
+            console.log(li.id, "user click val");
+
             let obj = {
               sender: senderUuid,
               receiver: li.id,
               type: "last10msg",
               offset: 0,
             };
-
             wsConn.send(JSON.stringify(obj)); //1 click->get last 10 msg
+            toggleOnlineUser(li.id);
             //set global array empty, next chatWindwos, own messages
             listMessages.length = 0;
             chatStore.countNewMessage = 0;
+            //remove unread class removeUnread
+            document.getElementById(li.id) != undefined &&
+            document.getElementById(li.id).children.length > 3
+              ? document.getElementById(li.id).children[3].id == "unread"
+                ? document
+                    .getElementById(li.id)
+                    .children[3].classList.remove("unread")
+                : null
+              : null;
           };
         }
         //append without yourself
@@ -108,6 +128,7 @@ export const listUsers = (uuid, type) => {
     if (uuid == undefined) {
       uuid = getCookie("session");
     }
+    console.log(type, "listuser func", uuid);
     if (getAuthState() == "true") {
       if (wsConn.readyState != 1) {
         openWs(uuid, type);

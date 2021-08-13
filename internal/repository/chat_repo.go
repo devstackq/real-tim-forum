@@ -19,12 +19,10 @@ func NewChatRepository(db *sql.DB) *ChatRepository {
 
 func (cr *ChatRepository) GetSortedUsers(userid int) ([]*models.Chat, error) {
 
-	//save in db message in chat, c.room,  m.user_id, m.id,, WHERE u.id NOT IN($1)
-	//HAVING COUNT(is_read) IS NOT m.user_id=$1
-
+	//get data, sum unread msgs, lastMaxId where have chat u1=u2, -> user id sort by time, another user - no have chat alpha
 	queryStmt, err := cr.db.Query(`SELECT u.id, u.full_name, m.content, 
 	 m.name as lastMessage,  m.sent_time, 
-	 SUM(CASE WHEN m.user_id!=u.id AND is_read = 0
+	 SUM(CASE WHEN m.user_id=u.id AND is_read = 0
 		THEN +1
 		ELSE 0
 		END) as countunread,
@@ -34,7 +32,6 @@ func (cr *ChatRepository) GetSortedUsers(userid int) ([]*models.Chat, error) {
 	left join messages m ON m.room = c.room 
 	GROUP BY u.id
 	ORDER by m.sent_time DESC, u.full_name ASC`, userid)
-
 	if err != nil {
 		return nil, err
 	}
@@ -93,43 +90,28 @@ func (cr *ChatRepository) GetMessages(m *models.Message) ([]models.Message, int,
 	var messages = []models.Message{}
 
 	msg := models.Message{}
-	var id string
-	var err error
 
-	if len(m.Receiver) == 1 {
-		id = m.Receiver
-	} else {
-		uid, err := cr.GetUserID(m.Receiver)
-		if err != nil {
-			log.Println(err, -1, m.Receiver)
-			return nil, 0, err
-		}
-		id = strconv.Itoa(uid)
-	}
-update -> is-read = state
-	log.Println(err, 1)
-	//update read states
-	queryChat, err := cr.db.Prepare(`UPDATE  messages SET is_read=1 WHERE room=? AND user_id = ?`)
+	uid, err := cr.GetUserID(m.Sender)
 	if err != nil {
-		log.Println(err, 2)
 		return nil, 0, err
 	}
+	//update read states
+	queryChat, err := cr.db.Prepare(`UPDATE messages SET is_read=1 WHERE room=? AND user_id != ?`)
+	if err != nil {
+		return nil, 0, err
+	}
+	queryChat.Exec(m.Room, uid)
 
-	_, err = queryChat.Exec(m.Room, id)
-	log.Println(err, 0)
-
+	//get list messages
 	queryStmt, err := cr.db.Query("SELECT id, content, user_id, name, sent_time, is_read  FROM messages  WHERE room=? ORDER BY sent_time DESC LIMIT 10 OFFSET?", m.Room, m.Offset)
 	if err != nil {
-		log.Println(err, 3)
 		return nil, 0, err
 	}
 	for queryStmt.Next() {
 		//or when create msg - set name ?
 		if err := queryStmt.Scan(&msg.ID, &msg.Content, &msg.UserID, &msg.Name, &msg.Time, &msg.IsRead); err != nil {
-			log.Println(err, 4)
 			return nil, 0, err
 		}
-
 		msg.SentTime = msg.Time.Format(time.Stamp)
 		msg.Receiver = m.Receiver
 		msg.Sender = m.Sender
@@ -148,8 +130,8 @@ func (cr *ChatRepository) getUsersID(m *models.Message) (int, int, error) {
 	receiverUserID := m.UserID
 
 	var err error
-
-	if len(m.Receiver) == 1 {
+	//if uuid len 1 - continue
+	if len(m.Receiver) <= 3 || len(m.Sender) <= 3 {
 		receiverUserID, err = strconv.Atoi(m.Receiver)
 		if err != nil {
 			return 0, 0, err
@@ -158,7 +140,7 @@ func (cr *ChatRepository) getUsersID(m *models.Message) (int, int, error) {
 		if err != nil {
 			return 0, 0, err
 		}
-	} else if (senderUserID == 0 || receiverUserID == 0) && len(m.Receiver) == 36 {
+	} else if (senderUserID == 0 || receiverUserID == 0) && (len(m.Receiver) == 36 || len(m.Sender) == 36) || len(m.Receiver) == 36 || len(m.Sender) == 36 {
 		receiverUserID, err = cr.GetUserID(m.Receiver)
 		if err != nil {
 			return 0, 0, err
@@ -167,6 +149,7 @@ func (cr *ChatRepository) getUsersID(m *models.Message) (int, int, error) {
 		if err != nil {
 			return 0, 0, err
 		}
+
 	}
 	return receiverUserID, senderUserID, nil
 
@@ -175,10 +158,12 @@ func (cr *ChatRepository) getUsersID(m *models.Message) (int, int, error) {
 func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 	var room string
 
-	receiverUserID, senderUserID, err := cr.getUsersID(m)
+	senderUserID, receiverUserID, err := cr.getUsersID(m)
 	if err != nil {
 		return "", err
 	}
+	log.Println(receiverUserID, senderUserID)
+
 	// log.Println(receiverUserID, senderUserID, "after")
 	row := cr.db.QueryRow("SELECT room FROM chats WHERE user_id1=? AND user_id2=?", senderUserID, receiverUserID)
 	err = row.Scan(&room)
@@ -190,6 +175,7 @@ func (cr *ChatRepository) IsExistRoom(m *models.Message) (string, error) {
 			return "", err
 		}
 	}
+	log.Println(receiverUserID, senderUserID, "after")
 	return room, nil
 }
 

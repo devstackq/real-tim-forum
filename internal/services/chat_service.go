@@ -62,19 +62,21 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 		m.Conn.WriteJSON(store)
 		return
 	}
+	log.Println(1)
 	//offset -> sdata change -> scroll
 	m.Room = room
 	seq, _, err := cs.repository.GetMessages(m)
 	if err != nil {
 		log.Println(err, "get msg err")
 	}
+	log.Println(2)
 	store.ListMessage = seq
 	store.Type = "listmessages"
 	err = m.Conn.WriteJSON(store)
 	if err != nil {
 		log.Println(err)
 	}
-	// log.Println(seq, 2)
+	// log.Println(seq, 2, store)
 }
 
 func (cs *ChatService) mergeUsers(dbUsers []*models.Chat, onlineUsers map[string]*models.Chat) []*models.Chat {
@@ -119,7 +121,6 @@ func (cs *ChatService) sendMessage(c *models.ChannelStorage, m *models.Message) 
 		receiver := c.OnlineUsers[m.Receiver]
 		store.Message.Content = m.Content
 		store.Message.SentTime = time.Now().Format(time.Stamp)
-		// store.Message.SentTime = Format("2006-01-02 3:4:5 pm"))
 		store.Message.Sender = m.Sender
 		store.Message.Name = m.Name                    //sender msg name
 		store.Message.ReceiverName = receiver.UserName // receiver name
@@ -171,12 +172,12 @@ func (cs *ChatService) addGetUpdateUser(u *models.Chat, c *models.ChannelStorage
 	//add online state user, for own
 	store.AllUsers = cs.mergeUsers(sorted, store.OnlineUsers)
 	u.Conn.WriteJSON(store)
-
 	//for another user -> list users & user which signin
 	u.Online = true
 	newUser := NewUser{}
 	newUser.Type = wsType
 	newUser.User = u
+	// newUser.UUID = u.Sende
 
 	//all connected user - observe - new user connect
 	for _, v := range store.OnlineUsers {
@@ -243,6 +244,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 			messages := &models.Message{
 				Conn:     conn,
 				Sender:   body.Sender,
+				SenderID: body.SenderID,
 				Receiver: body.Receiver,
 				Name:     name,
 				Offset:   body.Offset,
@@ -266,6 +268,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 		// if strings.TrimSpace(username) == "" {
 		if body.Type == "getusers" || body.Type == "signin" || body.Type == "leave" || body.Type == "newuser" {
 			// send uuid || id, leave || online user
+			log.Println(body.Receiver, body.SenderID, 123)
 			user := &models.Chat{
 				UUID:     body.Sender,
 				Conn:     conn, //set conn current user
@@ -287,7 +290,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 
 			if body.Type == "leave" {
 				user.ID = body.UserID
-				user.UUID = body.Sender
+				//user.UUID = body.Sender
 				c.Leave <- user
 			}
 		}

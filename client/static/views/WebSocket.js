@@ -1,10 +1,23 @@
-import { showListUser, listUsers, toggleOnlineUser } from "./HandleUsers.js";
-import { showListMessages, sendMessage } from "./Chat.js";
+import {
+  showListUser,
+  listUsers,
+  toggleOnlineUser,
+  updateDataInListUser,
+} from "./HandleUsers.js";
+import {
+  showListMessages,
+  sendMessage,
+  appendLastMessageInActiveChat,
+} from "./Chat.js";
 
-let chatDiv;
+export let chatContainer;
+export let chatDiv;
+let tempListUsers = [];
+
 export let ListUsers = {};
 export let wsConn = null;
 export let listMessages = [];
+export let countMsgDiv = document.getElementById("unread");
 
 export let chatStore = {
   authorName: "",
@@ -25,38 +38,56 @@ export function getCookie(cName) {
   });
   return res;
 }
+//only update value, switch type:
 
-const prepareUserButton = (uuid, fullname, idx) => {
+const appendNewUserInListUsers = (idx, wsMessage, listUsers) => {
   let listUsersDom = document.querySelector("#userlistbox");
   let el = document.createElement("li");
-  el.id = uuid;
+  el.id = wsMessage.user.uuid;
   el.classList.add("online");
-  el.textContent = "Now no have message with:" + fullname;
-  listUsersDom.insertBefore(el, listUsersDom.children[idx]);
+  let pattern = `<h3 class="partner">${wsMessage.user.fullname}</h3>
+          <span>Now no have messages..</span>
+          <span class="time"></span>`;
+  el.innerHTML = pattern;
+
   el.onclick = (e) => {
-    //remove prev clicked elem class, //dry /
-    toggleOnlineUser(uuid);
+    //remove prev clicked elem class
     let obj = {
-      receiver: uuid,
+      receiver: wsMessage.user.uuid,
       sender: getCookie("session"),
-      type: "getmessages",
+      type: "last10msg",
     };
     wsConn.send(JSON.stringify(obj));
+    chatDiv.textContent = "";
+    chatDiv.value = wsMessage.user.uuid;
+    toggleOnlineUser(wsMessage.user.uuid);
+    //set chat - for new user
   };
+  listUsersDom.insertBefore(el, listUsersDom.children[idx]);
+  //append in array obj - new user
+  let temp = [];
+  for (let i = 0; i < listUsers.length; i++) {
+    temp.push(listUsers[i]);
+    if (i == idx) {
+      temp.push(wsMessage.user);
+    }
+  }
 };
+
 //insert new signup user, and sort local array list users
 const insertNewUser = (message, tempListUsers) => {
   if (tempListUsers.length > 1) {
     for (let [index, user] of Object.entries(tempListUsers)) {
+      //sort by messages
       if (`${user.lastmessage["String"]}` == "") {
         if (message.user.fullname < user.fullname) {
-          prepareUserButton(message.user.uuid, message.user.fullname, index);
+          appendNewUserInListUsers(index, message, tempListUsers);
           break;
         }
       }
     }
   } else {
-    prepareUserButton(message.user.uuid, message.user.fullname, 0);
+    appendNewUserInListUsers(0, message, tempListUsers);
   }
 };
 
@@ -74,31 +105,34 @@ export const wsInit = (...args) => {
     listUsers(args[0], args[1]);
   }
 
-  let chatContainer = document.querySelector("#message_container");
-
-  let tempListUsers = [];
-  if (chatContainer != null) {
-    chatDiv = chatContainer.children["chatbox"];
-  }
-
   wsConn.onmessage = (e) => {
     let authorId = getCookie("user_id");
     let authorSession = getCookie("session");
     let message = JSON.parse(e.data);
-    // listUsers = message.users;
-    console.log(message.type);
     let el = null;
-    if (
-      (message.type == "leave" || message.type == "online") &&
-      message != null &&
-      message.user != undefined
-    ) {
-      //remove online class - by id or uuid
-      el = document.getElementById(message.user.id);
-      if (el == null) {
-        el = document.getElementById(message.user.uuid);
-      }
-    }
+
+    chatContainer == undefined || chatContainer == null
+      ? (chatContainer = document.getElementById("message_container"))
+      : null;
+
+    // chatContainer != null
+    chatDiv == undefined || chatDiv == null
+      ? (chatDiv = chatContainer.children["chatbox"])
+      : null;
+
+    console.log(message.type);
+
+    //remove online class - by id or uuid
+    // if (
+    //   (message.type == "leave" || message.type == "online") &&
+    //   message != null &&
+    //   message.user != undefined
+    // ) {
+    //   el = document.getElementById(message.user.id);
+    //   if (el == null) {
+    //     el = document.getElementById(message.user.uuid);
+    //   }
+    // }
 
     switch (message.type) {
       case "newuser":
@@ -106,13 +140,13 @@ export const wsInit = (...args) => {
         insertNewUser(message, tempListUsers);
         break;
       case "online":
-        el == null ? (el = document.getElementById(message.user.uuid)) : null;
+        //find & replace by id -> uuid
+        el == null ? (el = document.getElementById(message.user.id)) : null;
         el != null ? (el.className = "online") : null;
         el.id = message.user.uuid;
-        //1 set user onlien state, update uuid
         break;
       case "observeusers":
-        console.log(message.users.countunread)  
+        console.log(message.users.countunread);
         //temp, for sort & insert  in DOm, new signup user
         tempListUsers = [];
         tempListUsers = [...message.users];
@@ -121,19 +155,22 @@ export const wsInit = (...args) => {
         break;
       case "listmessages":
         document.getElementById("notify").value = "";
-      //  if(message.messages != null) {
-      chatStore.messageLen = message.messages.length 
         //prepend reversed get message from backend, offset limit
         listMessages = [...message.messages.reverse(), ...listMessages]; // for compare, & ignoring duplicate msg
+        // scroll -> up to 10 MSGesture, position -> send rRequest
         showListMessages(listMessages, authorId, authorSession, message.author);
-        chatDiv.value = message.receiver;
-        // scroll -> up to 10 MSGesture, position -> sned rRequest
-        chatDiv.children[chatDiv.children.length - 1].scrollIntoView();
+        //set userid/uuid - current chat
+        // chatDiv.value = message.receiver;
+        console.log(chatDiv.value, "lmsg val");
         //export value use Chat component func
         chatStore.sender = message.sender;
         chatStore.receiver = message.receiver;
         chatStore.offset = message.offset;
-   
+        chatStore.messageLen = message.messages.length;
+
+        chatDiv.children.length > 1
+          ? chatDiv.children[chatDiv.children.length - 1].scrollIntoView()
+          : null;
         break;
       case "nomessages":
         alert("no have messages..");
@@ -148,27 +185,50 @@ export const wsInit = (...args) => {
         );
         break;
       case "lastmessage":
-        chatStore.countNewMessage += 1;
-        //append last m.vaessage, chatbox
-        //dry ?
-        let div = document.createElement("div");
-        let span = document.createElement("span");
-        let text = `  ${message.message.sendername} ${message.message.content}  ${message.message.senttime}`;
-        span.style.padding = "9px";
-        span.textContent = text;
-        //active windwos -> if uuid equal
-        if (chatDiv.value == message.message.sender) {
-          div.append(span);
-          chatDiv.append(div);
-          chatDiv.children[chatDiv.children.length - 1].scrollIntoView();
+        //append last message in chatbox
+
+        console.log(
+          chatDiv.value,
+          "prev activveChat val",
+          message.message.sender,
+          message.message.senderid,
+          "before append chatbox"
+        );
+
+        //case new signup user -> && chatDiv != undefined
+
+        //set in activeChat last message
+        if (message.message.sender == chatDiv.value) {
+          //activeChat -> if uuid equal == chatValue
+          appendLastMessageInActiveChat(
+            "receive",
+            message.message.sendername,
+            message.message.senttime,
+            message.message.content
+          );
         }
-        //list users - update messages
-        el == null
-          ? (el = document.getElementById(message.message.sender))
-          : null;
-        el.textContent = text;
+        //check if user state - changed ?
+        // el = document.getElementById(chatDiv.value);
+
+        //update list user lastmessage
+        updateDataInListUser(
+          message.message.sender,
+          message.message.senttime,
+          message.message.sendername,
+          message.message.content
+        );
+
+        //count fix
+        // ${
+        //         message.message.sender != chatDiv.value
+        //           ? countMsgDiv != null
+        //             ? (countMsgDiv.textContent = chatStore.countNewMessage += 1)
+        //             : (pattern += `<span id="unread" class="unread">${(chatStore.countNewMessage += 1)} </span>`)
+        //           : ""
+        //       }`;
+
         chatContainer.children["messageFieldId"].value = "";
-        //update focused user in chat
+        //update focused user in chat, first elem in list
         toggleOnlineUser(message.message.sender, "prepend");
         break;
       case "leave":

@@ -228,6 +228,47 @@ each scroll -> throttle -> clent get ws data, pagintion, sql limit, offset, data
         //remove class,  global count -chatUnread Mesg
 
 
+//2 type send backend
+//chatdiv.value chekc - lastmessage
+
+//again /chat -> listuser not sorted
+//signup - new user ->
+
+//currentChat -> showMessae, count =0,
+
+----------------------------------------------------------------
+check -signin-logout-signin -> can i write msg ?
+
+user list -> cleint2 - another - active chat
+cleint1 -> send offline,
+
+
+newuser -> only show 1 user ?
+lastMesg, receiver side !work ->  !click
+
+case : if user current chat NOW  
+
+
+  //active chat - no count message
+  //last message -> user name static
+
+  //chat click -> notify delete, another chat
+  //no globalvar - countNewMesg || add cond, 
+  //list users - update messages
+-------------------
+ //First answer message - not show, in chat
+ //if Current chat -> no show countMsg
+ //userChatBox - only update data
+
+//not show signup user -> list user
+ //lastmessage || sendMSg no correct  -no received messsage  show -> handleUSers || ws case: lastMessages
+
+//new user -> last message case -> receiver side / crash
+//new user send msg -> no correct show - receiver side 
+
+//fix - no have msg -> active, then send receive message - no correct chat windows receive message
+
+chatWindwod error & lastmessages
 
 Next:
 close tab ? user offline ? server ping pong ?

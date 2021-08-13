@@ -23,6 +23,7 @@ type Message struct {
 	Time         time.Time `json:"time"`
 	Offset       int       `json:"offset"`
 	IsRead       bool      `json:"isread"`
+	SenderID     int       `json:"senderid"`
 }
 
 // func NewMessage(body string, sender int) *Message {
