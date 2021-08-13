@@ -6,7 +6,7 @@ export const updateDataInListUser = (receiver, time, sendername, content) => {
   currentUser.children[1].textContent = `${sendername} : ${content}`;
 };
 
-//send uuid or id if offline
+//send uuid or id if offline - set/remove current class
 export const toggleOnlineUser = (receiver, type) => {
   let currentUser = document.getElementById(receiver);
   let listUsers = document.getElementById("userlistbox"); // out global var ?
@@ -20,14 +20,20 @@ export const toggleOnlineUser = (receiver, type) => {
   type == "prepend" ? listUsers.prepend(currentUser) : null;
 };
 
-export const showListUser = (users, type) => {
+export const showListUser = (users, wsMessage, type) => {
   let count = 0;
   if (window.location.pathname == "/chat") {
     let senderUuid = getCookie("session");
     let parent = document.getElementById("userlistbox");
-
     if (users != null && parent != null) {
+      // if (type == "newuser") {
+      //   console.log(users, "new user case,", wsMessage);
+      // } else {
+
+      // }
+      console.log(users, "new user case,", wsMessage);
       for (let [keyUser, user] of Object.entries(users)) {
+        console.log("inside ", user);
         let li = document.createElement("li");
         if (Object.entries(users).length == 1) {
           alert("Now, no has online user");
@@ -60,7 +66,6 @@ export const showListUser = (users, type) => {
 
           li.onclick = (e) => {
             //case - newuser
-
             // set each user active chat.value = uuid || id
             // let chatDiv =
             //   document.querySelector("#message_container").children["chatbox"];

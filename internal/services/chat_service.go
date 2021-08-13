@@ -151,7 +151,7 @@ func (cs *ChatService) leaveUser(c *models.ChannelStorage, u *models.Chat) {
 func (cs *ChatService) addGetUpdateUser(u *models.Chat, c *models.ChannelStorage, wsType string) {
 	//fill user.Name -> in db, by uuid  u.Conn
 	store := ChatStore{}
-	store.Type = "observeusers"
+	store.Type = "listusers"
 	//case - relogin, delete prev user in map, no duplicate
 	if len(c.OnlineUsers) > 1 {
 		for k := range c.OnlineUsers {

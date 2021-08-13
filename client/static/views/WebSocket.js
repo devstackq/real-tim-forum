@@ -59,6 +59,7 @@ const appendNewUserInListUsers = (idx, wsMessage, listUsers) => {
     };
     wsConn.send(JSON.stringify(obj));
     chatDiv.textContent = "";
+    console.log(wsMessage.user, "append new user func");
     chatDiv.value = wsMessage.user.uuid;
     toggleOnlineUser(wsMessage.user.uuid);
     //set chat - for new user
@@ -105,39 +106,28 @@ export const wsInit = (...args) => {
     listUsers(args[0], args[1]);
   }
 
+  if (args[1] != "newuser" || args[1] != "signin") {
+    chatContainer == undefined || chatContainer == null
+      ? (chatContainer = document.getElementById("message_container"))
+      : null;
+    chatDiv == undefined || chatDiv == null
+      ? (chatDiv = chatContainer.children["chatbox"])
+      : null;
+  }
+
   wsConn.onmessage = (e) => {
     let authorId = getCookie("user_id");
     let authorSession = getCookie("session");
     let message = JSON.parse(e.data);
     let el = null;
 
-    chatContainer == undefined || chatContainer == null
-      ? (chatContainer = document.getElementById("message_container"))
-      : null;
-
-    // chatContainer != null
-    chatDiv == undefined || chatDiv == null
-      ? (chatDiv = chatContainer.children["chatbox"])
-      : null;
-
     console.log(message.type);
-
-    //remove online class - by id or uuid
-    // if (
-    //   (message.type == "leave" || message.type == "online") &&
-    //   message != null &&
-    //   message.user != undefined
-    // ) {
-    //   el = document.getElementById(message.user.id);
-    //   if (el == null) {
-    //     el = document.getElementById(message.user.uuid);
-    //   }
-    // }
 
     switch (message.type) {
       case "newuser":
         //signup user, another online user -show him
         insertNewUser(message, tempListUsers);
+        // showListUser(tempListUsers, message, " newuser");
         break;
       case "online":
         //find & replace by id -> uuid
@@ -145,7 +135,7 @@ export const wsInit = (...args) => {
         el != null ? (el.className = "online") : null;
         el.id = message.user.uuid;
         break;
-      case "observeusers":
+      case "listusers":
         console.log(message.users.countunread);
         //temp, for sort & insert  in DOm, new signup user
         tempListUsers = [];
@@ -160,8 +150,7 @@ export const wsInit = (...args) => {
         // scroll -> up to 10 MSGesture, position -> send rRequest
         showListMessages(listMessages, authorId, authorSession, message.author);
         //set userid/uuid - current chat
-        // chatDiv.value = message.receiver;
-        console.log(chatDiv.value, "lmsg val");
+        chatDiv.value = message.receiver;
         //export value use Chat component func
         chatStore.sender = message.sender;
         chatStore.receiver = message.receiver;
@@ -177,6 +166,9 @@ export const wsInit = (...args) => {
         document.getElementById("notify").value = "no have messages...";
         chatContainer.style.display = "block";
         chatDiv.innerHTML = "";
+        //here blyat)
+        chatDiv.value = message.receiver; //set chatdiv - msg receiver
+
         chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
           this,
           message.receiver,
@@ -186,7 +178,6 @@ export const wsInit = (...args) => {
         break;
       case "lastmessage":
         //append last message in chatbox
-
         console.log(
           chatDiv.value,
           "prev activveChat val",
@@ -194,8 +185,6 @@ export const wsInit = (...args) => {
           message.message.senderid,
           "before append chatbox"
         );
-
-        //case new signup user -> && chatDiv != undefined
 
         //set in activeChat last message
         if (message.message.sender == chatDiv.value) {
@@ -206,9 +195,8 @@ export const wsInit = (...args) => {
             message.message.senttime,
             message.message.content
           );
+          //not focus
         }
-        //check if user state - changed ?
-        // el = document.getElementById(chatDiv.value);
 
         //update list user lastmessage
         updateDataInListUser(
@@ -227,7 +215,6 @@ export const wsInit = (...args) => {
         //           : ""
         //       }`;
 
-        chatContainer.children["messageFieldId"].value = "";
         //update focused user in chat, first elem in list
         toggleOnlineUser(message.message.sender, "prepend");
         break;

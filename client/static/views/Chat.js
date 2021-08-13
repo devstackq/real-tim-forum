@@ -81,6 +81,7 @@ export const appendLastMessageInActiveChat = (type, name, time, content) => {
     span.className = "chat_receiver";
   }
   span.textContent = `${name} ${content} ${time}`;
+
   div.append(span);
   activeChat.append(div);
   //set last item inside chat window
