@@ -1,274 +1,130 @@
-1 create chat table
-2 r&d ws gorilla & js
-3 plaining logic - chat client - server 
-4 write project
-5 spa - render chat page
-6 js logic
-7 back end logic
-dry func - service repo - > insert utils.go DRY 
 
-add in global constructor listusers -> then everwhere USE -> delete pus, etc
-//if disconnect user -> delete - this.users & server side delete 
-correct show another data -> chat field
+export const showListUser = (users, wsMessage, type) => {
+  if (window.location.pathname == "/chat") {
+    let senderUuid = getCookie("session");
+    let parent = document.getElementById("userlistbox");
+    let chatDiv =
+      document.querySelector("#message_container").children["chatbox"];
+    let count = 0;
+
+    if (users != null && parent != null) {
+      // if (type == "newuser") {
+      //   console.log(users, "new user case,", wsMessage);
+      // } else {
+
+      // }
+      console.log(users, "new user case,", wsMessage);
+      for (let [keyUser, user] of Object.entries(users)) {
+        // console.log("inside ", user);
+        let li = document.createElement("li");
+        if (Object.entries(users).length == 1) {
+          alert("Now, no has online user");
+          return;
+        }
+        //set element id = id || uuid
+        user.uuid !== "" ? (li.id = user.uuid) : (li.id = user.id);
+        user.online ? ((li.className = "online"), (count += 1)) : "";
+
+        if (user.fullname) {
+          let pattern = "";
+          let username = `<h3 class="partner">${user.fullname}</h3>`;
+
+          user.lastmessage["String"] == ""
+            ? (pattern = `${username}<span> No have messages.. </span>
+            <span class="time"></span>
+            `)
+            : (pattern = `${username}
+            <span> ${user.lastsender["String"]} : ${
+                user.lastmessage["String"]
+              }</span>
+              <span class="time">${user.senttime}</span>
+              ${
+                user.countunread > 0
+                  ? ` <span id="unread" class="unread">${user.countunread} </span>`
+                  : ""
+              }  `);
+
+          li.innerHTML = pattern;
+
+          li.onclick = (e) => {
+            let obj = {
+              sender: senderUuid,
+              receiver: li.id,
+              type: "last10msg",
+              offset: 0,
+            };
+            wsConn.send(JSON.stringify(obj)); //1 click->get last 10 msg
+            //set global array empty, next chatWindwos, own messages
+            listMessages.length = 0;
+            //dry
+            let current = document.getElementById(li.id);
+            //remove unread class &  countUnread = 0
+            current != undefined &&
+            current.children.length > 3 &&
+            current.children[3].id == "unread"
+              ? (current.children[3].classList.remove("unread"),
+                (current.children[3].textContent = ""))
+              : null;
+            // set each user active chat.value = uuid || id
+            // chatDiv.value = li.id;
+            toggleOnlineUser(li.id);
+          };
+        }
+        //append without yourself
+        if (user.uuid) {
+          if (user.uuid != senderUuid) {
+            parent.append(li);
+          }
+        } else if (user.id && !user.uuid) {
+          parent.append(li);
+        }
+      }
+    } else {
+      alert("no has online user");
+    }
+  }
+};
+const openWs = (uuid, type) => {
+  wsConn.onopen = () => {
+    wsConn.send(
+      JSON.stringify({
+        sender: uuid,
+        type: type,
+      })
+    );
+  };
+};
+const sendWs = (uuid, type) => {
+  wsConn.send(
+    JSON.stringify({
+      sender: uuid,
+      type: type,
+    })
+  );
+};
+
+//mail. pwd, 1 auth,1 open
+export const listUsers = (uuid, type) => {
+  if (type == "signin" || type == "getusers" || type == "newuser") {
+    if (uuid == undefined) {
+      uuid = getCookie("session");
+    }
+    console.log(type, "listuser func", uuid);
+    if (getAuthState() == "true") {
+      if (wsConn.readyState != 1) {
+        openWs(uuid, type);
+      } else {
+        sendWs(uuid, type);
+      }
+    }
+  }
+};
+export const getAuthState = () => {
+  if (document.cookie.split(";").length > 1) {
+    return localStorage.getItem("isAuth");
+  }
+};
 
-scroll inside - chat textarea
-html elems -> in costructor ? 
-click user msg -> another users hidden
-
-leave user - delete server conn - if logout or close window or change endpoint ?
-addded user online update in clien side - real time update
-
-history message another users list 
-
-    // chrome fix -> chat -> fix own user id client or service bug
-    //update online users
-    //room random generate new chat
-
-try    		//use	
-               function onLoad() {
-                  var wsUri = "ws://127.0.0.1:7777";
-                  websocket = new WebSocket(wsUri);
-                  websocket.onopen = function(evt) { onOpen(evt) };
-                  websocket.onclose = function(evt) { onClose(evt) };
-                  websocket.onmessage = function(evt) { onMessage(evt) };
-                  websocket.onerror = function(evt) { onError(evt) };
-               }
-					
-               function onOpen(evt) {
-                  state.className = "success";
-                  state.innerHTML = "Connected to server";
-               }
-
-//fix - if server drop -> need auth ? wtf 
-//fix repo - retiurn http status 
-//add graceful shutdown todo server stop
-//GetJsonData - standard use
- category == "" fleible create - modeartor
-Path:    "/api/getusers", fix 1 ednpoint - 1 func
-//http query refactor ? getListUsers()
-//add time, name - in chat window
-
-// use Observer - for notiffy
-// ws1 -> send ws2 data 
-chat.js -> if !auth -> redirect
-//save global objec.Users -> each new user
-
-//api/chat -> add user in map -connect, send msg user - getuuid -> send server
-//server search in Map.users -> Writemessage else save db
-
-- public/follower - create - 1 logic, page create dynamic, type - other - SN
-
-
-signin -> user_id -> add map[uid : wsconn]
-uid -> sendMessage -> getUid(sender) in backend -> send message -> sender(getSenderId) -> getListUser()
- Например ws1.send(msg, receiverUuid) -> server handleWS() -> getConnByUuid([]mapClients[receiveUUid]),
-broadcast -> findConn(receiverConn) -> wirete.Message
-
-
-//show ListUsers, show Histroy users
-//join user -> if click by user || send frist message ??
-
-//test mcok or unit
-erros -> goroutine ?
-//add image profile/post
-use -> begintransact - concurrent query
-
-//fix warning and erros - js browser
-        // validParams - > postId > 0, userId > 0, middleware
-
-//notify ->  for message, when mes send user1 -> & chatPage user2, notify - no show else show(websocket)
-
-//valid data signup, create post - backend
-        // another url path - > server error fix backend
-//time - correct show - backend profile
-// update, delete, etc backend
-
--- foreign key -> on delete -> if Table A - field V, -> references -> Table B, field(id) 
-if Table B(id =3 ) - deleted -> TableA delete pointer -> field = nil
-
-Left join - 2 table join, Table A, field 2, -> Condition (ON ) TableA.fieldX = TableB.fieldX -> 
-get All Rows -> Cond - Equal
-
-fk - consistent, join, 1 table row FK - relat table2 by PK
-
-
-    // leave service
-    // setInterval -> server side, listuser ?
-          // click - active - current class user - click toodo
-      //if new user add -> server side -> ws.send - case : "newuser"
-      if user online & newmessage -> set class - new message, -> icon Ring -> add class - .msg, if read -> delete everewhere
-      //fix - style - position chat users - and chat window, style
-      //uyse debounce - getScrollMessages
-
-      //if server exit -> reload users in system ?, if have session -> restore /chat
-
-      //  f5 click -> new request -> get users()
-
-      fix correct show list user, leave user, reSession case added, server shutdown -> reconnect () but have refresh page
-
-      fix2: chatWindows -> click -> profile -> again click Chat - mot work or its ok ??
-
-done:
-fix : signin -> redirect profile, sendMessage(), getHistoryUser(), case :   no msessage, lastmessage, resession -> update conn
-now : same user signin - logout ->  no add listUsers -> window.reload() - if resession
-
-
----------
-ref:? all route -> if auth -> addnewuser?
-ref:? getMessage? http ? !ws
-
-
- //TODO: sorted, err := cs.repository.GetUsersChat() optimize sqlQuery
-1wtf no work - goroutine - 1 seq[]struct*
-      //fix send message
-      chrome - fix hide prev messages - if nomessage
-      fix- show senderName
-      fix - > newuser - signin -> all message duplciate ? userid? - maybe need change Listuser -> ? 
-2
-
-UsersList:
-1case : users sortUsersByTime  -> asc
-2case : another users -> not have chat -> alhpa sort
-3case : receiver -> onmessage : lastMessage -> sortUsersByTime; sender(sendNewMEssage) -> sortUsersByTime()
-4case: chatted users -> onfocus - by userid = url params
-server getAllUser -> checkIfHasChat sender == another; add GroupHistory else GroupOther
-
-UL case1: /chat : ListsUsers.History[] - if have rooms (receiver, sender) ->
-
-
-Online case:
-addNewUser -> findByUUID in ListUsers[].status = online
-else  if Logout, etc case -> offline;
-Client side: case listusers -> if User[i].status =='online -> addClass(online)
-
-listmessages: sql when, debounce
-notify:
-
-insight
-//ByTime = user send uuid if have else add userid, client check if have uuid and correct -> add class onlin -else -> offline
-
-//  compare CS.Listuser == ByTime & ByAlpha -> if equalUser -> user.state = online
-
-1sql query -> left join use, perfomance low, ref 1 query
-
-//comment service todo
-
-Social network
-left join use, interface use, oop use, gorouitine use
-1 ref table, chat, chatusers, messages, - relations
-2 ref arch  - addUser, sendMsg, - for new db
-
-Done:
-GetCreatedUserPosts, GetCreatedUserVote - refactor - Left  Join - done
-fix- header - /chat , isAuth
-fix -/chat -> if no session -> logout
-
-
-//fix - new user signup -> another user - not show, in online
-
-time format fix -message_sent_timevalidation - signup check
-
-Message by scroll
-Nptififaction - logic done, add field in messages table
-
-
-check case - ressesion -> get chat ? no duplicate ?
-check case 2 - signup -> signin - other user - can see new user ?
-
-done:
-  //fix show message - case nomessages UserName
-  // fix - updated message from anther client - lastmessage
-  // fix-> show : receipment  name
-  //fix - send message -listUsers , show Receipment Name fixed, div-inside, div, each time, no delete Receip name, and clear another data
-  //fix  todo : lastmessage - listusers - lastmessage show, & add chat with Username
-//fix online, leave user - set id/uuid
-fix - first user - signup
-
-
-logout-signin -> same user, update - allusers[uuid], 
-fix - curerentChat - no getMessage()
-fix signin, logout, signin -> by uuid not find messages
-
-
-fix - 1user create - not show another user -> list users
- //todo: fix - logout wsconn null
-
- fix logout - another user - null
-//logout -> leave case -> set id - undefinde fix
-
-//fix - send msg,  - show lastmessage - userWindwos
-
- 
-anomal case: 
-  //1 fix - another user signup, - no correct sort, js side ?
-
-//2 fix - focus user 5, send msg user 5, then focuse change user 3, again send msg user5, -> here 
-//4 time correct show
-
------------------------
-/fix - offset + countLastMessage - send/
-/fix - if scroll Top==0  -> scrolView() - called again, when scroll go to down
-/fix - chat window get message list Msg = []
-
-
-//get count all msg, throttle called count: ++, if allMsgCount / 10 == countThrottle, not work throttle
-0//list user -> if relogin -> llistuser - not work
-
-
-1varinat:
-//1 time get all messages, work this data Client side, fetch()
-//scroll - eventListener(throttle, 250ms), then(debounce() -> // get 10 msgs, descending
-2 variant:
-each scroll -> throttle -> clent get ws data, pagintion, sql limit, offset, data 
-
-        //set count unread, if click -> count = 0
-        //scroll event -> msg.isread == false -> send ws -> change state,
-
-        //if user.coununread > 0 {cRing elsegray ring}
-        //remove class,  global count -chatUnread Mesg
-
-
-//2 type send backend
-//chatdiv.value chekc - lastmessage
-
-//again /chat -> listuser not sorted
-//signup - new user ->
-
-//currentChat -> showMessae, count =0,
-
-----------------------------------------------------------------
-check -signin-logout-signin -> can i write msg ?
-
-user list -> cleint2 - another - active chat
-cleint1 -> send offline,
-
-
-newuser -> only show 1 user ?
-lastMesg, receiver side !work ->  !click
-
-case : if user current chat NOW  
-
-
-  //active chat - no count message
-  //last message -> user name static
-
-  //chat click -> notify delete, another chat
-  //no globalvar - countNewMesg || add cond, 
-  //list users - update messages
--------------------
- //First answer message - not show, in chat
- //if Current chat -> no show countMsg
- //userChatBox - only update data
-
-//not show signup user -> list user
- //lastmessage || sendMSg no correct  -no received messsage  show -> handleUSers || ws case: lastMessages
-
-//new user -> last message case -> receiver side / crash
-//new user send msg -> no correct show - receiver side 
-
-//fix - no have msg -> active, then send receive message - no correct chat windows receive message
-
-chatWindwod error & lastmessages
 
 Next:
 close tab ? user offline ? server ping pong ?
@@ -279,6 +135,12 @@ close tab ? user offline ? server ping pong ?
 //4 chat -  !isAuth -> redirect signin
 //5 correct format - show, send, last message - UI
 //optimize & refactor
+
+
+
+//new user -> send msg, count =1, no change if click(receiver side/)
+//new user - check, message ccount check, scroll check, online offline state check
+//logout - correct close connection
 
 
 audit:

@@ -106,7 +106,7 @@ export const wsInit = (...args) => {
     listUsers(args[0], args[1]);
   }
 
-  if (args[1] != "newuser" || args[1] != "signin") {
+  if (args[1] != "newuser" && args[1] != "signin") {
     chatContainer == undefined || chatContainer == null
       ? (chatContainer = document.getElementById("message_container"))
       : null;
@@ -135,7 +135,7 @@ export const wsInit = (...args) => {
         el != null ? (el.className = "online") : null;
         el.id = message.user.uuid;
         break;
-      case "listusers":
+      case "chatusers":
         console.log(message.users.countunread);
         //temp, for sort & insert  in DOm, new signup user
         tempListUsers = [];
@@ -143,7 +143,7 @@ export const wsInit = (...args) => {
         // chatStore.authorName = message.author;
         showListUser(message.users);
         break;
-      case "listmessages":
+      case "chathistory":
         document.getElementById("notify").value = "";
         //prepend reversed get message from backend, offset limit
         listMessages = [...message.messages.reverse(), ...listMessages]; // for compare, & ignoring duplicate msg
@@ -207,13 +207,22 @@ export const wsInit = (...args) => {
         );
 
         //count fix
-        // ${
-        //         message.message.sender != chatDiv.value
-        //           ? countMsgDiv != null
-        //             ? (countMsgDiv.textContent = chatStore.countNewMessage += 1)
-        //             : (pattern += `<span id="unread" class="unread">${(chatStore.countNewMessage += 1)} </span>`)
-        //           : ""
-        //       }`;
+        el == null
+          ? (el = document.getElementById(message.message.sender))
+          : null;
+
+        //check if user now - active chat - else count++ & show data
+        let span = document.createElement("span");
+        span.id = "unread";
+        span.classList.add("unread");
+        // span.textContent = 1;
+
+        message.message.sender != chatDiv.value
+          ? el.childElementCount == 4 && el.children[3].textContent != ""
+            ? (el.children[3].textContent =
+                1 + parseInt(el.children[3].textContent))
+            : el.append(span)
+          : null;
 
         //update focused user in chat, first elem in list
         toggleOnlineUser(message.message.sender, "prepend");
@@ -223,6 +232,7 @@ export const wsInit = (...args) => {
         el == null ? (el = document.getElementById(message.user.uuid)) : null;
         el != null ? el.classList.remove("online") : null;
         el.id = message.user.id; //set id, replace - prev uuid
+        wsConn.close();
         break;
       default:
         console.log("incorrect type");

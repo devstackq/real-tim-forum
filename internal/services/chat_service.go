@@ -62,7 +62,6 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 		m.Conn.WriteJSON(store)
 		return
 	}
-	log.Println(1)
 	//offset -> sdata change -> scroll
 	m.Room = room
 	seq, _, err := cs.repository.GetMessages(m)
@@ -71,7 +70,7 @@ func (cs *ChatService) getMessages(m *models.Message, c *models.ChannelStorage) 
 	}
 	log.Println(2)
 	store.ListMessage = seq
-	store.Type = "listmessages"
+	store.Type = "chathistory"
 	err = m.Conn.WriteJSON(store)
 	if err != nil {
 		log.Println(err)
@@ -136,7 +135,7 @@ func (cs *ChatService) sendMessage(c *models.ChannelStorage, m *models.Message) 
 
 func (cs *ChatService) leaveUser(c *models.ChannelStorage, u *models.Chat) {
 	user := NewUser{}
-	user.Type = "leave"
+	user.Type = "leaveuser"
 	user.User = u
 	// user.UserID =
 	delete(c.OnlineUsers, u.UUID)
@@ -151,7 +150,7 @@ func (cs *ChatService) leaveUser(c *models.ChannelStorage, u *models.Chat) {
 func (cs *ChatService) addGetUpdateUser(u *models.Chat, c *models.ChannelStorage, wsType string) {
 	//fill user.Name -> in db, by uuid  u.Conn
 	store := ChatStore{}
-	store.Type = "listusers"
+	store.Type = "chatusers"
 	//case - relogin, delete prev user in map, no duplicate
 	if len(c.OnlineUsers) > 1 {
 		for k := range c.OnlineUsers {
@@ -268,7 +267,7 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 		// if strings.TrimSpace(username) == "" {
 		if body.Type == "getusers" || body.Type == "signin" || body.Type == "leave" || body.Type == "newuser" {
 			// send uuid || id, leave || online user
-			log.Println(body.Receiver, body.SenderID, 123)
+			log.Println(body, "body")
 			user := &models.Chat{
 				UUID:     body.Sender,
 				Conn:     conn, //set conn current user
@@ -289,8 +288,9 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 			}
 
 			if body.Type == "leave" {
-				user.ID = body.UserID
+				// user.ID = body.UserID
 				//user.UUID = body.Sender
+				log.Println(user, "after")
 				c.Leave <- user
 			}
 		}
@@ -298,3 +298,5 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 	defer conn.Close()
 	return nil
 }
+todo.txt -> js file handleUsers,
+fix last 3 case:
