@@ -73,10 +73,12 @@ const appendNewUserInListUsers = (idx, wsMessage, listUsers) => {
       temp.push(wsMessage.user);
     }
   }
+  console.log(wsMessage.user, listUsers, idx, "append new usec", temp);
 };
 
 //insert new signup user, and sort local array list users
 const insertNewUser = (message, tempListUsers) => {
+  console.log(message, tempListUsers, "gav");
   if (tempListUsers.length > 1) {
     for (let [index, user] of Object.entries(tempListUsers)) {
       //sort by messages
@@ -126,48 +128,62 @@ export const wsInit = (...args) => {
     switch (message.type) {
       case "newuser":
         //signup user, another online user -show him
+        //DRY!
         insertNewUser(message, tempListUsers);
         // showListUser(tempListUsers, message, " newuser");
         break;
       case "online":
         //find & replace by id -> uuid
         el == null ? (el = document.getElementById(message.user.id)) : null;
-        el != null ? (el.className = "online") : null;
+        el == null ? (el = document.getElementById(message.user.uuid)) : null;
+        el != null ? el.classList.add("online") : null;
+        console.log(message, "ponloien new user");
         el.id = message.user.uuid;
         break;
       case "chatusers":
-        console.log(message.users.countunread);
         //temp, for sort & insert  in DOm, new signup user
         tempListUsers = [];
         tempListUsers = [...message.users];
-        // chatStore.authorName = message.author;
         showListUser(message.users);
         break;
       case "chathistory":
-        document.getElementById("notify").value = "";
-        //prepend reversed get message from backend, offset limit
-        listMessages = [...message.messages.reverse(), ...listMessages]; // for compare, & ignoring duplicate msg
-        // scroll -> up to 10 MSGesture, position -> send rRequest
-        showListMessages(listMessages, authorId, authorSession, message.author);
-        //set userid/uuid - current chat
-        chatDiv.value = message.receiver;
-        //export value use Chat component func
-        chatStore.sender = message.sender;
-        chatStore.receiver = message.receiver;
-        chatStore.offset = message.offset;
-        chatStore.messageLen = message.messages.length;
+        // fix - online, offline activeChat
+        console.log(message.receiver, chatDiv.value, 111);
+        if (message.receiver == chatDiv.value) {
+          //prepend reversed get message from backend, offset limit
 
-        chatDiv.children.length > 1
-          ? chatDiv.children[chatDiv.children.length - 1].scrollIntoView()
-          : null;
+          listMessages = [...message.messages.reverse(), ...listMessages]; // for compare, & ignoring duplicate msg
+          // scroll -> up to 10 MSGesture, position -> send rRequest
+          // chatDiv.value = message.receiver;
+          //export value use Chat component func
+          chatDiv.textContent = "";
+          showListMessages(
+            listMessages,
+            authorId,
+            authorSession,
+            message.author
+          );
+          //set userid/uuid - current chat
+          chatStore.sender = message.sender;
+          chatStore.receiver = message.receiver;
+          chatStore.offset = message.offset;
+          chatStore.messageLen = message.messages.length;
+
+          chatDiv.children.length > 1
+            ? chatDiv.children[chatDiv.children.length - 1].scrollIntoView()
+            : null;
+        }
         break;
       case "nomessages":
-        alert("no have messages..");
-        document.getElementById("notify").value = "no have messages...";
+        // alert("no have messages..");
+        // document.getElementById("notify").value = "no have messages...";
+        console.log(chatDiv.value, chatContainer.children[0].value, "prev");
+        chatDiv.value = message.receiver; //set chatdiv - msg receiver
+        console.log(chatDiv.value, chatContainer.children[0].value);
+
         chatContainer.style.display = "block";
         chatDiv.innerHTML = "";
         //here blyat)
-        chatDiv.value = message.receiver; //set chatdiv - msg receiver
 
         chatContainer.children["sendBtnId"].onclick = sendMessage.bind(
           this,
@@ -178,14 +194,6 @@ export const wsInit = (...args) => {
         break;
       case "lastmessage":
         //append last message in chatbox
-        console.log(
-          chatDiv.value,
-          "prev activveChat val",
-          message.message.sender,
-          message.message.senderid,
-          "before append chatbox"
-        );
-
         //set in activeChat last message
         if (message.message.sender == chatDiv.value) {
           //activeChat -> if uuid equal == chatValue
@@ -212,27 +220,30 @@ export const wsInit = (...args) => {
           : null;
 
         //check if user now - active chat - else count++ & show data
-        let span = document.createElement("span");
-        span.id = "unread";
-        span.classList.add("unread");
-        // span.textContent = 1;
 
-        message.message.sender != chatDiv.value
-          ? el.childElementCount == 4 && el.children[3].textContent != ""
-            ? (el.children[3].textContent =
-                1 + parseInt(el.children[3].textContent))
-            : el.append(span)
-          : null;
-
+        //update value, else
+        if (message.message.sender != chatDiv.value) {
+          if (el.childElementCount == 4 && el.children[3].textContent != "") {
+            el.children[3].textContent =
+              1 + parseInt(el.children[3].textContent);
+            el.children[3].classList.add("unread");
+          } else {
+            let span = document.createElement("span");
+            span.id = "unread";
+            span.classList.add("unread");
+            span.textContent = 1;
+            el.append(span);
+          }
+        }
         //update focused user in chat, first elem in list
         toggleOnlineUser(message.message.sender, "prepend");
         break;
-      case "leave":
+      case "leaveuser":
         //get elem by uuid, set id - beacuse user left
         el == null ? (el = document.getElementById(message.user.uuid)) : null;
         el != null ? el.classList.remove("online") : null;
         el.id = message.user.id; //set id, replace - prev uuid
-        wsConn.close();
+        console.log(message, "leave");
         break;
       default:
         console.log("incorrect type");

@@ -288,9 +288,8 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 			}
 
 			if body.Type == "leave" {
-				// user.ID = body.UserID
+				user.ID = body.UserID
 				//user.UUID = body.Sender
-				log.Println(user, "after")
 				c.Leave <- user
 			}
 		}
@@ -298,5 +297,6 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 	defer conn.Close()
 	return nil
 }
-todo.txt -> js file handleUsers,
-fix last 3 case:
+
+comment stars
+handle - valid

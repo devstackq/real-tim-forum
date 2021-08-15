@@ -2,8 +2,10 @@ import { wsConn, getCookie, listMessages, chatStore } from "./WebSocket.js";
 
 export const updateDataInListUser = (receiver, time, sendername, content) => {
   let currentUser = document.getElementById(receiver);
-  currentUser.children[2].textContent = time;
-  currentUser.children[1].textContent = `${sendername} : ${content}`;
+  currentUser != null
+    ? ((currentUser.children[2].textContent = time),
+      (currentUser.children[1].textContent = `${sendername} : ${content}`))
+    : null;
 };
 
 //send uuid or id if offline - set/remove current class
@@ -21,28 +23,27 @@ export const toggleOnlineUser = (receiver, type) => {
 };
 
 export const showListUser = (users, wsMessage, type) => {
-  let count = 0;
   if (window.location.pathname == "/chat") {
-    let senderUuid = getCookie("session");
-    let parent = document.getElementById("userlistbox");
     if (users != null && parent != null) {
+      let senderUuid = getCookie("session");
+      let parent = document.getElementById("userlistbox");
+      let chatDiv =
+        document.querySelector("#message_container").children["chatbox"];
       // if (type == "newuser") {
       //   console.log(users, "new user case,", wsMessage);
       // } else {
 
       // }
-      console.log(users, "new user case,", wsMessage);
       for (let [keyUser, user] of Object.entries(users)) {
-        console.log("inside ", user);
+        // console.log("inside ", user);
         let li = document.createElement("li");
         if (Object.entries(users).length == 1) {
           alert("Now, no has online user");
           return;
         }
-        console.log(user.countunread, "count read");
         //set element id = id || uuid
         user.uuid !== "" ? (li.id = user.uuid) : (li.id = user.id);
-        user.online ? ((li.className = "online"), (count += 1)) : "";
+        user.online ? (li.className = "online") : "";
 
         if (user.fullname) {
           let pattern = "";
@@ -58,8 +59,7 @@ export const showListUser = (users, wsMessage, type) => {
               <span class="time">${user.senttime}</span>
               ${
                 user.countunread > 0
-                  ? ((chatStore.countNewMessage = user.countunread),
-                    ` <span id="unread" class="unread">${user.countunread} </span>`)
+                  ? ` <span id="unread" class="unread">${user.countunread} </span>`
                   : ""
               }  `);
           li.innerHTML = pattern;
@@ -82,16 +82,18 @@ export const showListUser = (users, wsMessage, type) => {
             toggleOnlineUser(li.id);
             //set global array empty, next chatWindwos, own messages
             listMessages.length = 0;
-            chatStore.countNewMessage = 0;
-            //remove unread class removeUnread
-            document.getElementById(li.id) != undefined &&
-            document.getElementById(li.id).children.length > 3
-              ? document.getElementById(li.id).children[3].id == "unread"
-                ? document
-                    .getElementById(li.id)
-                    .children[3].classList.remove("unread")
-                : null
+
+            //dry
+            let current = document.getElementById(li.id);
+            //remove unread class &  countUnread = 0
+            current != undefined &&
+            current.children.length > 3 &&
+            current.children[3].id == "unread"
+              ? (current.children[3].classList.remove("unread"),
+                (current.children[3].textContent = "0"))
               : null;
+            // set each user active chat.value = uuid || id
+            chatDiv.value = li.id;
           };
         }
         //append without yourself

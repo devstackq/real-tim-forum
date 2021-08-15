@@ -24,11 +24,11 @@ export default class extends Parent {
           userid: parseInt(getCookie("user_id")),
         })
       );
-
       // listUsers.delete(uuid);
       document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
       document.cookie = "user_id=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
       localStorage.setItem("isAuth", false);
+      wsConn.close();
       redirect("all");
       window.location.reload();
     } else {
