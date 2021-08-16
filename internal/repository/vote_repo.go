@@ -18,6 +18,7 @@ func NewVoteRepository(db *sql.DB) *VoteRepository {
 
 //good practice ? or service switch type -> 2 differnet repo ?
 func (vr *VoteRepository) GetVoteCount(vote *models.Vote) (*models.Vote, error) {
+
 	query := `SELECT  count_like, count_dislike FROM ` + vote.VoteGroup + `s WHERE id=? `
 	row := vr.db.QueryRow(query, vote.ID)
 	err := row.Scan(&vote.CountLike, &vote.CountDislike)

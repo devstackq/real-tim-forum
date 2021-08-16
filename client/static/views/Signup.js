@@ -34,7 +34,7 @@ export default class Signup extends Parent {
     }
     //success signup user return uid
     let uid = await super.fetch("signup", user);
-    console.log(uid);
+    // console.log(uid);
 
     if (uid > 0) {
       //success signup

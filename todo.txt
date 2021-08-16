@@ -1,14 +1,11 @@
 Next:
 close tab ? user offline ? server ping pong ?
 //1 header - fix, auth, etc case
-//2 comment service todo
-//3 start notify
-//4 valid signup, post/comment/ chat message
 //4 chat -  !isAuth -> redirect signin
-//5 correct format - show, send, last message - UI
-//optimize & refactor
-
-
+//2 comment service todo
+//4 valid signup, post/comment/ chat message
+//optimize & refactor - insertNewUser, click - ponline-> offline user -> 2 ws request send ?
+, errors.New("category incorrect") - erro handler backend
 
 //new user -> send msg, count =1, no change if click(receiver side/)
 //new user - check, message ccount check, scroll check, online offline state check
@@ -18,5 +15,5 @@ close tab ? user offline ? server ping pong ?
 audit:
 //write msg - another window,
 //scroll, check
- //hard case -> reSignin another browser
-  //signup -> show list users correct ?
+//hard case -> reSignin another browser
+//signup -> show list users correct ?

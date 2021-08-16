@@ -32,7 +32,8 @@ type Vote interface {
 	UpdateVoteState(*models.Vote) error
 }
 type Comment interface {
-	CreateComment(*models.Comment) (int, error)
+	CreateComment(*models.Comment) (*models.Comment, error)
+	GetCommentsByID(int) (*[]models.Comment, error)
 }
 type Chat interface {
 	GetMessages(*models.Message) ([]models.Message, int, error)
@@ -59,9 +60,10 @@ type Repository struct {
 
 func NewRepository(db *sql.DB) *Repository {
 	return &Repository{
-		User: NewUserRepository(db),
-		Post: NewPostRepository(db),
-		Vote: NewVoteRepository(db),
-		Chat: NewChatRepository(db),
+		User:    NewUserRepository(db),
+		Post:    NewPostRepository(db),
+		Vote:    NewVoteRepository(db),
+		Chat:    NewChatRepository(db),
+		Comment: NewCommentRepository(db),
 	}
 }

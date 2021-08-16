@@ -1,9 +1,7 @@
 package service
 
 import (
-	"log"
 	"net/http"
-	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
@@ -17,13 +15,18 @@ func NewCommentService(repo repository.Comment) *CommentService {
 	return &CommentService{repo}
 }
 
-func (cs *CommentService) Create(comment *models.Comment) (int, error) {
-	status, err := cs.repository.CreateComment(comment)
+func (cs *CommentService) LostComment(comment *models.Comment) (*models.Comment, int, error) {
+	last, err := cs.repository.CreateComment(comment)
 	if err != nil {
-		return http.StatusBadRequest, err
+		return nil, http.StatusBadRequest, err
 	}
-	comment.CreatedTime = time.Now()
+	return last, http.StatusOK, nil
+}
 
-	log.Println(comment, status, "Created comment")
-	return http.StatusOK, nil
+func (cs *CommentService) GetCommentsByID(pid int) (*[]models.Comment, int, error) {
+	comments, err := cs.repository.GetCommentsByID(pid)
+	if err != nil {
+		return nil, http.StatusBadRequest, err
+	}
+	return comments, http.StatusOK, nil
 }

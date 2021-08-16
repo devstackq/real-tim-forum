@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -11,7 +12,8 @@ func (h *Handler) VoteItemById(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("vote post by id")
 	case "POST":
-		_, vote, _, _, err := GetJsonData(w, r, "vote")
+		_, _, vote, _, _, err := GetJsonData(w, r, "vote")
+		log.Println(err, vote)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

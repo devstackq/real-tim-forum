@@ -297,6 +297,3 @@ func (cs *ChatService) ChatBerserker(conn *websocket.Conn, c *models.ChannelStor
 	defer conn.Close()
 	return nil
 }
-
-comment stars
-handle - valid

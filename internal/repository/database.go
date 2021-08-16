@@ -39,17 +39,13 @@ func createTables(db *sql.DB) error {
 
 	comment, err := db.Prepare(`CREATE TABLE IF NOT EXISTS comments(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
-		parent_id INTEGER DEFAULT 0, 
 		content TEXT, 
 		post_id INTEGER, 
 		creator_id INTEGER DEFAULT 0, 
-		toWho INTEGER DEFAULT 0, 
-		fromWho INTEGER DEFAULT 0, 
 		create_time DATETIME DEFAULT CURRENT_TIMESTAMP,  
 		update_time	DATETIME DEFAULT CURRENT_TIMESTAMP, 
 		count_like INTEGER DEFAULT 0, 
 		count_dislike  INTEGER DEFAULT 0, 
-		CONSTRAINT fk_key_post_comment 
 		FOREIGN KEY(post_id) REFERENCES posts(id) ON DELETE CASCADE )`,
 	)
 	if err != nil {
@@ -111,7 +107,7 @@ func createTables(db *sql.DB) error {
 		comment_id INTEGER,
 		like_state BOOLEAN DEFAULT FALSE,
 		dislike_state BOOLEAN DEFAULT FALSE, 
-		UNIQUE(post_id, user_id), 
+		UNIQUE(post_id, user_id),
 		FOREIGN KEY(comment_id) REFERENCES comments(id), 
 		FOREIGN KEY(post_id) REFERENCES posts(id),
 		FOREIGN KEY(user_id) REFERENCES users(id)

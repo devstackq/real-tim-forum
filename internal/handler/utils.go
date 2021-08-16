@@ -27,17 +27,18 @@ func JsonResponse(w http.ResponseWriter, r *http.Request, status int, data inter
 	w.Write(js)
 }
 
-func GetJsonData(w http.ResponseWriter, r *http.Request, signature string) (*models.Message, *models.Vote, *models.Post, *models.User, error) {
+func GetJsonData(w http.ResponseWriter, r *http.Request, signature string) (*models.Comment, *models.Message, *models.Vote, *models.Post, *models.User, error) {
 
 	var v models.Vote
 	var p models.Post
 	var u models.User
 	var m models.Message
+	var c models.Comment
 
 	// err = json.Unmarshal(resBody, &j.M)
 	resBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 	if signature == "message" {
 		err = json.Unmarshal(resBody, &m)
@@ -51,9 +52,12 @@ func GetJsonData(w http.ResponseWriter, r *http.Request, signature string) (*mod
 	if signature == "user" {
 		err = json.Unmarshal(resBody, &u)
 	}
+	if signature == "comment" {
+		err = json.Unmarshal(resBody, &c)
+	}
 
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
-	return &m, &v, &p, &u, nil
+	return &c, &m, &v, &p, &u, nil
 }

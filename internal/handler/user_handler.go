@@ -29,7 +29,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("call signup handle Get")
 	case "POST":
-		_, _, _, user, err := GetJsonData(w, r, "user")
+		_, _, _, _, user, err := GetJsonData(w, r, "user")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -53,7 +53,7 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("call signin handle Get")
 	case "POST":
-		_, _, _, user, err := GetJsonData(w, r, "user")
+		_, _, _, _, user, err := GetJsonData(w, r, "user")
 		if err != nil {
 			JsonResponse(w, r, http.StatusBadRequest, err)
 			return

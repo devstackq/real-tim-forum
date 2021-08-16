@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
@@ -18,12 +19,18 @@ func NewVoteService(repo repository.Vote) *VoteService {
 func (vs *VoteService) VoteTerminator(vote *models.Vote) (*models.Vote, error) {
 	//good practice?
 	counts, err := vs.repository.GetVoteCount(vote)
+	if err != nil {
+		log.Println(err)
+	}
 	for {
 		state, err := vs.repository.GetVoteState(vote)
 		//if no rows -> set likeState = true, count+=1
+
 		if err != nil {
 			//first row uid, pid
 			err = vs.repository.SetVoteState(vote)
+			log.Println(vote, 1, state, err)
+
 			if err != nil {
 				return nil, err
 			}
@@ -72,6 +79,7 @@ func (vs *VoteService) VoteTerminator(vote *models.Vote) (*models.Vote, error) {
 			break
 		}
 	}
+	log.Println(vote)
 
 	err = vs.repository.UpdateVoteState(vote)
 	if err != nil {

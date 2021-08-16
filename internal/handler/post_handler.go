@@ -15,7 +15,7 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("get create post")
 	case "POST":
 		// uid, err := r.Cookie("user_id")
-		_, _, post, _, err := GetJsonData(w, r, "post")
+		_, _, _, post, _, err := GetJsonData(w, r, "post")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -61,7 +61,7 @@ func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		fmt.Println("get post by id")
 	case "POST":
-		_, _, post, _, err := GetJsonData(w, r, "post")
+		_, _, _, post, _, err := GetJsonData(w, r, "post")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

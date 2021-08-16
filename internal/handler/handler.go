@@ -103,5 +103,15 @@ func (h *Handler) createRoutes() []Route {
 			Handler: h.ChatHandler,
 			IsAuth:  true,
 		},
+		{
+			Path:    "/api/comment",
+			Handler: h.LostComment,
+			IsAuth:  true,
+		},
+		{
+			Path:    "/api/comment/id",
+			Handler: h.GetCommentsByPostId,
+			IsAuth:  false,
+		},
 	}
 }
