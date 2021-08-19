@@ -10,7 +10,6 @@ type User interface {
 	Create(*models.User) (int, int, error)
 	Signin(*models.User) (int, *models.Session, error)
 	Logout(string) error
-
 	GetUserUUID(int) (string, error)
 	GetUserName(string) (string, error)
 	GetUserID(string) (int, error)
@@ -23,7 +22,6 @@ type Post interface {
 }
 type Comment interface {
 	LostComment(*models.Comment) (*models.Comment, int, error)
-	GetCommentsByID(int) (*[]models.Comment, int, error)
 }
 type Vote interface {
 	VoteTerminator(*models.Vote) (*models.Vote, error)

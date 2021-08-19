@@ -25,18 +25,3 @@ func (h *Handler) LostComment(w http.ResponseWriter, r *http.Request) {
 		JsonResponse(w, r, http.StatusBadRequest, "Bad Request")
 	}
 }
-
-func (h *Handler) GetCommentsByPostId(w http.ResponseWriter, r *http.Request) {
-
-	comment, _, _, _, _, err := GetJsonData(w, r, "comment")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	comments, status, err := h.Services.Comment.GetCommentsByID(comment.PostID)
-	if err != nil {
-		JsonResponse(w, r, http.StatusInternalServerError, err)
-		return
-	}
-	JsonResponse(w, r, status, comments)
-}

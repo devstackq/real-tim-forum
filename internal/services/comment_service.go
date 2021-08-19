@@ -22,11 +22,3 @@ func (cs *CommentService) LostComment(comment *models.Comment) (*models.Comment,
 	}
 	return last, http.StatusOK, nil
 }
-
-func (cs *CommentService) GetCommentsByID(pid int) (*[]models.Comment, int, error) {
-	comments, err := cs.repository.GetCommentsByID(pid)
-	if err != nil {
-		return nil, http.StatusBadRequest, err
-	}
-	return comments, http.StatusOK, nil
-}

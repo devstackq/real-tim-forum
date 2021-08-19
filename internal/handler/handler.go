@@ -108,10 +108,5 @@ func (h *Handler) createRoutes() []Route {
 			Handler: h.LostComment,
 			IsAuth:  true,
 		},
-		{
-			Path:    "/api/comment/id",
-			Handler: h.GetCommentsByPostId,
-			IsAuth:  false,
-		},
 	}
 }

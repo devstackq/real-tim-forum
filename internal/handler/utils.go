@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/devstackq/real-time-forum/internal/models"
@@ -55,6 +56,8 @@ func GetJsonData(w http.ResponseWriter, r *http.Request, signature string) (*mod
 	if signature == "comment" {
 		err = json.Unmarshal(resBody, &c)
 	}
+
+	log.Println(string(resBody))
 
 	if err != nil {
 		return nil, nil, nil, nil, nil, err

@@ -106,12 +106,27 @@ func (pr *PostRepository) GetPostsByCategory(category string) (*[]models.Post, e
 
 func (pr *PostRepository) GetPostById(postId string) (*models.Post, error) {
 
-	post := models.Post{}
-	query := `SELECT * FROM posts WHERE id=?`
-	row := pr.db.QueryRow(query, postId)
-	err := row.Scan(&post.ID, &post.Thread, &post.Content, &post.CreatorID, &post.CreatedTime, &post.UpdatedTime, &post.Image, &post.CountLike, &post.CountDislike)
+	comment := models.Comment{}
+	seqComments := []models.Comment{}
+	rows, err := pr.db.Query("SELECT id, content, post_id, creator_id, create_time FROM comments WHERE post_id=?", postId)
 	if err != nil {
 		return nil, err
 	}
+
+	for rows.Next() {
+		if err := rows.Scan(&comment.ID, &comment.Content, &comment.PostID, &comment.CreatorID, &comment.CreatedTime); err != nil {
+			return nil, err
+		}
+		seqComments = append(seqComments, comment)
+	}
+	post := models.Post{}
+	query := `SELECT * FROM posts  WHERE id=?`
+	row := pr.db.QueryRow(query, postId)
+	err = row.Scan(&post.ID, &post.Thread, &post.Content, &post.CreatorID, &post.CreatedTime, &post.UpdatedTime, &post.Image, &post.CountLike, &post.CountDislike)
+	if err != nil {
+		return nil, err
+	}
+	post.Comments = seqComments
+
 	return &post, nil
 }

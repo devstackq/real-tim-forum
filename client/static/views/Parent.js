@@ -25,10 +25,20 @@ export default class Parent {
     // }
     // return singletonInstance;
   }
+  getCookie(cName) {
+    const name = cName + "=";
+    const cDecoded = decodeURIComponent(document.cookie); //to be careful
+    const cArr = cDecoded.split("; ");
+    let res;
+    cArr.forEach((val) => {
+      if (val.indexOf(name) === 0) res = val.substring(name.length);
+    });
+    return res;
+  }
 
   setPostParams(group, id) {
     this.vote.group = group;
-    this.vote.id = id;
+    this.vote.id = parseInt(id);
   }
 
   getUserId() {
@@ -52,16 +62,6 @@ export default class Parent {
       return (this.isAuth = localStorage.getItem("isAuth"));
     }
   }
-  getCookie(cName) {
-    const name = cName + "=";
-    const cDecoded = decodeURIComponent(document.cookie); //to be careful
-    const cArr = cDecoded.split("; ");
-    let res;
-    cArr.forEach((val) => {
-      if (val.indexOf(name) === 0) res = val.substring(name.length);
-    });
-    return res;
-  }
 
   getLocalStorageState(type) {
     return localStorage.getItem(type);
@@ -84,16 +84,28 @@ export default class Parent {
     }
   }
 
+  // comment online show
   renderSequence(object, ...type) {
     if (object != null) {
-      //post
       if (type == "#postById") {
-        this.render([object], `${type}`, "");
+        let post = {};
+        post.thread = object.thread;
+        post.content = object.content;
+        post.createdtime = object.createdtime;
+        post.countlike = object.countlike;
+        post.countdislike = object.countdislike;
+
+        this.render([post], `${type}`, "post");
+        //comments
+        this.renderSequence(object.comments, "comments");
+      }
+      //recursive call
+      if (type == "comments") {
+        object.forEach((comment) =>
+          this.render([comment], `#comment_container`, "comment")
+        );
       }
       //comments
-      if (type == "#comment_container") {
-        this.render([object], `${type}`, "");
-      }
       if (object.User != null) {
         this.render([object.User], ".bioUser", "User data ");
       }
@@ -116,8 +128,52 @@ export default class Parent {
     }
   }
 
+  render(seq, where, text) {
+    let parent = document.querySelector(where);
+    let title = document.createElement("p");
+    parent.append(title);
+
+    seq.forEach((item) => {
+      let div = document.createElement("div");
+      for (let [i, v] of Object.entries(item)) {
+        let span = document.createElement("span");
+        //case post by id
+        i == "countlike"
+          ? ((span.id = `countlike`), (span.textContent = ` ${i} : ${v} `))
+          : "";
+        i == "countdislike"
+          ? ((span.id = `countdislike`), (span.textContent = ` ${i} : ${v} `))
+          : "";
+        if (
+          v != "" &&
+          (i == "content" ||
+            i == "creatorid" ||
+            i == "thread" ||
+            i == "createdtime")
+        ) {
+          span.textContent = ` ${i} : ${v} `;
+        }
+        div.append(span);
+      }
+      //case User data & postById - not onlclick
+      if (
+        !item["email"] &&
+        where != "#postById" &&
+        where != "#comment_container"
+      ) {
+        title.textContent = text;
+        div.value = item["id"];
+        div.onclick = () => redirect(`postget?id=${item["id"]}`);
+      }
+      parent.append(div);
+    });
+  }
+
+date fromat, Author post/Comment show
+valid signup/signin -> post, comment form
+
+
   createElement(...params) {
-    // console.log(params[0]);
     let x = null;
     for (let [k, v] of Object.entries(params[0])) {
       if (v["type"] != undefined) {
@@ -144,94 +200,7 @@ export default class Parent {
       if (v["parent"] != undefined) {
         v["parent"].append(x);
       }
-      if (v["func"] != undefined) {
-        console.log(v["func"]);
-        v.onclick = v["func"]();
-      }
     }
-  }
-  //first render, then append click
-  commentField(commentId) {
-    console.log("comment field func", commentId);
-
-    //init event onclick
-    this.setPostParams("comment", commentId);
-    this.voteLike("btnCommentLike");
-    this.voteDislike("btnCommentDislike");
-  }
-
-  setIdButton(type, i, v) {
-    let span = document.createElement("span");
-    i == "countlike" ? (span.id = `${type}countlike`) : "";
-    i == "countdislike" ? (span.id = `${type}countdislike`) : "";
-    span.textContent = ` ${i} : ${v} `;
-    return span;
-  }
-
-  render(seq, where, text) {
-    let parent = document.querySelector(where);
-    let title = document.createElement("p");
-    parent.append(title);
-
-    seq.forEach((item) => {
-      title.textContent = text;
-      let div = document.createElement("div");
-      for (let [i, v] of Object.entries(item)) {
-        // if (where == "#comment_container") {
-        //   span = this.setIdButton("comment", div, i, v);
-        // }
-        let span = document.createElement("span");
-        i == "countlike" ? (span.id = `countlike`) : "";
-        i == "countdislike" ? (span.id = `countdislike`) : "";
-        span.textContent = ` ${i} : ${v} `;
-        div.append(span);
-      }
-      let btnLike = document.createElement("button");
-      //DRY
-      //comment set
-      if (where == "#comment_container") {
-        btnLike.id = "btnCommentLike";
-        btnLike.textContent = "like";
-        btnLike.onclick = async () => {
-          let vote = {
-            id: item.id,
-            creatorid: this.getCookie("user_id"),
-            countdislike: document.querySelector("#commentcountdislike").value,
-            countlike: document.querySelector("#commentcountlike").value,
-            group: "comment",
-            type: "like",
-          };
-
-          let object = await this.fetch("vote", vote);
-
-          if (object != null) {
-            document.getElementById(
-              idItem
-            ).textContent = ` countlike: ${object["countlike"]} `;
-            document.getElementById(
-              idItem
-            ).textContent = `countdislike: ${object["countdislike"]} `;
-          }
-        };
-        //init event onclick
-        // this.setPostParams("comment", item.id);
-
-        // div.onclick = () => this.voteLike("btnCommentLike");
-        // div.onclick = () => this.voteDislike("btnCommentDislike");
-        // this.commentField(item.id);
-      }
-      //case User data & postById - not onlclick
-      if (
-        !item["email"] &&
-        where != "#postById" &&
-        where != "#comment_container"
-      ) {
-        div.value = item["id"];
-        div.onclick = () => redirect(`postget?id=${item["id"]}`);
-      }
-      parent.append(btnLike);
-      parent.append(div);
-    });
   }
 
   fillObject(obj) {
@@ -245,39 +214,41 @@ export default class Parent {
     }
     return obj;
   }
+  //uniqFunc - for post, for each comment -> uniqBtnLVoteId, uniqCountVoteId -
 
-  async voteItem(idItem, parent) {
-    let p = document.querySelector(parent);
-    this.vote.creatorid = this.getCookie("user_id");
-    this.vote.countdislike = document.querySelector("#countdislike").value;
-    this.vote.countlike = document.querySelector("#countlike").value;
+  async voteItem(type) {
+    this.vote.creatorid = this.getUserId();
+    this.vote.countdislike = parseInt(
+      document.querySelector(`${type}`).textContent
+    );
+    this.vote.countlike = parseInt(
+      document.querySelector(`${type}`).textContent
+    );
+
     let object = await this.fetch("vote", this.vote);
-
     if (object != null) {
-      document.getElementById(
-        idItem
-      ).textContent = ` countlike: ${object["countlike"]} `;
-      document.getElementById(
-        idItem
-      ).textContent = `countdislike: ${object["countdislike"]} `;
+      document.querySelector(
+        "#countlike"
+      ).textContent = `countlike: ${object.countlike} `;
+      document.querySelector(
+        "#countdislike"
+      ).textContent = `countdislike: ${object.countdislike} `;
     } else {
       console.log(object, "vote");
       // window.location.replace("/signin");
     }
   }
 
-  voteDislike(idElem) {
-    document.getElementById(idElem).onclick = () => {
+  voteDislike(type, idBtn) {
+    document.getElementById(`${idBtn}`).onclick = async () => {
       this.vote.type = "dislike";
-      this.voteItem(idElem, "#postById");
+      this.voteItem(`${type}`);
     };
   }
-
-  voteLike(idElem) {
-    console.log(idElem, "voteLike func");
-    document.getElementById(idElem).onclick = () => {
+  voteLike(type, idBtn) {
+    document.getElementById(`${idBtn}`).onclick = async () => {
       this.vote.type = "like";
-      this.voteItem(idElem, "#postById");
+      this.voteItem(`${type}`);
     };
   }
 

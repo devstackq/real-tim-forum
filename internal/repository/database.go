@@ -100,7 +100,6 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 	user.Exec()
-
 	votes, err := db.Prepare(`CREATE TABLE IF NOT EXISTS votes(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		user_id INTEGER, post_id INTEGER, 
@@ -108,6 +107,7 @@ func createTables(db *sql.DB) error {
 		like_state BOOLEAN DEFAULT FALSE,
 		dislike_state BOOLEAN DEFAULT FALSE, 
 		UNIQUE(post_id, user_id),
+		UNIQUE(post_id, comment_id),
 		FOREIGN KEY(comment_id) REFERENCES comments(id), 
 		FOREIGN KEY(post_id) REFERENCES posts(id),
 		FOREIGN KEY(user_id) REFERENCES users(id)

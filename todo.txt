@@ -11,6 +11,8 @@ close tab ? user offline ? server ping pong ?
 //new user - check, message ccount check, scroll check, online offline state check
 //logout - correct close connection
 
+date fromat, Author post/Comment show
+valid signup/signin -> post, comment form
 
 audit:
 //write msg - another window,

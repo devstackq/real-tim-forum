@@ -36,21 +36,3 @@ func (cr *CommentRepository) CreateComment(c *models.Comment) (*models.Comment, 
 	c.ID = int(lid)
 	return c, nil
 }
-
-func (cr *CommentRepository) GetCommentsByID(pid int) (*[]models.Comment, error) {
-
-	comment := models.Comment{}
-	seqComments := []models.Comment{}
-	rows, err := cr.db.Query("SELECT id,  content, post_id, creator_id, create_time, count_like, count_dislike FROM comments WHERE post_id=?", pid)
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		if err := rows.Scan(&comment.ID, &comment.Content, &comment.PostID, &comment.CreatorID, &comment.CreatedTime, &comment.CountLike, &comment.CountDislike); err != nil {
-			return nil, err
-		}
-		seqComments = append(seqComments, comment)
-	}
-	return &seqComments, nil
-}

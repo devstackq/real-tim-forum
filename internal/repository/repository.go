@@ -33,7 +33,6 @@ type Vote interface {
 }
 type Comment interface {
 	CreateComment(*models.Comment) (*models.Comment, error)
-	GetCommentsByID(int) (*[]models.Comment, error)
 }
 type Chat interface {
 	GetMessages(*models.Message) ([]models.Message, int, error)
