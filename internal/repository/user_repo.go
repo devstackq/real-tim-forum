@@ -138,10 +138,10 @@ func (ur *UserRepository) GetProfileData(userId int) (*models.Profile, error) {
 	profile := models.Profile{}
 
 	user := models.User{}
-	query := `SELECT full_name, email, user_name, age, sex, city FROM users where id=?`
+	query := `SELECT full_name, email, user_name, age, sex, city, created_time FROM users where id=?`
 	row := ur.db.QueryRow(query, userId)
-	// err := row.Scan(&profile.UserData.FullName, &profile.UserData.Email, &profile.UserData.UserDatsendername, &profile.UserData.Age, &profile.UserData.Sex, &profile.UserData.City)
-	err := row.Scan(&user.FullName, &user.Email, &user.Username, &user.Age, &user.Sex, &user.City)
+	err := row.Scan(&user.FullName, &user.Email, &user.Username, &user.Age, &user.Sex, &user.City, &user.CreatedTime)
+	user.Time = user.CreatedTime.Format(time.Stamp)
 
 	if err != nil {
 		return nil, err
@@ -161,19 +161,21 @@ func (ur *UserRepository) GetProfileData(userId int) (*models.Profile, error) {
 	}
 
 	votes, err := ur.db.Query(`
-	SELECT  p.id,p.thread, p.content FROM users u
-	left join votes v ON v.user_id = u.id
-	left join posts p ON p.id = v.post_id
-	WHERE u.id =user_id`, userId)
+	SELECT p.id, p.thread, p.content, p.count_like, p.count_dislike FROM votes as v
+	left join posts as p ON p.id = v.post_id
+	WHERE v.user_id=? AND (like_state=1 OR dislike_state=1)`, userId)
 	if err != nil {
 		return nil, err
 	}
+
 	for votes.Next() {
 		votedPost := models.Post{}
-		if err := votes.Scan(&votedPost.ID, &votedPost.Thread, &votedPost.Content); err != nil {
+		if err := votes.Scan(&votedPost.ID, &votedPost.Thread, &votedPost.Content, &votedPost.CountLike, &votedPost.CountDislike); err != nil {
 			return nil, err
 		}
 		profile.VotedItems = append(profile.VotedItems, &votedPost)
 	}
+	// log.Println(profile.VotedItems[0])
+
 	return &profile, nil
 }

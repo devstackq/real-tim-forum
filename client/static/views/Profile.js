@@ -9,12 +9,9 @@ export default class Profile extends Parent {
     document.title = title;
   }
 
-  //change Type, time, repo, -> change& format
-  //model structs -> change settime - text
-
   async init() {
     let response = await fetch("http://localhost:6969/api/profile");
-    console.log(response, 9);
+
     if (response.status === 200) {
       let result = await response.json();
       super.renderSequence(result);
@@ -25,17 +22,12 @@ export default class Profile extends Parent {
       //popstate
       window.location.replace("/signin");
     }
-    document.querySelector("#editBio").onclick = () => {
-      console.log("edit");
-      // let response = await fetch('http://localhost:6969/api/profile/edit')
-    };
   }
 
   async getHtml() {
     let body = `
     <div class="bioUser">
-        <button id="editBio"> edit </button>
-    </div> 
+    </div>
     <div class="postsUser"></div>
   <div class="votedPost"></div>    `;
     let header = super.showHeader();

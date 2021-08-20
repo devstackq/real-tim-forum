@@ -79,8 +79,7 @@ export default class Parent {
       let result = await response.json();
       return result;
     } else {
-      return null;
-      // return response.statusText;
+      return response;
     }
   }
 
@@ -94,6 +93,7 @@ export default class Parent {
         post.createdtime = object.createdtime;
         post.countlike = object.countlike;
         post.countdislike = object.countdislike;
+        post.author = object.author;
 
         this.render([post], `${type}`, "post");
         //comments
@@ -107,7 +107,7 @@ export default class Parent {
       }
       //comments
       if (object.User != null) {
-        this.render([object.User], ".bioUser", "User data ");
+        this.render([object.User], ".bioUser", "User data");
       }
       if (object.Posts != null) {
         this.render(object.Posts, ".postsUser", "Created posts");
@@ -147,9 +147,16 @@ export default class Parent {
         if (
           v != "" &&
           (i == "content" ||
+            i == "author" ||
             i == "creatorid" ||
             i == "thread" ||
-            i == "createdtime")
+            i == "createdtime" ||
+            i == "gender" ||
+            i == "username" ||
+            i == "city" ||
+            i == "age" ||
+            i == "email" ||
+            i == "fullname")
         ) {
           span.textContent = ` ${i} : ${v} `;
         }
@@ -169,9 +176,8 @@ export default class Parent {
     });
   }
 
-date fromat, Author post/Comment show
-valid signup/signin -> post, comment form
-
+  // date fromat, Author post/Comment show
+  // valid signup/signin -> post, comment form
 
   createElement(...params) {
     let x = null;
@@ -224,18 +230,21 @@ valid signup/signin -> post, comment form
     this.vote.countlike = parseInt(
       document.querySelector(`${type}`).textContent
     );
-
-    let object = await this.fetch("vote", this.vote);
-    if (object != null) {
-      document.querySelector(
-        "#countlike"
-      ).textContent = `countlike: ${object.countlike} `;
-      document.querySelector(
-        "#countdislike"
-      ).textContent = `countdislike: ${object.countdislike} `;
+    if (this.vote.creatorid != undefined) {
+      let object = await this.fetch("vote", this.vote);
+      if (object != null) {
+        document.querySelector(
+          "#countlike"
+        ).textContent = `countlike: ${object.countlike} `;
+        document.querySelector(
+          "#countdislike"
+        ).textContent = `countdislike: ${object.countdislike} `;
+      } else {
+        console.log(object, "vote");
+        // window.location.replace("/signin");
+      }
     } else {
-      console.log(object, "vote");
-      // window.location.replace("/signin");
+      window.location.replace("/signin");
     }
   }
 

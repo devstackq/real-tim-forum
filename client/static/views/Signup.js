@@ -24,19 +24,10 @@ export default class Signup extends Parent {
     };
 
     user = super.fillObject(user);
-    // console.log(user,0)
-    if (user.city == "") {
-      user.city = "Almaty";
-    } else if (user.gender == "") {
-      user.gender = "man";
-    } else if (user.age == 0) {
-      user.age = 21;
-    }
-    //success signup user return uid
-    let uid = await super.fetch("signup", user);
-    // console.log(uid);
 
-    if (uid > 0) {
+    //success signup user return uid
+    let response = await super.fetch("signup", user);
+    if (response.status === 200) {
       //success signup
       let result = await super.fetch("signin", {
         email: user.email,
@@ -53,9 +44,9 @@ export default class Signup extends Parent {
         console.log("no correct login or password");
       }
     } else {
-      console.log("error signup");
-      //validParams() todo
-      super.showNotify("signup error", "error");
+      console.log(response.value);
+      let j = await response.json();
+      super.showNotify(j.value, "error");
     }
   }
   init() {
@@ -69,7 +60,7 @@ export default class Signup extends Parent {
         <input type="text" id='fullname' required="true" placeholder='full name'>
         <input type='email' id='email' required placeholder='email'>
         <input type="text" id='username' required placeholder='nick'>
-        <input type="password" id="password" required placeholder='password'>
+        <input type="password" id="password" required placeholder='password, 123User!'>
         <input type="number" min="14" max="99" id='age' required placeholder='age'>
         <label> gender
         <select id='gender' placeholder='gender'>

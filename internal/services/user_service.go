@@ -50,41 +50,52 @@ func (us *UserService) Signin(user *models.User) (int, *models.Session, error) {
 	if err != nil {
 		return http.StatusBadRequest, nil, err
 	}
-
-	// r.Cookie = session.
 	log.Println("session update -> signin in system", session.UUID)
 	return http.StatusOK, &session, nil
 }
 
-func (us *UserService) Create(user *models.User) (int, int, error) {
+func (us *UserService) CreateUser(user *models.User) (int, int, error) {
 	//good practice ?
 	validEmail := IsEmailValid(user)
 	validPassword := IsPasswordValid(user)
 
-	if validEmail && validPassword {
-		// if utils.AuthType == "default" {
-		hashPwd, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
-		if err != nil {
-			return http.StatusInternalServerError, -1, err
-		}
-		user.Password = string(hashPwd)
-		//go to repo, interface -> method call
-		lastId, err := us.repository.CreateUser(user)
-		//check  is already user
-		if err != nil {
-			if sqliteErr, ok := err.(sqlite.Error); ok {
-				if sqliteErr.ExtendedCode == sqlite.ErrConstraintUnique {
-					return http.StatusBadRequest, -1, errors.New("nickname or email exist")
-				}
-			}
-			return http.StatusInternalServerError, -1, err
-		}
-		return http.StatusOK, int(lastId), nil
+	// validFields = [""]
+	if IsEmpty(user.FullName) {
+		return http.StatusBadRequest, 0, errors.New("empty full name field")
+	} else if IsEmpty(user.Age) {
+		return http.StatusBadRequest, 0, errors.New("empty age field")
+	} else if IsEmpty(user.City) {
+		return http.StatusBadRequest, 0, errors.New("empty city field")
+	} else if IsEmpty(user.Sex) {
+		return http.StatusBadRequest, 0, errors.New("empty sex field")
+	} else if IsEmpty(user.Username) {
+		return http.StatusBadRequest, 0, errors.New("empty nick name field")
 	} else if !validEmail {
 		return http.StatusBadRequest, 0, errors.New("email incorrect, example@mail.com")
+	} else if !validPassword {
+		return http.StatusBadRequest, 0, errors.New("password incorrect")
 	} else {
-		return http.StatusBadRequest, 0, errors.New("password incorrect, 123User!")
+		if validEmail && validPassword {
+			hashPwd, err := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
+			if err != nil {
+				return http.StatusInternalServerError, -1, err
+			}
+			user.Password = string(hashPwd)
+			//go to repo, interface -> method call
+			_, err = us.repository.CreateUser(user)
+			//check  is already user
+			if err != nil {
+				if sqliteErr, ok := err.(sqlite.Error); ok {
+					if sqliteErr.ExtendedCode == sqlite.ErrConstraintUnique {
+						return http.StatusBadRequest, -1, errors.New("nickname or email exist")
+					}
+				}
+				return http.StatusInternalServerError, -1, err
+			}
+		}
 	}
+	return http.StatusOK, 0, nil
+
 }
 
 func (us *UserService) Logout(session string) error {
@@ -126,5 +137,3 @@ func (us *UserService) GetUserProfile(userId int) (*models.Profile, error) {
 	}
 	return data, nil
 }
-
-// take out utils ? user_utils.

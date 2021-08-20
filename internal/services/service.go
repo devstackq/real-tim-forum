@@ -7,7 +7,7 @@ import (
 )
 
 type User interface {
-	Create(*models.User) (int, int, error)
+	CreateUser(*models.User) (int, int, error)
 	Signin(*models.User) (int, *models.Session, error)
 	Logout(string) error
 	GetUserUUID(int) (string, error)

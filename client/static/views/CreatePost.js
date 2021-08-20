@@ -31,14 +31,14 @@ export default class CreatePost extends Parent {
         super.showNotify("post fill error", "error");
         return;
       }
-
-      let status = await super.fetch("post/create", post);
-      if (status == "success") {
+      let response = await super.fetch("post/create", post);
+      console.log(response, "post");
+      if (response == "success") {
         redirect("all");
-        //redirect -> created post, /post/id
+        // or redirect -> created post, /post/id
       } else {
-        console.log(status);
-        super.showNotify("session expires or bad request", "error");
+        let r = await response.json();
+        super.showNotify(r.value, "error");
       }
     };
   }

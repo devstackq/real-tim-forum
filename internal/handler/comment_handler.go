@@ -16,6 +16,7 @@ func (h *Handler) LostComment(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		lastComment, status, err := h.Services.Comment.LostComment(comment)
+		lastComment.Author = Authorized.Name
 		if err != nil {
 			JsonResponse(w, r, http.StatusInternalServerError, err)
 			return

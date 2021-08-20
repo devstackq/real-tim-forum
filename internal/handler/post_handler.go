@@ -2,8 +2,9 @@ package handler
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+
+	"github.com/devstackq/real-time-forum/internal/models"
 )
 
 //route -> handler -> service -> repos -> dbFunc
@@ -21,10 +22,8 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		status, err := h.Services.Post.Create(post)
-		log.Println(err)
-
 		if err != nil {
-			JsonResponse(w, r, http.StatusInternalServerError, err)
+			JsonResponse(w, r, 400, models.Error{Err: err, Value: err.Error()})
 			return
 		}
 		JsonResponse(w, r, status, "success")

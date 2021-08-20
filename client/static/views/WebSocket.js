@@ -175,7 +175,7 @@ export const wsInit = (...args) => {
         }
         break;
       case "nomessages":
-        // alert("no have messages..");
+        alert("no have messages..");
         // document.getElementById("notify").value = "no have messages...";
         console.log(chatDiv.value, chatContainer.children[0].value, "prev");
         chatDiv.value = message.receiver; //set chatdiv - msg receiver

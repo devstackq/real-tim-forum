@@ -21,8 +21,7 @@ export default class Signin extends Parent {
     user = super.fillObject(user);
 
     let result = await super.fetch("signin", user);
-
-    if (result !== null) {
+    if (result.status != 400) {
       localStorage.setItem("isAuth", true);
       wsInit(result.uuid, "signin");
       redirect("profile");

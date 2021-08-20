@@ -17,12 +17,12 @@ export default class ViewPost extends Parent {
 
   async postById() {
     let object = await super.fetch("post/id", this.post);
+
     if (object != null) {
       //check item
       super.renderSequence(object, "#postById");
     } else {
       super.showNotify("bad request", "error");
-      // parent.innerHTML = ""
     }
   }
 
@@ -56,17 +56,29 @@ export default class ViewPost extends Parent {
       comment.content = content;
       comment.postid = parseInt(this.post.id);
       comment.creatorid = super.getCookie("user_id");
-
-      let object = await super.fetch("comment", comment);
-      if (object != null) {
-        //show under comment
-        let view = document.getElementById("comment_container");
-        let div = document.createElement("div");
-        div.textContent = `content : ${object.content} creatorid :  ${object.creatorid} createdtime : ${object.createdtime} `;
-        // super.commentField(object.id);   //set last comment voteFunc()
-        view.append(div);
-        //append last comment in post
-        document.getElementById("commentField").value = "";
+      // console.log(comment);
+      if (comment.creatorid != undefined) {
+        if (
+          comment.content != 0 &&
+          comment.content != "" &&
+          comment.content.length > 0
+        ) {
+          let object = await super.fetch("comment", comment);
+          if (object != null) {
+            //show under comment
+            let view = document.getElementById("comment_container");
+            let div = document.createElement("div");
+            div.textContent = `content : ${object.content} creatorid :  ${object.creatorid} createdtime : ${object.createdtime} author: ${object.author}`;
+            // super.commentField(object.id);   //set last comment voteFunc()
+            view.append(div);
+            //append last comment in post
+            document.getElementById("commentField").value = "";
+          }
+        } else {
+          alert("empty value");
+        }
+      } else {
+        window.location.replace("/signin");
       }
     };
   }

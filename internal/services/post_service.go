@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fmt"
+	"errors"
 	"log"
 	"net/http"
 
@@ -18,8 +18,15 @@ func NewPostService(repo repository.Post) *PostService {
 }
 func (ps *PostService) Create(post *models.Post) (int, error) {
 
-	if ps.isValid(post) {
-		lastID, status, err := ps.repository.CreatePost(post)
+	if IsEmpty(post.Thread) {
+		return 200, errors.New("empty thread field")
+	} else if IsEmpty(post.Content) {
+		return 200, errors.New("empty content field")
+	} else if len(post.Categories) == 0 {
+		return 200, errors.New("empty category field")
+	} else {
+
+		lastID, _, err := ps.repository.CreatePost(post)
 		if err != nil {
 			return http.StatusBadRequest, err
 		}
@@ -42,54 +49,10 @@ func (ps *PostService) Create(post *models.Post) (int, error) {
 				}
 			}
 		}
-		log.Println(post, status, "Created post")
 	}
+	log.Println(post, "succes create post")
 	return http.StatusOK, nil
 }
-
-func (ps *PostService) isValid(post *models.Post) bool {
-	var (
-		isEmptyContent = false
-		isEmptyThread  = false
-		// largeFile = false
-		// invalidFile = false
-	)
-	// regex := regexp.MustCompile(`^.*\.(jpg|JPG|jpeg|JPEG|gif|GIF|png|PNG|svg|SVG)$`)
-	if ps.isEmpty(post.Content) {
-		isEmptyContent = true
-	} else if ps.isEmpty(post.Thread) {
-		isEmptyThread = true
-		// return
-	}
-	return !isEmptyContent && !isEmptyThread
-}
-
-func (ps *PostService) isEmpty(text string) bool {
-	fmt.Println(text)
-	for _, v := range text {
-		fmt.Println("ture", v)
-
-		if !(v <= 32) {
-			return false
-		}
-	}
-	return true
-}
-
-//todo:
-// regex := regexp.MustCompile(`^.*\.(jpg|JPG|jpeg|JPEG|gif|GIF|png|PNG|svg|SVG)$`)
-// if len(categories) == 0 {
-// 	data.Data = "Categories must not be empty"
-// } else if isEmpty(thread) {
-// 	data.Data = "Title must not be empty"
-// } else if isEmpty(content) {
-// 	data.Data = "Content must not be empty"
-// } else if fh != nil && fh.Size > 20000000 {
-// 	data.Data = "File too large, please limit size to 20MB"
-// 	w.WriteHeader(http.StatusUnprocessableEntity)
-// 	data.Data = "Invalid file type, please upload jpg, jpeg, png, gif, svg"
-// 	w.WriteHeader(http.StatusUnprocessableEntity)
-// }
 
 func (ps *PostService) GetPostsByCategory(category string) (*[]models.Post, error) {
 

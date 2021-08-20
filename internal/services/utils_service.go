@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"math/rand"
 	"regexp"
 	"strings"
@@ -51,4 +52,14 @@ func IsPasswordValid(user *models.User) bool {
 		}
 	}
 	return hasMinLen && hasUpper && hasLower && hasNumber && hasSpecial
+}
+
+func IsEmpty(text string) bool {
+	log.Println(text, "isepm")
+	for _, v := range text {
+		if !(v <= 32) {
+			return false
+		}
+	}
+	return true
 }

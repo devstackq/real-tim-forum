@@ -1,8 +1,6 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
 //User struct
 type User struct {
@@ -12,11 +10,12 @@ type User struct {
 	Password    string    `json:"password"`
 	Age         string    `json:"age"`
 	Sex         string    `json:"gender"`
-	CreatedTime time.Time `json:"createdtime"`
+	CreatedTime time.Time `json:"time"`
 	City        string    `json:"city"`
 	Image       []byte    `json:"image"`
 	Username    string    `json:"username"`
 	LastSeen    string    `json:"lastseen"`
+	Time        string    `json:"createdtime"`
 }
 
 type Tezt struct {
@@ -31,4 +30,8 @@ type Profile struct {
 	Posts      []*Post //array pointer - each post
 	VotedItems []*Post
 	// Comment *models.Comment{}
+}
+type Error struct {
+	Err   error  `json:"error"`
+	Value string `json:"value"`
 }

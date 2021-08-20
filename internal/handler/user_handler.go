@@ -20,7 +20,6 @@ var Profile struct {
 	Posts      *[]models.Post
 	User       *models.User
 	VotedItems *[]models.Vote
-	// Comment *models.Comment{}
 }
 
 //route -> handler -> service -> repos -> dbFunc
@@ -34,9 +33,9 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		status, id, err := h.Services.User.Create(user)
+		status, id, err := h.Services.User.CreateUser(user)
 		if err != nil {
-			JsonResponse(w, r, status, err.Error())
+			JsonResponse(w, r, 400, models.Error{Err: err, Value: err.Error()})
 			return
 		}
 		//user.ID = id
@@ -90,12 +89,13 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//handlers DRY ?
 func (h *Handler) ProfileHandle(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		data, err := h.Services.User.GetUserProfile(Authorized.UserID)
 		if err != nil {
+			log.Println(err, data)
+
 			JsonResponse(w, r, http.StatusNotFound, err.Error())
 			return
 		}

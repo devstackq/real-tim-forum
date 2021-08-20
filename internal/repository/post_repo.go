@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/devstackq/real-time-forum/internal/models"
 )
@@ -105,27 +106,27 @@ func (pr *PostRepository) GetPostsByCategory(category string) (*[]models.Post, e
 }
 
 func (pr *PostRepository) GetPostById(postId string) (*models.Post, error) {
-
 	comment := models.Comment{}
 	seqComments := []models.Comment{}
-	rows, err := pr.db.Query("SELECT id, content, post_id, creator_id, create_time FROM comments WHERE post_id=?", postId)
+	rows, err := pr.db.Query("SELECT c.id, c.content, c.post_id, c.creator_id, c.create_time, u.full_name FROM comments as c LEFT JOIN users as u ON u.id=c.creator_id WHERE post_id=?", postId)
 	if err != nil {
 		return nil, err
 	}
-
 	for rows.Next() {
-		if err := rows.Scan(&comment.ID, &comment.Content, &comment.PostID, &comment.CreatorID, &comment.CreatedTime); err != nil {
+		if err := rows.Scan(&comment.ID, &comment.Content, &comment.PostID, &comment.CreatorID, &comment.CreatedTime, &comment.Author); err != nil {
 			return nil, err
 		}
+		comment.Time = comment.CreatedTime.Format(time.Stamp)
 		seqComments = append(seqComments, comment)
 	}
 	post := models.Post{}
-	query := `SELECT * FROM posts  WHERE id=?`
+	query := `SELECT p.id, p.thread, p.content, p.creator_id, p.create_time, p.count_like, p.count_dislike, u.full_name FROM posts as p LEFT JOIN users as u ON u.id = p.creator_id WHERE p.id=?`
 	row := pr.db.QueryRow(query, postId)
-	err = row.Scan(&post.ID, &post.Thread, &post.Content, &post.CreatorID, &post.CreatedTime, &post.UpdatedTime, &post.Image, &post.CountLike, &post.CountDislike)
+	err = row.Scan(&post.ID, &post.Thread, &post.Content, &post.CreatorID, &post.CreatedTime, &post.CountLike, &post.CountDislike, &post.Author)
 	if err != nil {
 		return nil, err
 	}
+	post.Time = post.CreatedTime.Format(time.Stamp)
 	post.Comments = seqComments
 
 	return &post, nil

@@ -46,6 +46,7 @@ func createTables(db *sql.DB) error {
 		update_time	DATETIME DEFAULT CURRENT_TIMESTAMP, 
 		count_like INTEGER DEFAULT 0, 
 		count_dislike  INTEGER DEFAULT 0, 
+		FOREIGN KEY(creator_id) REFERENCES users(id) ON DELETE CASCADE
 		FOREIGN KEY(post_id) REFERENCES posts(id) ON DELETE CASCADE )`,
 	)
 	if err != nil {
@@ -64,7 +65,7 @@ func createTables(db *sql.DB) error {
 		count_like INTEGER DEFAULT 0,
 		count_dislike INTEGER DEFAULT 0 ,
 		CHECK (length(content >= 20))
-		FOREIGN KEY(creator_id) REFERENCES users(id) ON DELETE CASCADE 
+		FOREIGN KEY(creator_id) REFERENCES users(id) ON DELETE CASCADE
 		)`,
 	)
 	if err != nil {
@@ -100,15 +101,15 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 	user.Exec()
+	//UNIQUE(post_id, comment_id),
 	votes, err := db.Prepare(`CREATE TABLE IF NOT EXISTS votes(
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
-		user_id INTEGER, post_id INTEGER, 
+		user_id INTEGER, 
+		post_id INTEGER, 
 		comment_id INTEGER,
 		like_state BOOLEAN DEFAULT FALSE,
 		dislike_state BOOLEAN DEFAULT FALSE, 
 		UNIQUE(post_id, user_id),
-		UNIQUE(post_id, comment_id),
-		FOREIGN KEY(comment_id) REFERENCES comments(id), 
 		FOREIGN KEY(post_id) REFERENCES posts(id),
 		FOREIGN KEY(user_id) REFERENCES users(id)
 		)`,
