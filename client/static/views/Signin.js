@@ -38,7 +38,8 @@ export default class Signin extends Parent {
 
   async getHtml() {
     let body = `
-        <div>
+        <div class="signin_wrapper">
+        <h3> Signin</h3>
         <input type='email' id='email' placeholder='email' required>
         <input type="password" id="password" placeholder='password' required>
         <input type='submit' id='signin' value="signin"/>

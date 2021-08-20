@@ -11,15 +11,6 @@ close tab ? user offline ? server ping pong ?
 //new user - check, message ccount check, scroll check, online offline state check
 //logout - correct close connection
 
-fix - voted post, profile page+
-correct show data coomment & post +
-validParams signin/signup/comment/chat fields -> handle -done +
-vote/lostcomment - isAuth check+
-createComment && setVote -> isAuth user
-vote post -> isAuth
-header - fix, auth, etc case
-
-
 style - post/comment
 
 audit:

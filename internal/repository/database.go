@@ -95,7 +95,7 @@ func createTables(db *sql.DB) error {
 		created_time DATETIME DEFAULT CURRENT_TIMESTAMP, 
 		last_seen DATETIME DEFAULT CURRENT_TIMESTAMP, 
 		city TEXT, 
-		image BLOB, CHECK (age >= 16) )`,
+		image BLOB )`,
 	)
 	if err != nil {
 		return err

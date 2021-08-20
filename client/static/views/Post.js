@@ -19,7 +19,6 @@ export default class ViewPost extends Parent {
     let object = await super.fetch("post/id", this.post);
 
     if (object != null) {
-      //check item
       super.renderSequence(object, "#postById");
     } else {
       super.showNotify("bad request", "error");
@@ -56,7 +55,6 @@ export default class ViewPost extends Parent {
       comment.content = content;
       comment.postid = parseInt(this.post.id);
       comment.creatorid = super.getCookie("user_id");
-      // console.log(comment);
       if (comment.creatorid != undefined) {
         if (
           comment.content != 0 &&
@@ -84,9 +82,8 @@ export default class ViewPost extends Parent {
   }
 
   async getHtml() {
-    //?DRY
-    let body = `<div id='postById'> <div id=comment_container> </div> </div>`;
-    let comment = `<textarea id="commentField"> </textarea>  <button  id="lostCommentId">lost comment</button>`;
+    let body = `<div id='postById'> <div id=comment_container><textarea id="commentField"> </textarea>  <button  id="lostCommentId">lost comment</button> </div> </div>`;
+    let comment = ``;
     return super.showHeader() + body + comment;
   }
 }

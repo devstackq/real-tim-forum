@@ -105,7 +105,6 @@ export default class Parent {
           this.render([comment], `#comment_container`, "comment")
         );
       }
-      //comments
       if (object.User != null) {
         this.render([object.User], ".bioUser", "User data");
       }
@@ -136,6 +135,7 @@ export default class Parent {
     seq.forEach((item) => {
       let div = document.createElement("div");
       for (let [i, v] of Object.entries(item)) {
+        console.log(item);
         let span = document.createElement("span");
         //case post by id
         i == "countlike"
@@ -158,7 +158,7 @@ export default class Parent {
             i == "email" ||
             i == "fullname")
         ) {
-          span.textContent = ` ${i} : ${v} `;
+          span.innerHTML = ` ${i} : ${v} `;
         }
         div.append(span);
       }

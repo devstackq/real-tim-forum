@@ -35,6 +35,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		}
 		status, id, err := h.Services.User.CreateUser(user)
 		if err != nil {
+			log.Println(err)
 			JsonResponse(w, r, 400, models.Error{Err: err, Value: err.Error()})
 			return
 		}

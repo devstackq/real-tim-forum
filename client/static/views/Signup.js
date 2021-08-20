@@ -27,12 +27,14 @@ export default class Signup extends Parent {
 
     //success signup user return uid
     let response = await super.fetch("signup", user);
-    if (response.status === 200) {
+    console.log(response);
+    if (response.status != 400) {
       //success signup
       let result = await super.fetch("signin", {
         email: user.email,
         password: user.password,
       });
+      console.log(result, 123);
       if (result != null) {
         //signin success
         localStorage.setItem("isAuth", true);
@@ -44,7 +46,7 @@ export default class Signup extends Parent {
         console.log("no correct login or password");
       }
     } else {
-      console.log(response.value);
+      console.log(response);
       let j = await response.json();
       super.showNotify(j.value, "error");
     }
