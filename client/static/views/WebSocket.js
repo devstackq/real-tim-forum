@@ -10,9 +10,10 @@ import {
   appendLastMessageInActiveChat,
 } from "./Chat.js";
 
+import { redirect } from "../index.js";
+
 export let chatContainer;
 export let chatDiv;
-let tempListUsers = [];
 
 export let ListUsers = {};
 export let wsConn = null;
@@ -27,6 +28,7 @@ export let chatStore = {
   messageLen: 0,
   countNewMessage: 0,
 };
+let tempListUsers = [];
 
 export function getCookie(cName) {
   const name = cName + "=";
@@ -128,8 +130,8 @@ export const wsInit = (...args) => {
     switch (message.type) {
       case "newuser":
         //signup user, another online user -show him
-        //DRY!
         insertNewUser(message, tempListUsers);
+        // redirect("chat");
         // showListUser(tempListUsers, message, " newuser");
         break;
       case "online":

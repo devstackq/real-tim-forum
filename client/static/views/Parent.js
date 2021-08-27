@@ -135,7 +135,7 @@ export default class Parent {
     seq.forEach((item) => {
       let div = document.createElement("div");
       for (let [i, v] of Object.entries(item)) {
-        console.log(item);
+        // console.log(item);
         let span = document.createElement("span");
         //case post by id
         i == "countlike"

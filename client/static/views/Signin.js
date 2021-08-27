@@ -14,11 +14,18 @@ export default class Signin extends Parent {
 
   async signin() {
     let user = {
+      username: "",
       email: "",
       password: "",
     };
     //prepare object - see field
     user = super.fillObject(user);
+    if (user.email.match("/@/g")) {
+      user.username = "";
+    } else {
+      user.username = user.email;
+      user.email = "";
+    }
 
     let result = await super.fetch("signin", user);
     if (result.status != 400) {

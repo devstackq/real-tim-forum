@@ -18,3 +18,7 @@ audit:
 //scroll, check
 //hard case -> reSignin another browser
 //signup -> show list users correct ?
+
+//signin -> username/ todo
+//voteRepo - concat fix
+//close ws conn in every vkladla if closed in one -> isAuth false - chat - send, block sendmsg

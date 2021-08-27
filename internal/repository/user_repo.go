@@ -40,9 +40,19 @@ func (ur *UserRepository) SigninUser(user *models.User) (int, string, error) {
 
 	var id int
 	var hashPassword string
+	sqlStatement := ""
+	param := ""
 
-	sqlStatement := `SELECT id, password FROM users WHERE email=?`
-	row := ur.db.QueryRow(sqlStatement, user.Email)
+	if user.Email == "" && user.Username != "" {
+		sqlStatement = `SELECT id, password FROM users WHERE user_name=?`
+		param = user.Username
+	} else if user.Username == "" && user.Email != "" {
+		sqlStatement = `SELECT id, password FROM users WHERE email=?`
+		param = user.Email
+	}
+
+	log.Println(sqlStatement, user.Email, "|", user.Username)
+	row := ur.db.QueryRow(sqlStatement, param)
 	err := row.Scan(&id, &hashPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
