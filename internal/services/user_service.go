@@ -9,7 +9,6 @@ import (
 
 	"github.com/devstackq/real-time-forum/internal/models"
 	"github.com/devstackq/real-time-forum/internal/repository"
-	sqlite "github.com/mattn/go-sqlite3"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -85,13 +84,8 @@ func (us *UserService) CreateUser(user *models.User) (int, int, error) {
 			_, err = us.repository.CreateUser(user)
 			//check  is already user
 			if err != nil {
-				if sqliteErr, ok := err.(sqlite.Error); ok {
-					if sqliteErr.ExtendedCode == sqlite.ErrConstraintUnique {
-						return http.StatusBadRequest, -1, errors.New("nickname or email exist")
-					}
-				}
-				return http.StatusInternalServerError, -1, err
-			}
+				return http.StatusBadRequest, -1, errors.New("nickname or email exist")
+						}
 		}
 	}
 	return http.StatusOK, 0, nil
