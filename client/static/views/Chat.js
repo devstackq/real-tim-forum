@@ -127,35 +127,39 @@ export const showListMessages = (messages, userid, session, authorName) => {
 
 // update lastmessage & receive message - text format
 export const sendMessage = (receiver, authorId, authorName) => {
-  let content =
-    document.querySelector("#message_container").children["messageFieldId"]
-      .value;
-  if (content != "" && content != 0 && content.length > 0) {
-    //append last message in activeChat
-    appendLastMessageInActiveChat(
-      "send",
-      authorName,
-      new Date().toLocaleTimeString(),
-      content
-    );
-    //update value in list users
-    updateDataInListUser(
-      receiver,
-      new Date().toLocaleTimeString(),
-      authorName,
-      content
-    );
-    //change online user position in list users or chane state - online offline
-    toggleOnlineUser(receiver, "prepend");
-    //send ws  msg
-    let message = {
-      receiver: receiver,
-      userid: parseInt(authorId),
-      type: "newmessage",
-      content: content,
-    };
-    wsConn.send(JSON.stringify(message));
+  if (localStorage.getItem("isAuth") == "true") {
+    let content =
+      document.querySelector("#message_container").children["messageFieldId"]
+        .value;
+    if (content != "" && content != 0 && content.length > 0) {
+      //append last message in activeChat
+      appendLastMessageInActiveChat(
+        "send",
+        authorName,
+        new Date().toLocaleTimeString(),
+        content
+      );
+      //update value in list users
+      updateDataInListUser(
+        receiver,
+        new Date().toLocaleTimeString(),
+        authorName,
+        content
+      );
+      //change online user position in list users or chane state - online offline
+      toggleOnlineUser(receiver, "prepend");
+      //send ws  msg
+      let message = {
+        receiver: receiver,
+        userid: parseInt(authorId),
+        type: "newmessage",
+        content: content,
+      };
+      wsConn.send(JSON.stringify(message));
+    } else {
+      alert("empty value");
+    }
   } else {
-    alert("empty value");
+    window.location.replace("/signin");
   }
 };

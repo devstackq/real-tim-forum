@@ -20,7 +20,7 @@ export default class Signin extends Parent {
     };
     //prepare object - see field
     user = super.fillObject(user);
-    if (user.email.match("/@/g")) {
+    if (user.email.match(/@/g)) {
       user.username = "";
     } else {
       user.username = user.email;
